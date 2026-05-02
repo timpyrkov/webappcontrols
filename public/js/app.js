@@ -1,0 +1,442 @@
+/**
+ * app.js — Boot script.
+ * Wires global controls to the palette engine and preview panel.
+ */
+import { checkAuth } from "./auth.js";
+import { PALETTES, PALETTE_ORDER, DEFAULT_PALETTE, PALETTE_I18N } from "./palettes.js";
+import { generatePalette, applyPalette, hexToOklch, oklchToHex } from "./gen_colors.js";
+import { getActiveStyle, switchStyle } from "./style-manager.js";
+import { loadLanguage, t } from "./i18n.js";
+
+/* ── State ── */
+let currentPalette = DEFAULT_PALETTE;
+let currentTheme = "dark";        // "dark" | "light" | "both"
+let currentSaturation = "accents-only";
+
+// Editable copy of palette seeds (starts as clone of PALETTES)
+const editedPalettes = JSON.parse(JSON.stringify(PALETTES));
+
+/* ── Auth check ── */
+await checkAuth();
+
+/* ── Helpers ── */
+
+function _gen() {
+  const p = editedPalettes[currentPalette];
+  if (!p) return null;
+  return generatePalette(p.main, p.accents, {
+    saturationMode: currentSaturation,
+    special: p.special,
+  });
+}
+
+function _applyTokensToElement(el, tokens) {
+  for (const [prop, value] of Object.entries(tokens)) {
+    el.style.setProperty(prop, value);
+  }
+}
+
+/* ── "Both" mode management ── */
+
+const mainPanel = document.querySelector(".panel-right");
+let bothMode = false;
+let originalHTML = null;
+
+function enterBothMode(result) {
+  if (bothMode) return;
+  bothMode = true;
+  originalHTML = mainPanel.innerHTML;
+
+  mainPanel.classList.add("both-mode");
+  mainPanel.innerHTML = `
+    <div class="both-half both-dark">${originalHTML}</div>
+    <div class="both-half both-light">${originalHTML}</div>`;
+
+  const darkHalf = mainPanel.querySelector(".both-dark");
+  const lightHalf = mainPanel.querySelector(".both-light");
+  _applyTokensToElement(darkHalf, result.dark);
+  _applyTokensToElement(lightHalf, result.light);
+  darkHalf.style.background = result.dark["--bg"];
+  darkHalf.style.color = result.dark["--fg"];
+  lightHalf.style.background = result.light["--bg"];
+  lightHalf.style.color = result.light["--fg"];
+}
+
+function exitBothMode() {
+  if (!bothMode) return;
+  bothMode = false;
+  mainPanel.classList.remove("both-mode");
+  if (originalHTML !== null) {
+    mainPanel.innerHTML = originalHTML;
+    originalHTML = null;
+  }
+}
+
+/* ── Palette application ── */
+
+function refreshPalette() {
+  const result = _gen();
+  if (!result) return;
+
+  if (currentTheme === "both") {
+    // Apply dark theme to :root (left panel stays dark)
+    applyPalette(result.dark);
+    enterBothMode(result);
+  } else {
+    exitBothMode();
+    applyPalette(result[currentTheme]);
+  }
+
+}
+
+/* ── Wire palette segmented control ── */
+
+let _currentLang = "en";
+const paletteSelect = document.getElementById("paletteSelect");
+
+function _paletteNames(lang) {
+  return PALETTE_ORDER.map((key) => {
+    const i18n = PALETTE_I18N[key];
+    return (i18n && i18n.gems && i18n.gems[lang]) || PALETTES[key].gems;
+  });
+}
+
+// Mapping: displayed name → palette key (rebuilt on language change)
+let _nameToKey = {};
+function _rebuildNameToKey(lang) {
+  _nameToKey = {};
+  PALETTE_ORDER.forEach((key) => {
+    const i18n = PALETTE_I18N[key];
+    const display = (i18n && i18n.gems && i18n.gems[lang]) || PALETTES[key].gems;
+    _nameToKey[display] = key;
+  });
+}
+
+function _initPaletteSelect(lang) {
+  if (!paletteSelect) return;
+  _rebuildNameToKey(lang);
+  const names = _paletteNames(lang);
+  paletteSelect.setAttribute("keys", JSON.stringify(PALETTE_ORDER));
+  paletteSelect.setAttribute("values", JSON.stringify(names));
+  paletteSelect.setAttribute("value", currentPalette);
+}
+
+_initPaletteSelect(_currentLang);
+
+if (paletteSelect) {
+  paletteSelect.addEventListener("change", (e) => {
+    const key = e.detail?.value;  // stable key from keys attr
+    if (key && key !== currentPalette && PALETTES[key]) {
+      currentPalette = key;
+      refreshPalette();
+      buildPickers();
+      updateMetaFromPalette();
+    }
+  });
+}
+
+/* ── Wire language toggle ── */
+
+const langSelect = document.getElementById("langSelect");
+const _langMap = { en: "en", es: "es", it: "it", fr: "fr", de: "de", ru: "ru", ko: "ko", ja: "ja", zh: "zh" };
+if (langSelect) {
+  langSelect.addEventListener("change", (e) => {
+    const raw = (e.detail?.value || "EN").toLowerCase();
+    const lang = _langMap[raw] || raw;
+    _currentLang = lang;
+    loadLanguage(lang);
+    _initPaletteSelect(lang);
+    updateMetaFromPalette();
+    _applyFont();
+  });
+}
+
+/* ── Wire theme toggle ── */
+
+const themeSelect = document.getElementById("themeSelect");
+if (themeSelect) {
+  themeSelect.addEventListener("change", (e) => {
+    const key = (e.detail?.value || "Dark");
+    currentTheme = key.toLowerCase();
+    refreshPalette();
+  });
+}
+
+/* ── Wire saturation toggle ── */
+
+const satSelect = document.getElementById("saturationSelect");
+if (satSelect) {
+  satSelect.addEventListener("change", (e) => {
+    const key = e.detail?.value || "Accents only";
+    currentSaturation = key === "Whole layout" ? "whole-layout" : "accents-only";
+    refreshPalette();
+  });
+}
+
+/* ── Wire font toggle ── */
+
+let _currentFont = "System";
+const _fontMap = {
+  "Orbitron":  "'Orbitron', system-ui, sans-serif",
+  "Digital-7": "'Seven Segment', monospace",
+  "System":    "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+};
+const _nonLatinLangs = new Set(["ru", "ko", "ja", "zh"]);
+
+function _applyFont() {
+  const useSystem = _nonLatinLangs.has(_currentLang) && _currentFont !== "System";
+  const value = useSystem ? _fontMap["System"] : (_fontMap[_currentFont] || _fontMap["System"]);
+  document.documentElement.style.setProperty("--font-display", value);
+}
+
+const fontSelect = document.getElementById("fontSelect");
+if (fontSelect) {
+  fontSelect.addEventListener("change", (e) => {
+    _currentFont = e.detail?.value || "System";  // key from keys attr
+    _applyFont();
+  });
+}
+
+/* ── Wire style toggle ── */
+
+const styleSelect = document.getElementById("styleSelect");
+let _currentStyleKey = "Flat";
+function _updateTitleGradient() {
+  const el = document.querySelector(".accent-title");
+  if (!el) return;
+  // Gradient text for styles other than Basic and Flat
+  if (_currentStyleKey !== "Basic" && _currentStyleKey !== "Flat") {
+    el.classList.add("gradient");
+  } else {
+    el.classList.remove("gradient");
+  }
+}
+_updateTitleGradient();
+
+if (styleSelect) {
+  const styleNameMap = { Basic: "basic", Flat: "flat", Grad: "gradient", Volume: "volume", Groove: "grooves", Shadow: "shadows" };
+  styleSelect.addEventListener("change", (e) => {
+    const key = e.detail?.value || "Flat";  // stable key from keys attr
+    _currentStyleKey = key;
+    switchStyle(styleNameMap[key] || key.toLowerCase());
+    _updateTitleGradient();
+    // Toggle flat attribute on rotary knobs
+    document.querySelectorAll("rotary-knob").forEach((knob) => {
+      if (key === "Flat" || key === "Basic") knob.setAttribute("flat", "");
+      else knob.removeAttribute("flat");
+    });
+  });
+}
+
+/* ── Wire showcase buttons (right panel, purely visual) ── */
+
+function _wirePlayPause(btnId) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.addEventListener("activate", () => {
+    const isPressed = btn.hasAttribute("pressed");
+    if (isPressed) {
+      btn.removeAttribute("pressed");
+      btn.setAttribute("label", t("btn.play"));
+      btn.dataset.i18nLabel = "btn.play";
+    } else {
+      btn.setAttribute("pressed", "");
+      btn.setAttribute("label", t("btn.pause"));
+      btn.dataset.i18nLabel = "btn.pause";
+    }
+  });
+}
+_wirePlayPause("btnPlayPrimary");
+_wirePlayPause("btnPlaySecondary");
+
+// Globe toggle
+const btnGlobe = document.getElementById("btnGlobe");
+if (btnGlobe) {
+  btnGlobe.addEventListener("activate", () => {
+    if (btnGlobe.hasAttribute("pressed")) btnGlobe.removeAttribute("pressed");
+    else btnGlobe.setAttribute("pressed", "");
+  });
+}
+
+// Location toggle
+const btnLoc = document.getElementById("btnLocation");
+if (btnLoc) {
+  btnLoc.addEventListener("activate", () => {
+    if (btnLoc.hasAttribute("pressed")) btnLoc.removeAttribute("pressed");
+    else btnLoc.setAttribute("pressed", "");
+  });
+}
+
+/* ── Wire disable-all ── */
+
+const disableBox = document.getElementById("disableAll");
+if (disableBox) {
+  disableBox.addEventListener("change", () => {
+    const right = document.querySelector(".panel-right");
+    if (!right) return;
+    const controls = right.querySelectorAll(
+      "rotary-knob, push-button, segmented-control, toggle-switch, " +
+      "check-box, radio-button, text-field, range-slider, vertical-slider, " +
+      "date-calendar, notification-bar"
+    );
+    controls.forEach((el) => {
+      if (el.hasAttribute("data-permanent-disabled")) return;
+      if (disableBox.checked) el.setAttribute("disabled", "");
+      else el.removeAttribute("disabled");
+    });
+  });
+}
+
+/* ── Dynamic colour pickers ── */
+
+const pickerContainer = document.getElementById("pickerContainer");
+
+/**
+ * Build colour picker columns dynamically.
+ * 1 picker for "main" + 1 per accent colour.
+ * Calculates picker size based on how many columns fit the panel width.
+ */
+function buildPickers() {
+  if (!pickerContainer) return;
+  const p = editedPalettes[currentPalette];
+  if (!p) return;
+
+  const count = 1 + p.accents.length;  // main + accents
+  // Show up to 4 per row; excess wraps. Size between 80–140px.
+  const perRow = Math.min(count, 4);
+  const maxSize = Math.min(140, Math.floor((488 - (perRow - 1) * 12) / perRow));
+  const size = Math.max(80, maxSize);
+
+  pickerContainer.innerHTML = "";
+
+  // Helper: create one picker column
+  function _col(label, hex, onChange) {
+    const col = document.createElement("div");
+    col.className = "picker-col";
+    const picker = document.createElement("color-picker");
+    picker.setAttribute("size", String(size));
+    picker.setAttribute("no-input", "");
+    picker.setAttribute("value", hex);
+    col.appendChild(picker);
+
+    const row = document.createElement("div");
+    row.className = "picker-label-row";
+    const lbl = document.createElement("span");
+    lbl.className = "swatch-label";
+    lbl.textContent = label;
+    const swatch = document.createElement("div");
+    swatch.className = "swatch-preview";
+    swatch.style.background = hex;
+    const hexInput = document.createElement("input");
+    hexInput.className = "hex-input";
+    hexInput.type = "text";
+    hexInput.maxLength = 7;
+    hexInput.value = hex;
+    row.appendChild(lbl);
+    row.appendChild(swatch);
+    row.appendChild(hexInput);
+    col.appendChild(row);
+
+    picker.addEventListener("change", (e) => {
+      const v = e.detail?.value;
+      if (v) { hexInput.value = v; swatch.style.background = v; onChange(v); }
+    });
+    hexInput.addEventListener("change", () => {
+      const v = hexInput.value.trim();
+      if (/^#[0-9a-fA-F]{6}$/.test(v)) {
+        picker.setAttribute("value", v);
+        swatch.style.background = v;
+        onChange(v);
+      }
+    });
+
+    return { col, picker, hexInput };
+  }
+
+  const mainCol = _col("Main", p.main, (hex) => { p.main = hex; refreshPalette(); });
+  pickerContainer.appendChild(mainCol.col);
+
+  p.accents.forEach((accHex, i) => {
+    const label = p.accents.length <= 2
+      ? (i === 0 ? "Acc1" : "Acc2")
+      : `Acc${i + 1}`;
+    const accCol = _col(label, accHex, (hex) => {
+      p.accents[i] = hex;
+      refreshPalette();
+    });
+    pickerContainer.appendChild(accCol.col);
+  });
+}
+
+function updatePickerFromPalette() {
+  buildPickers();
+}
+
+function updateMetaFromPalette() {
+  const p = editedPalettes[currentPalette];
+  if (!p) return;
+  const i18n = PALETTE_I18N[currentPalette];
+  const lang = _currentLang;
+  const g = document.getElementById("metaGems");
+  const n = document.getElementById("metaNatural");
+  const f = document.getElementById("metaFlower");
+  const b = document.getElementById("metaBeverage");
+  if (g) g.value = (i18n && i18n.gems && i18n.gems[lang]) || p.gems || "";
+  if (n) n.value = (i18n && i18n.natural && i18n.natural[lang]) || p.natural || "";
+  if (f) f.value = (i18n && i18n.flower && i18n.flower[lang]) || p.flower || "";
+  if (b) b.value = (i18n && i18n.beverage && i18n.beverage[lang]) || p.beverage || "";
+}
+
+/* ── Wire Save / Reset ── */
+
+const btnSave = document.getElementById("btnSavePalette");
+const btnReset = document.getElementById("btnResetPalette");
+
+if (btnSave) {
+  btnSave.addEventListener("activate", () => {
+    const p = editedPalettes[currentPalette];
+    const g = document.getElementById("metaGems");
+    const n = document.getElementById("metaNatural");
+    const f = document.getElementById("metaFlower");
+    const b = document.getElementById("metaBeverage");
+    if (g) p.gems = g.value;
+    if (n) p.natural = n.value;
+    if (f) p.flower = f.value;
+    if (b) p.beverage = b.value;
+    _initPaletteSelect(_currentLang);
+  });
+}
+
+if (btnReset) {
+  btnReset.addEventListener("activate", () => {
+    const orig = PALETTES[currentPalette];
+    if (!orig) return;
+    editedPalettes[currentPalette] = JSON.parse(JSON.stringify(orig));
+    buildPickers();
+    updateMetaFromPalette();
+    refreshPalette();
+    _initPaletteSelect(_currentLang);
+  });
+}
+
+/* ── Wire Export ── */
+
+const btnExport = document.getElementById("btnExport");
+if (btnExport) {
+  btnExport.addEventListener("activate", () => {
+    const data = JSON.stringify(editedPalettes, null, 2);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `palettes-${currentSaturation}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+}
+
+/* ── Initial render ── */
+refreshPalette();
+updatePickerFromPalette();
+updateMetaFromPalette();
+await loadLanguage("en");

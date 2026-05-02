@@ -1,0 +1,101 @@
+{
+  "app.title": "Web App Controls",
+
+  "label.language": "Language",
+  "label.style": "Style",
+  "label.font": "Font",
+  "label.theme": "Theme",
+  "label.saturation": "Saturation",
+  "label.colorization": "Colorization",
+  "label.palette": "Color Palette",
+  "label.seedColours": "Seed Colours",
+  "label.paletteNames": "Palette Names",
+  "label.paletteTools": "Palette Tools",
+  "label.disableAll": "Disable all",
+
+  "swatch.main": "Main",
+  "swatch.acc1": "Acc1",
+  "swatch.acc2": "Acc2",
+
+  "placeholder.gems": "Gems",
+  "placeholder.natural": "Natural",
+  "placeholder.flower": "Flower",
+  "placeholder.beverage": "Beverage",
+
+  "btn.save": "Save",
+  "btn.reset": "Reset",
+  "btn.export": "Export",
+
+  "sat.accentsOnly": "Accents only",
+  "sat.wholeLayout": "Whole layout",
+
+  "theme.dark": "Dark",
+  "theme.light": "Light",
+  "theme.both": "Both",
+
+  "font.digital7": "Digital-7",
+  "font.orbitron": "Orbitron",
+  "font.system": "System",
+
+  "style.basic": "Basic",
+  "style.flat": "Flat",
+  "style.grad": "Grad",
+  "style.volume": "Volume",
+  "style.groove": "Groove",
+  "style.shadow": "Shadow",
+
+  "heading.title": "Title Heading",
+  "heading.section": "Section Header",
+  "heading.subsection": "Subsection",
+  "text.lorem": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.",
+  "text.comment": "Commentary text",
+  "text.preview": "Normal Text: This preview shows main web UI elements in style and coloring selected in the global controls panel on the left.",
+
+  "field.textInput": "Text input",
+  "placeholder.typeHere": "Type here\u2026",
+  "placeholder.disabled": "Disabled",
+
+  "btn.play": "\u25b6 Play",
+  "btn.pause": "\u23f8 Pause",
+  "btn.stop": "\u23f9 Stop",
+  "btn.pressed": "Pressed",
+  "btn.normal": "Normal",
+  "btn.disabled": "Disabled",
+  "btn.secondary": "Secondary",
+
+  "check.checked": "Checked",
+  "check.unchecked": "Unchecked",
+  "check.mixed": "Mixed",
+
+  "radio.optionA": "Option A",
+  "radio.optionB": "Option B",
+  "radio.optionC": "Option C",
+  "radio.optionD": "Option D",
+
+  "toggle.wifi": "Wi-Fi",
+  "toggle.bluetooth": "Bluetooth",
+  "toggle.location": "Location",
+  "toggle.darkMode": "Dark mode",
+  "toggle.notifications": "Notifications",
+  "toggle.vpn": "VPN",
+  "toggle.autoUpdate": "Auto-update",
+
+  "chart.monthlyRevenue": "Monthly Revenue",
+  "chart.traffic": "Traffic — Sessions vs Bounces",
+  "chart.activity": "Daily Activity — Step Count",
+
+  "notif.note": "Note",
+  "notif.noteMsg": "This is an informational note.",
+  "notif.message": "Message",
+  "notif.messageMsg": "You have 3 new messages.",
+  "notif.success": "Success",
+  "notif.successMsg": "Your changes have been saved.",
+  "notif.warning": "Warning",
+  "notif.warningMsg": "Disk space is running low.",
+  "notif.error": "Error",
+  "notif.errorMsg": "Connection to server lost.",
+
+  "slider.value": "Value",
+  "slider.progress": "Progress",
+  "slider.range": "Range"
+}

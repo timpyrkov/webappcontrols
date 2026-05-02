@@ -1,0 +1,346 @@
+/* ── layout.css — Two-panel grid layout ── */
+
+/* ── Fonts ── */
+
+@font-face {
+  font-family: "Orbitron";
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url("../assets/fonts/Orbitron.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Seven Segment";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../assets/fonts/Seven Segment.ttf") format("truetype");
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  display: grid;
+  grid-template-columns: 520px 1fr;
+  height: 100vh;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-display, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+}
+
+/* ── Left Panel — Global Controls ── */
+
+.panel-left {
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 16px;
+  background: var(--panel-bg);
+  border-right: 1px solid var(--panel-edge);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.panel-left h1 {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  opacity: 0.8;
+  margin-bottom: 4px;
+}
+
+.panel-left .control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.panel-left .control-group label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.45;
+}
+
+.panel-left .spacer {
+  flex: 1;
+}
+
+/* ── Palette selector (smaller text for 5-col grid) ── */
+
+#paletteSelect {
+  --seg-font-size: 11px;
+  --seg-padding: 6px 4px;
+}
+
+/* ── Side-by-side control rows ── */
+
+.ctrl-row {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.ctrl-row > .control-group {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Style column wider, Theme + Colorization narrower */
+.ctrl-row-stc > .control-group:first-child {
+  flex: 1.6;
+}
+.ctrl-row-stc > .control-group:nth-child(2),
+.ctrl-row-stc > .control-group:nth-child(3) {
+  flex: 0.8;
+}
+
+.swatch-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 2px solid var(--edge-1);
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.swatch:hover {
+  transform: scale(1.12);
+}
+
+.swatch-label {
+  font-size: 0.7rem;
+  opacity: 0.5;
+}
+
+
+/* ── Right Panel — Preview ── */
+
+.panel-right {
+  height: 100vh;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 2fr;
+  gap: 24px;
+  padding: 24px;
+}
+
+.panel-a, .panel-b, .panel-c {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Preview panel containers (styled element) ── */
+
+.preview-panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-edge);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+/* ── Disable-all toggle ── */
+
+.disable-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.disable-toggle input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--neutral-2);
+  border-radius: 3px;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+}
+
+.disable-toggle input[type="checkbox"]:checked {
+  background: var(--neutral-2);
+}
+
+.disable-toggle input[type="checkbox"]:checked::after {
+  content: "✓";
+  color: var(--bg);
+  font-size: 11px;
+  position: absolute;
+  top: -1px;
+  left: 1px;
+}
+
+/* ── Typography showcase ── */
+.text-showcase {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Typography in preview ── */
+
+.panel-right h1 { font-size: 1.6rem; font-weight: 700; }
+.panel-right h2 { font-size: 1.15rem; font-weight: 600; }
+.panel-right h3 { font-size: 0.95rem; font-weight: 500; }
+.panel-right p  { font-size: 0.85rem; line-height: 1.55; }
+
+/* Accent-colored typography */
+.accent-title {
+  color: var(--primary-accent-1);
+}
+.accent-title.gradient {
+  background: linear-gradient(90deg, var(--primary-accent-1), var(--primary-accent-5));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.accent-header   { color: var(--primary-accent-1); }
+.accent-subheader{ color: var(--primary-accent-5); }
+.accent-comment  { color: var(--secondary-accent-5); font-size: 0.85rem; line-height: 1.55; }
+.normal-text     { color: var(--fg); font-size: 0.85rem; line-height: 1.55; }
+
+/* ── Gauge / knob rectangular containers ── */
+
+.gauge-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 4px;
+}
+
+/* ── Placeholder / stub labels ── */
+
+.stub {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  border: 1px dashed var(--edge-1);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  opacity: 0.35;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+
+/* ── Palette metadata fields ── */
+
+.meta-fields {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.meta-input {
+  min-width: 0;
+  width: 100%;
+  padding: 5px 8px;
+  font: 12px/1 system-ui, sans-serif;
+  background: var(--neutral-1);
+  color: var(--fg);
+  border: 1px solid var(--edge-1);
+  border-radius: 4px;
+}
+
+.meta-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── Picker row (3 pickers side by side) ── */
+
+.picker-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.picker-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.picker-label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+}
+
+.swatch-preview {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  border: 1px solid var(--edge-1);
+  flex-shrink: 0;
+}
+
+.hex-input {
+  width: 64px;
+  padding: 3px 6px;
+  font: 11px/1 monospace;
+  background: var(--neutral-1);
+  color: var(--fg);
+  border: 1px solid var(--edge-1);
+  border-radius: 4px;
+  text-align: center;
+}
+
+/* ── Calendar row (side by side in normal mode, stacked in both-mode) ── */
+
+.calendar-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ── "Both" theme mode ── */
+
+.panel-right.both-mode {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  padding: 0;
+}
+
+.both-half {
+  height: 100vh;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 2fr;
+  gap: 24px;
+  padding: 24px;
+}

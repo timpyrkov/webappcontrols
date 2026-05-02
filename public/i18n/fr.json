@@ -1,0 +1,101 @@
+{
+  "app.title": "Contrôles d'Application Web",
+
+  "label.language": "Langue",
+  "label.style": "Style",
+  "label.font": "Police",
+  "label.theme": "Thème",
+  "label.saturation": "Saturation",
+  "label.colorization": "Colorisation",
+  "label.palette": "Palette de Couleurs",
+  "label.seedColours": "Couleurs de Base",
+  "label.paletteNames": "Noms de Palette",
+  "label.paletteTools": "Outils Palette",
+  "label.disableAll": "Tout désactiver",
+
+  "swatch.main": "Princ.",
+  "swatch.acc1": "Acc1",
+  "swatch.acc2": "Acc2",
+
+  "placeholder.gems": "Gemmes",
+  "placeholder.natural": "Nature",
+  "placeholder.flower": "Fleur",
+  "placeholder.beverage": "Boisson",
+
+  "btn.save": "Enregistrer",
+  "btn.reset": "Réinitialiser",
+  "btn.export": "Exporter",
+
+  "sat.accentsOnly": "Accents seuls",
+  "sat.wholeLayout": "Mise en page entière",
+
+  "theme.dark": "Sombre",
+  "theme.light": "Clair",
+  "theme.both": "Les deux",
+
+  "font.digital7": "Digital-7",
+  "font.orbitron": "Orbitron",
+  "font.system": "Système",
+
+  "style.basic": "Basique",
+  "style.flat": "Plat",
+  "style.grad": "Grad",
+  "style.volume": "Volume",
+  "style.groove": "Rainure",
+  "style.shadow": "Ombre",
+
+  "heading.title": "Titre Principal",
+  "heading.section": "En-tête de Section",
+  "heading.subsection": "Sous-section",
+  "text.lorem": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.",
+  "text.comment": "Texte de commentaire",
+  "text.preview": "Texte normal : Cet aperçu montre les principaux éléments d'interface dans le style et les couleurs sélectionnés dans le panneau de contrôles globaux à gauche.",
+
+  "field.textInput": "Champ de texte",
+  "placeholder.typeHere": "Tapez ici…",
+  "placeholder.disabled": "Désactivé",
+
+  "btn.play": "▶ Lire",
+  "btn.pause": "⏸ Pause",
+  "btn.stop": "⏹ Arrêt",
+  "btn.pressed": "Pressé",
+  "btn.normal": "Normal",
+  "btn.disabled": "Désactivé",
+  "btn.secondary": "Secondaire",
+
+  "check.checked": "Coché",
+  "check.unchecked": "Décoché",
+  "check.mixed": "Mixte",
+
+  "radio.optionA": "Option A",
+  "radio.optionB": "Option B",
+  "radio.optionC": "Option C",
+  "radio.optionD": "Option D",
+
+  "toggle.wifi": "Wi-Fi",
+  "toggle.bluetooth": "Bluetooth",
+  "toggle.location": "Localisation",
+  "toggle.darkMode": "Mode sombre",
+  "toggle.notifications": "Notifications",
+  "toggle.vpn": "VPN",
+  "toggle.autoUpdate": "Mise à jour auto",
+
+  "chart.monthlyRevenue": "Revenus Mensuels",
+  "chart.traffic": "Trafic — Sessions vs Rebonds",
+  "chart.activity": "Activité Quotidienne — Pas",
+
+  "notif.note": "Note",
+  "notif.noteMsg": "Ceci est une note d'information.",
+  "notif.message": "Message",
+  "notif.messageMsg": "Vous avez 3 nouveaux messages.",
+  "notif.success": "Succès",
+  "notif.successMsg": "Vos modifications ont été enregistrées.",
+  "notif.warning": "Avertissement",
+  "notif.warningMsg": "L'espace disque est faible.",
+  "notif.error": "Erreur",
+  "notif.errorMsg": "Connexion au serveur perdue.",
+
+  "slider.value": "Valeur",
+  "slider.progress": "Progrès",
+  "slider.range": "Plage"
+}
