@@ -4,15 +4,16 @@ import { COLORS } from "../tokens.js";
 const GRAD_ANGLE_DEG = 135; // ← tweak this to change gradient direction
 
 /* ── Layout constants (fractions of component size) ── */
-const OUTER_R   = 0.38;   // outer circle radius
-const INNER_R   = 0.28;   // inner circle radius
-const ARC_R     = 0.44;   // value-indicator arc radius
+const OUTER_R   = 0.30;   // outer circle radius
+const INNER_R   = 0.22;   // inner circle radius
+const ARC_R     = 0.37;   // value-indicator arc radius (continuous mode)
 const ARC_W     = 6;      // arc stroke width (px, before DPR scale)
-const PTR_LEN   = 0.08;   // pointer length (fraction of size)
-const PTR_OFF   = 0.04;   // pointer offset from inner edge (fraction)
+const PTR_LEN   = 0.07;   // pointer length (fraction of size)
+const PTR_OFF   = 0.03;   // pointer offset from inner edge (fraction)
 const PTR_W     = 4;      // pointer stroke width (px)
 const GAP_DEG   = 20;     // gap at top for continuous arc (half-gap each side)
-const LABEL_R   = 0.50;   // enum label radius (increased for clearance)
+const LABEL_R   = 0.46;   // enum label radius
+const CAPTION_H = 20;     // px reserved at bottom for caption text
 const ANIM_MS   = 180;    // animation duration
 
 /* ── Helpers ── */
@@ -92,9 +93,9 @@ class RotaryKnob extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>
         :host {
-          display: inline-block;
-          width: 180px;
-          height: 220px;
+          display: block;
+          width: 100%;
+          height: 100%;
           user-select: none;
           -webkit-user-select: none;
         }
@@ -222,11 +223,11 @@ class RotaryKnob extends HTMLElement {
     const w = this._w, h = this._h;
     ctx.clearRect(0, 0, w, h);
 
-    // Centre of knob area (leave room below for label)
-    const knobSize = Math.min(w, h - 36);
+    // Reserve space for caption at bottom; knob is centered in remaining area
+    const availH = h - CAPTION_H;
+    const S  = Math.min(w, availH);   // reference size
     const cx = w / 2;
-    const cy = knobSize / 2 + 4;
-    const S  = knobSize;   // reference size
+    const cy = availH / 2;
 
     this._drawOuterCircle(ctx, cx, cy, S);
     this._drawInnerCircle(ctx, cx, cy, S);
@@ -358,7 +359,8 @@ class RotaryKnob extends HTMLElement {
     if (n === 0) return;
     const r = S * LABEL_R;
     const currentIdx = typeof this._value === "number" ? this._value : 0;
-    const fontBase = `11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+    const ff = getComputedStyle(document.documentElement).getPropertyValue("--font-display").trim() || "system-ui, sans-serif";
+    const fontBase = `11px ${ff}`;
     ctx.textAlign    = "center";
     ctx.textBaseline = "middle";
 
@@ -376,8 +378,9 @@ class RotaryKnob extends HTMLElement {
 
   /* -- title & value caption -- */
   _drawCaption(ctx, cx, cy, S, w, h) {
-    const baseY = cy + S * OUTER_R + 32;
-    const font = `13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+    const baseY = h - CAPTION_H + 4;
+    const ff = getComputedStyle(document.documentElement).getPropertyValue("--font-display").trim() || "system-ui, sans-serif";
+    const font = `13px ${ff}`;
     ctx.textBaseline = "top";
     ctx.font = font;
     const centerX = w / 2;  // always use canvas horizontal centre

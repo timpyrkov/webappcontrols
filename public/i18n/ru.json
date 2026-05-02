@@ -1,6 +1,5 @@
 {
   "app.title": "Элементы управления",
-
   "label.language": "Язык",
   "label.style": "Стиль",
   "label.font": "Шрифт",
@@ -12,49 +11,38 @@
   "label.paletteNames": "Названия палитры",
   "label.paletteTools": "Инструменты палитры",
   "label.disableAll": "Отключить все",
-
   "swatch.main": "Осн.",
   "swatch.acc1": "Акц1",
   "swatch.acc2": "Акц2",
-
   "placeholder.gems": "Камни",
   "placeholder.natural": "Природа",
   "placeholder.flower": "Цветок",
   "placeholder.beverage": "Напиток",
-
   "btn.save": "Сохранить",
   "btn.reset": "Сбросить",
-  "btn.export": "Экспорт",
-
   "sat.accentsOnly": "Только акценты",
   "sat.wholeLayout": "Весь макет",
-
   "theme.dark": "Тёмная",
   "theme.light": "Светлая",
   "theme.both": "Обе",
-
   "font.digital7": "Digital-7",
   "font.orbitron": "Orbitron",
   "font.system": "Системный",
-
   "style.basic": "Простой",
   "style.flat": "Плоский",
   "style.grad": "Градиент",
   "style.volume": "Объём",
   "style.groove": "Желоб",
   "style.shadow": "Тень",
-
   "heading.title": "Основной заголовок",
   "heading.section": "Заголовок раздела",
   "heading.subsection": "Подраздел",
   "text.lorem": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.",
   "text.comment": "Комментарий",
   "text.preview": "Обычный текст: Этот предпросмотр показывает основные элементы интерфейса в стиле и цветовой схеме, выбранных на панели управления слева.",
-
   "field.textInput": "Ввод текста",
   "placeholder.typeHere": "Введите…",
   "placeholder.disabled": "Отключено",
-
   "btn.play": "▶ Воспр.",
   "btn.pause": "⏸ Пауза",
   "btn.stop": "⏹ Стоп",
@@ -62,28 +50,23 @@
   "btn.normal": "Обычная",
   "btn.disabled": "Отключена",
   "btn.secondary": "Вторичная",
-
   "check.checked": "Включено",
   "check.unchecked": "Выключено",
   "check.mixed": "Смешано",
-
   "radio.optionA": "Вариант A",
   "radio.optionB": "Вариант B",
   "radio.optionC": "Вариант C",
   "radio.optionD": "Вариант D",
-
-  "toggle.wifi": "Wi-Fi",
-  "toggle.bluetooth": "Bluetooth",
-  "toggle.location": "Геолокация",
+  "toggle.wifi": "WiFi",
+  "toggle.bluetooth": "BT",
+  "toggle.location": "Loc",
   "toggle.darkMode": "Тёмный режим",
   "toggle.notifications": "Уведомления",
   "toggle.vpn": "VPN",
   "toggle.autoUpdate": "Автообновление",
-
   "chart.monthlyRevenue": "Месячный доход",
   "chart.traffic": "Трафик — Сеансы и Отказы",
   "chart.activity": "Активность — Шаги за день",
-
   "notif.note": "Заметка",
   "notif.noteMsg": "Это информационная заметка.",
   "notif.message": "Сообщение",
@@ -94,8 +77,26 @@
   "notif.warningMsg": "Мало места на диске.",
   "notif.error": "Ошибка",
   "notif.errorMsg": "Потеряно соединение с сервером.",
-
   "slider.value": "Значение",
   "slider.progress": "Прогресс",
-  "slider.range": "Диапазон"
+  "slider.range": "Диапазон",
+  "seg.day": "День",
+  "seg.week": "Неделя",
+  "seg.month": "Месяц",
+  "knob.volume": "Громк",
+  "knob.day": "День",
+  "day.mon": "Понедельник",
+  "day.tue": "Вторник",
+  "day.wed": "Среда",
+  "day.thu": "Четверг",
+  "day.fri": "Пятница",
+  "day.sat": "Суббота",
+  "day.sun": "Воскресенье",
+  "gauge.speed": "Скор",
+  "gauge.rpm": "Об/м",
+  "gauge.temp": "Темп",
+  "gauge.fuel": "Топл",
+  "gauge.level": "Уров",
+  "btn.exportPalette": "Эксп. палитру",
+  "btn.exportStyle": "Эксп. стиль"
 }

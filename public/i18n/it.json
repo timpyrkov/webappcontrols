@@ -1,6 +1,5 @@
 {
   "app.title": "Controlli App Web",
-
   "label.language": "Lingua",
   "label.style": "Stile",
   "label.font": "Carattere",
@@ -12,49 +11,38 @@
   "label.paletteNames": "Nomi Tavolozza",
   "label.paletteTools": "Strumenti Tavolozza",
   "label.disableAll": "Disattiva tutto",
-
   "swatch.main": "Princ.",
   "swatch.acc1": "Acc1",
   "swatch.acc2": "Acc2",
-
   "placeholder.gems": "Gemme",
   "placeholder.natural": "Naturale",
   "placeholder.flower": "Fiore",
   "placeholder.beverage": "Bevanda",
-
   "btn.save": "Salva",
   "btn.reset": "Ripristina",
-  "btn.export": "Esporta",
-
   "sat.accentsOnly": "Solo accenti",
   "sat.wholeLayout": "Layout intero",
-
   "theme.dark": "Scuro",
   "theme.light": "Chiaro",
   "theme.both": "Entrambi",
-
   "font.system": "Sistema",
   "font.orbitron": "Orbitron",
   "font.digital7": "Digital-7",
-
   "style.basic": "Base",
   "style.flat": "Piatto",
   "style.grad": "Grad",
   "style.volume": "Volume",
   "style.groove": "Scanalatura",
   "style.shadow": "Ombra",
-
   "heading.title": "Titolo Principale",
   "heading.section": "Intestazione Sezione",
   "heading.subsection": "Sottosezione",
   "text.lorem": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.",
   "text.comment": "Testo di commento",
   "text.preview": "Testo normale: Questa anteprima mostra i principali elementi dell'interfaccia nello stile e nei colori selezionati nel pannello dei controlli globali a sinistra.",
-
   "field.textInput": "Campo di testo",
   "placeholder.typeHere": "Digita qui…",
   "placeholder.disabled": "Disattivato",
-
   "btn.play": "▶ Riproduci",
   "btn.pause": "⏸ Pausa",
   "btn.stop": "⏹ Ferma",
@@ -62,28 +50,23 @@
   "btn.normal": "Normale",
   "btn.disabled": "Disattivato",
   "btn.secondary": "Secondario",
-
   "check.checked": "Selezionato",
   "check.unchecked": "Non selezionato",
   "check.mixed": "Misto",
-
   "radio.optionA": "Opzione A",
   "radio.optionB": "Opzione B",
   "radio.optionC": "Opzione C",
   "radio.optionD": "Opzione D",
-
-  "toggle.wifi": "Wi-Fi",
-  "toggle.bluetooth": "Bluetooth",
-  "toggle.location": "Posizione",
+  "toggle.wifi": "WiFi",
+  "toggle.bluetooth": "BT",
+  "toggle.location": "Loc",
   "toggle.darkMode": "Modo scuro",
   "toggle.notifications": "Notifiche",
   "toggle.vpn": "VPN",
   "toggle.autoUpdate": "Aggiornamento auto",
-
   "chart.monthlyRevenue": "Entrate Mensili",
   "chart.traffic": "Traffico — Sessioni vs Rimbalzi",
   "chart.activity": "Attività Giornaliera — Passi",
-
   "notif.note": "Nota",
   "notif.noteMsg": "Questa è una nota informativa.",
   "notif.message": "Messaggio",
@@ -94,8 +77,26 @@
   "notif.warningMsg": "Lo spazio su disco si sta esaurendo.",
   "notif.error": "Errore",
   "notif.errorMsg": "Connessione al server persa.",
-
   "slider.value": "Valore",
   "slider.progress": "Progresso",
-  "slider.range": "Intervallo"
+  "slider.range": "Intervallo",
+  "seg.day": "Giorno",
+  "seg.week": "Settim",
+  "seg.month": "Mese",
+  "knob.volume": "Volume",
+  "knob.day": "Giorno",
+  "day.mon": "Lunedì",
+  "day.tue": "Martedì",
+  "day.wed": "Mercoledì",
+  "day.thu": "Giovedì",
+  "day.fri": "Venerdì",
+  "day.sat": "Sabato",
+  "day.sun": "Domenica",
+  "gauge.speed": "Veloc",
+  "gauge.rpm": "RPM",
+  "gauge.temp": "Temp",
+  "gauge.fuel": "Carb",
+  "gauge.level": "Livello",
+  "btn.exportPalette": "Esporta palette",
+  "btn.exportStyle": "Esporta stile"
 }

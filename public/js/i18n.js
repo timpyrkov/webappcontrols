@@ -18,6 +18,7 @@ let _currentLang = FALLBACK_LANG;
 export async function loadLanguage(langCode) {
   langCode = langCode.toLowerCase();
   _currentLang = langCode;
+  document.documentElement.lang = langCode;
 
   // Always ensure fallback is loaded
   if (Object.keys(_fallback).length === 0) {
@@ -38,6 +39,7 @@ export async function loadLanguage(langCode) {
   }
 
   applyTranslations();
+  document.dispatchEvent(new CustomEvent("language-changed", { detail: { lang: langCode } }));
 }
 
 /**

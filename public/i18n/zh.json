@@ -1,6 +1,5 @@
 {
   "app.title": "网页应用控件",
-
   "label.language": "语言",
   "label.style": "风格",
   "label.font": "字体",
@@ -12,49 +11,38 @@
   "label.paletteNames": "调色板名称",
   "label.paletteTools": "调色板工具",
   "label.disableAll": "全部禁用",
-
   "swatch.main": "主色",
   "swatch.acc1": "强调1",
   "swatch.acc2": "强调2",
-
   "placeholder.gems": "宝石",
   "placeholder.natural": "自然",
   "placeholder.flower": "花卉",
   "placeholder.beverage": "饮品",
-
   "btn.save": "保存",
   "btn.reset": "重置",
-  "btn.export": "导出",
-
   "sat.accentsOnly": "仅强调色",
   "sat.wholeLayout": "整体布局",
-
   "theme.dark": "深色",
   "theme.light": "浅色",
   "theme.both": "双色",
-
   "font.digital7": "Digital-7",
   "font.orbitron": "Orbitron",
   "font.system": "系统",
-
   "style.basic": "基础",
   "style.flat": "扁平",
   "style.grad": "渐变",
   "style.volume": "立体",
   "style.groove": "凹槽",
   "style.shadow": "阴影",
-
   "heading.title": "主标题",
   "heading.section": "章节标题",
   "heading.subsection": "子章节",
   "text.lorem": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.",
   "text.comment": "注释文本",
   "text.preview": "普通文本：此预览显示在左侧全局控制面板中选择的样式和配色的主要UI元素。",
-
   "field.textInput": "文本输入",
   "placeholder.typeHere": "在此输入…",
   "placeholder.disabled": "已禁用",
-
   "btn.play": "▶ 播放",
   "btn.pause": "⏸ 暂停",
   "btn.stop": "⏹ 停止",
@@ -62,28 +50,23 @@
   "btn.normal": "正常",
   "btn.disabled": "禁用",
   "btn.secondary": "次要",
-
   "check.checked": "已选中",
   "check.unchecked": "未选中",
   "check.mixed": "混合",
-
   "radio.optionA": "选项 A",
   "radio.optionB": "选项 B",
   "radio.optionC": "选项 C",
   "radio.optionD": "选项 D",
-
-  "toggle.wifi": "Wi-Fi",
-  "toggle.bluetooth": "蓝牙",
-  "toggle.location": "位置",
+  "toggle.wifi": "WiFi",
+  "toggle.bluetooth": "BT",
+  "toggle.location": "Loc",
   "toggle.darkMode": "深色模式",
   "toggle.notifications": "通知",
   "toggle.vpn": "VPN",
   "toggle.autoUpdate": "自动更新",
-
   "chart.monthlyRevenue": "月度收入",
   "chart.traffic": "流量 — 会话 vs 跳出",
   "chart.activity": "日常活动 — 步数",
-
   "notif.note": "提示",
   "notif.noteMsg": "这是一条信息提示。",
   "notif.message": "消息",
@@ -94,8 +77,26 @@
   "notif.warningMsg": "磁盘空间不足。",
   "notif.error": "错误",
   "notif.errorMsg": "与服务器的连接已断开。",
-
   "slider.value": "值",
   "slider.progress": "进度",
-  "slider.range": "范围"
+  "slider.range": "范围",
+  "seg.day": "日",
+  "seg.week": "周",
+  "seg.month": "月",
+  "knob.volume": "音量",
+  "knob.day": "星期",
+  "day.mon": "星期一",
+  "day.tue": "星期二",
+  "day.wed": "星期三",
+  "day.thu": "星期四",
+  "day.fri": "星期五",
+  "day.sat": "星期六",
+  "day.sun": "星期日",
+  "gauge.speed": "速度",
+  "gauge.rpm": "RPM",
+  "gauge.temp": "温度",
+  "gauge.fuel": "燃油",
+  "gauge.level": "水平",
+  "btn.exportPalette": "导出调色板",
+  "btn.exportStyle": "导出样式"
 }

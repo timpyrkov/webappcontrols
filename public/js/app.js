@@ -19,6 +19,12 @@ const editedPalettes = JSON.parse(JSON.stringify(PALETTES));
 /* ── Auth check ── */
 await checkAuth();
 
+/* ── Version tag ── */
+fetch("/api/version").then(r => r.json()).then(v => {
+  const el = document.getElementById("versionTag");
+  if (el && v.tag) el.textContent = v.tag + (v.message ? " — " + v.message : "");
+}).catch(() => {});
+
 /* ── Helpers ── */
 
 function _gen() {
@@ -187,6 +193,8 @@ function _applyFont() {
   const useSystem = _nonLatinLangs.has(_currentLang) && _currentFont !== "System";
   const value = useSystem ? _fontMap["System"] : (_fontMap[_currentFont] || _fontMap["System"]);
   document.documentElement.style.setProperty("--font-display", value);
+  // Trigger canvas-based controls to redraw with new font
+  document.dispatchEvent(new CustomEvent("palette-changed"));
 }
 
 const fontSelect = document.getElementById("fontSelect");
@@ -419,19 +427,50 @@ if (btnReset) {
   });
 }
 
-/* ── Wire Export ── */
+/* ── Wire Export palette ── */
 
-const btnExport = document.getElementById("btnExport");
-if (btnExport) {
-  btnExport.addEventListener("activate", () => {
-    const data = JSON.stringify(editedPalettes, null, 2);
+const btnExportPalette = document.getElementById("btnExportPalette");
+if (btnExportPalette) {
+  btnExportPalette.addEventListener("activate", () => {
+    const p = editedPalettes[currentPalette];
+    if (!p) return;
+    const result = generatePalette(p.main, p.accents, {
+      saturationMode: currentSaturation,
+      special: p.special,
+    });
+    // Build comprehensive export object
+    const i18n = PALETTE_I18N[currentPalette] || {};
+    const exportObj = {
+      key: currentPalette,
+      names: {
+        gems:     Object.assign({}, { en: p.gems },     i18n.gems),
+        natural:  Object.assign({}, { en: p.natural },   i18n.natural),
+        flower:   Object.assign({}, { en: p.flower },    i18n.flower),
+        beverage: Object.assign({}, { en: p.beverage },  i18n.beverage),
+      },
+      seeds: { main: p.main, accents: p.accents, special: p.special },
+      dark: result.dark,
+      light: result.light,
+    };
+    const data = JSON.stringify(exportObj, null, 2);
     const blob = new Blob([data], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `palettes-${currentSaturation}.json`;
+    a.download = `palette-${currentPalette}.json`;
     a.click();
     URL.revokeObjectURL(url);
+  });
+}
+
+/* ── Wire Export style ── */
+
+const _styleKeyToFile = { Basic: "basic", Flat: "flat", Grad: "gradient", Volume: "volume", Groove: "grooves", Shadow: "shadows" };
+const btnExportStyle = document.getElementById("btnExportStyle");
+if (btnExportStyle) {
+  btnExportStyle.addEventListener("activate", () => {
+    const styleName = _styleKeyToFile[_currentStyleKey] || "flat";
+    window.location.href = `/api/export-style?style=${styleName}`;
   });
 }
 

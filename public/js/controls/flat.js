@@ -57,14 +57,14 @@ class PushButton extends HTMLElement {
           white-space: nowrap;
         }
         .btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-        .btn:hover:not(.pressed) {
+        .btn:hover:not(.pressed):not(:active) {
           background: var(--neutral-2);
           ${noHoverEdge ? "" : `border-color: ${hoverEdge};`}
         }
         .btn:active, .btn.pressed {
           background: ${accentBg};
           color: var(--bg);
-          border-color: var(--edge-1);
+          border-color: ${accentBg};
         }
         .btn:active { transform: scale(0.97); }
       </style>
@@ -826,8 +826,8 @@ class ProgressBar extends HTMLElement {
    ================================================================ */
 
 const NOTIF_STYLES = {
-  note:    { icon: "ℹ",  bg: "var(--neutral-1)",          border: "var(--secondary-accent-3)", fg: "var(--fg)" },
-  message: { icon: "✉",  bg: "var(--neutral-1)",          border: "var(--primary-accent-3)",   fg: "var(--fg)" },
+  note:    { icon: "ℹ",  bg: "color-mix(in oklab, var(--color-note) 15%, var(--bg))",    border: "var(--color-note)",    fg: "var(--color-note)" },
+  message: { icon: "✉",  bg: "color-mix(in oklab, var(--color-message) 15%, var(--bg))", border: "var(--color-message)", fg: "var(--color-message)" },
   success: { icon: "✓",  bg: "color-mix(in oklab, var(--color-success) 15%, var(--bg))", border: "var(--color-success)", fg: "var(--color-success)" },
   warning: { icon: "⚠",  bg: "color-mix(in oklab, var(--color-warning) 15%, var(--bg))", border: "var(--color-warning)", fg: "var(--color-warning)" },
   error:   { icon: "✕",  bg: "color-mix(in oklab, var(--color-error) 15%, var(--bg))",   border: "var(--color-error)",   fg: "var(--color-error)" },
@@ -878,6 +878,12 @@ class NotificationBar extends HTMLElement {
         </div>
       </div>`;
   }
+}
+
+/* ── Helper: resolve --font-display for canvas ctx.font ── */
+function _chartFont() {
+  return getComputedStyle(document.documentElement).getPropertyValue("--font-display").trim()
+    || "system-ui, sans-serif";
 }
 
 /* ================================================================
@@ -996,7 +1002,7 @@ class BarChart extends HTMLElement {
       if (labels[i]) {
         ctx.fillStyle = fg;
         ctx.globalAlpha = 0.5;
-        ctx.font = "10px var(--font-display, system-ui, sans-serif)";
+        ctx.font = `10px ${_chartFont()}`;
         ctx.textAlign = "center";
         ctx.fillText(labels[i], x + barW / 2, H - 6);
         ctx.globalAlpha = 1;
@@ -1097,7 +1103,7 @@ class LineChart extends HTMLElement {
     if (labels.length) {
       ctx.fillStyle = fg;
       ctx.globalAlpha = 0.5;
-      ctx.font = "10px var(--font-display, system-ui, sans-serif)";
+      ctx.font = `10px ${_chartFont()}`;
       ctx.textAlign = "center";
       const step = chartW / Math.max(labels.length - 1, 1);
       labels.forEach((l, i) => ctx.fillText(l, pad.left + i * step, H - 6));
@@ -1154,8 +1160,8 @@ class LineChart extends HTMLElement {
     const dayColor = cs.getPropertyValue("--primary-accent-1").trim() || "#d08028";
     const nightColor = cs.getPropertyValue("--secondary-accent-5").trim() || "#4060c0";
     const lineColor = cs.getPropertyValue("--primary-accent-5").trim() || "#f0c030";
-    const sunColor = cs.getPropertyValue("--secondary-accent-1").trim() || "#e0a020";
-    const moonColor = cs.getPropertyValue("--primary-accent-1").trim() || "#8090c0";
+    const sunColor = cs.getPropertyValue("--primary-accent-5").trim() || "#f0c030";
+    const moonColor = cs.getPropertyValue("--secondary-accent-5").trim() || "#4060c0";
 
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, W, H);
@@ -1176,11 +1182,11 @@ class LineChart extends HTMLElement {
       const dayOffset = day * 24 * pxPerHour;
       // Night: 0–8h
       ctx.fillStyle = nightColor;
-      ctx.globalAlpha = 0.10;
+      ctx.globalAlpha = 0.25;
       ctx.fillRect(pad.left + dayOffset, pad.top, 8 * pxPerHour, chartH);
       // Day: 8–24h
       ctx.fillStyle = dayColor;
-      ctx.globalAlpha = 0.10;
+      ctx.globalAlpha = 0.25;
       ctx.fillRect(pad.left + dayOffset + 8 * pxPerHour, pad.top, 16 * pxPerHour, chartH);
       ctx.globalAlpha = 1;
     }
@@ -1210,34 +1216,40 @@ class LineChart extends HTMLElement {
       ctx.fill();
     });
 
-    // Sun/Moon icons at top
-    const iconY = pad.top + 8;
-    const iconR = 6;
+    // Sun/Moon icons at top — large, fully opaque
+    const iconY = pad.top + 18;
     for (let day = 0; day < 2; day++) {
       const dayOffset = day * 24;
-      // Moon at 4h
+      // Moon at 4h — mirrored horizontally
       const moonX = pad.left + (dayOffset + 4) * pxPerHour;
-      ctx.font = "14px serif";
+      ctx.save();
+      ctx.translate(moonX, iconY);
+      ctx.scale(-1, 1);
+      ctx.font = "36px serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillStyle = moonColor;
-      ctx.fillText("☽", moonX, iconY);
+      ctx.fillText("☽", 0, 0);
+      ctx.restore();
       // Sun at 16h
       const sunX = pad.left + (dayOffset + 16) * pxPerHour;
+      ctx.font = "36px serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
       ctx.fillStyle = sunColor;
       ctx.fillText("☀", sunX, iconY);
     }
 
-    // Labels
-    if (labels.length) {
-      ctx.fillStyle = fg;
-      ctx.globalAlpha = 0.5;
-      ctx.font = "10px var(--font-display, system-ui, sans-serif)";
-      ctx.textAlign = "center";
-      const labelStep = chartW / Math.max(labels.length - 1, 1);
-      labels.forEach((l, i) => ctx.fillText(l, pad.left + i * labelStep, H - 6));
-      ctx.globalAlpha = 1;
+    // Hour-based labels at 0, 8, 16, 24, 32, 40, 48
+    ctx.fillStyle = fg;
+    ctx.globalAlpha = 0.5;
+    ctx.font = `10px ${_chartFont()}`;
+    ctx.textAlign = "center";
+    for (const h of [0, 8, 16, 24, 32, 40, 48]) {
+      const x = pad.left + h * pxPerHour;
+      ctx.fillText(String(h), x, H - 6);
     }
+    ctx.globalAlpha = 1;
   }
 }
 
@@ -1245,9 +1257,29 @@ class LineChart extends HTMLElement {
    <date-calendar>  — Flat date-picker calendar
    ================================================================ */
 
-const WEEKDAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
-const MONTHS = ["January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"];
+function _calendarLocale() {
+  return document.documentElement.lang || "en";
+}
+function _weekdays() {
+  const loc = _calendarLocale();
+  try {
+    const fmt = new Intl.DateTimeFormat(loc, { weekday: "short" });
+    // Monday=0 … Sunday=6   (2024-01-01 is Monday)
+    return Array.from({ length: 7 }, (_, i) =>
+      fmt.format(new Date(2024, 0, 1 + i)).slice(0, 2)
+    );
+  } catch { return ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]; }
+}
+function _months() {
+  const loc = _calendarLocale();
+  try {
+    const fmt = new Intl.DateTimeFormat(loc, { month: "long" });
+    return Array.from({ length: 12 }, (_, i) => fmt.format(new Date(2024, i, 1)));
+  } catch {
+    return ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"];
+  }
+}
 
 class DateCalendar extends HTMLElement {
   static get observedAttributes() { return ["value", "end", "mode", "disabled"]; }
@@ -1280,6 +1312,11 @@ class DateCalendar extends HTMLElement {
       }
     }
     this._render();
+    this._onLangChange = () => this._render();
+    document.addEventListener("language-changed", this._onLangChange);
+  }
+  disconnectedCallback() {
+    document.removeEventListener("language-changed", this._onLangChange);
   }
   attributeChangedCallback() { if (this.shadowRoot.querySelector(".cal")) this._render(); }
 
@@ -1320,7 +1357,7 @@ class DateCalendar extends HTMLElement {
       cells += `<button class="${cls}" data-date="${dateStr}">${d}</button>`;
     }
 
-    const weekHeaders = WEEKDAYS.map((d) => `<span class="wday">${d}</span>`).join("");
+    const weekHeaders = _weekdays().map((d) => `<span class="wday">${d}</span>`).join("");
 
     this.shadowRoot.innerHTML = `
       <style>
@@ -1362,7 +1399,7 @@ class DateCalendar extends HTMLElement {
       <div class="cal">
         <div class="nav">
           <button class="nav-btn" id="prev">‹</button>
-          <span class="month-label">${MONTHS[month]} ${year}</span>
+          <span class="month-label">${_months()[month]} ${year}</span>
           <button class="nav-btn" id="next">›</button>
         </div>
         <div class="grid">${weekHeaders}${cells}</div>

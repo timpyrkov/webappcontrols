@@ -1,6 +1,5 @@
 {
   "app.title": "Web-App-Steuerelemente",
-
   "label.language": "Sprache",
   "label.style": "Stil",
   "label.font": "Schrift",
@@ -12,49 +11,38 @@
   "label.paletteNames": "Palettennamen",
   "label.paletteTools": "Paletten-Werkzeuge",
   "label.disableAll": "Alle deaktivieren",
-
   "swatch.main": "Haupt",
   "swatch.acc1": "Akz1",
   "swatch.acc2": "Akz2",
-
   "placeholder.gems": "Edelsteine",
   "placeholder.natural": "Natur",
   "placeholder.flower": "Blume",
   "placeholder.beverage": "Getränk",
-
   "btn.save": "Speichern",
   "btn.reset": "Zurücksetzen",
-  "btn.export": "Exportieren",
-
   "sat.accentsOnly": "Nur Akzente",
   "sat.wholeLayout": "Gesamtes Layout",
-
   "theme.dark": "Dunkel",
   "theme.light": "Hell",
   "theme.both": "Beide",
-
   "font.digital7": "Digital-7",
   "font.orbitron": "Orbitron",
   "font.system": "System",
-
   "style.basic": "Einfach",
   "style.flat": "Flach",
   "style.grad": "Grad",
   "style.volume": "Volumen",
   "style.groove": "Rille",
   "style.shadow": "Schatten",
-
   "heading.title": "Hauptüberschrift",
   "heading.section": "Abschnittsüberschrift",
   "heading.subsection": "Unterabschnitt",
   "text.lorem": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.",
   "text.comment": "Kommentartext",
   "text.preview": "Normaler Text: Diese Vorschau zeigt die wichtigsten UI-Elemente im Stil und in der Farbgebung, die im globalen Steuerungspanel links ausgewählt wurden.",
-
   "field.textInput": "Texteingabe",
   "placeholder.typeHere": "Hier eingeben…",
   "placeholder.disabled": "Deaktiviert",
-
   "btn.play": "▶ Abspielen",
   "btn.pause": "⏸ Pause",
   "btn.stop": "⏹ Stopp",
@@ -62,28 +50,23 @@
   "btn.normal": "Normal",
   "btn.disabled": "Deaktiviert",
   "btn.secondary": "Sekundär",
-
   "check.checked": "Aktiviert",
   "check.unchecked": "Deaktiviert",
   "check.mixed": "Gemischt",
-
   "radio.optionA": "Option A",
   "radio.optionB": "Option B",
   "radio.optionC": "Option C",
   "radio.optionD": "Option D",
-
-  "toggle.wifi": "WLAN",
-  "toggle.bluetooth": "Bluetooth",
-  "toggle.location": "Standort",
+  "toggle.wifi": "WiFi",
+  "toggle.bluetooth": "BT",
+  "toggle.location": "Loc",
   "toggle.darkMode": "Dunkelmodus",
   "toggle.notifications": "Benachrichtigungen",
   "toggle.vpn": "VPN",
   "toggle.autoUpdate": "Auto-Update",
-
   "chart.monthlyRevenue": "Monatsumsatz",
   "chart.traffic": "Traffic — Sitzungen vs Absprünge",
   "chart.activity": "Tagesaktivität — Schritte",
-
   "notif.note": "Hinweis",
   "notif.noteMsg": "Dies ist ein informativer Hinweis.",
   "notif.message": "Nachricht",
@@ -94,8 +77,26 @@
   "notif.warningMsg": "Der Speicherplatz wird knapp.",
   "notif.error": "Fehler",
   "notif.errorMsg": "Verbindung zum Server verloren.",
-
   "slider.value": "Wert",
   "slider.progress": "Fortschritt",
-  "slider.range": "Bereich"
+  "slider.range": "Bereich",
+  "seg.day": "Tag",
+  "seg.week": "Woche",
+  "seg.month": "Monat",
+  "knob.volume": "Lautst",
+  "knob.day": "Tag",
+  "day.mon": "Montag",
+  "day.tue": "Dienstag",
+  "day.wed": "Mittwoch",
+  "day.thu": "Donnerstag",
+  "day.fri": "Freitag",
+  "day.sat": "Samstag",
+  "day.sun": "Sonntag",
+  "gauge.speed": "Tempo",
+  "gauge.rpm": "RPM",
+  "gauge.temp": "Temp",
+  "gauge.fuel": "Kraft",
+  "gauge.level": "Pegel",
+  "btn.exportPalette": "Palette export.",
+  "btn.exportStyle": "Stil exportieren"
 }

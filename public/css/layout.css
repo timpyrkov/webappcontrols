@@ -57,7 +57,14 @@ body {
   font-weight: 600;
   letter-spacing: 0.03em;
   opacity: 0.8;
-  margin-bottom: 4px;
+  margin-bottom: 0;
+}
+
+.version-tag {
+  font: 400 10px/1 var(--font-display, system-ui, sans-serif);
+  color: var(--fg);
+  opacity: 0.35;
+  letter-spacing: 0.04em;
 }
 
 .panel-left .control-group {
@@ -274,6 +281,10 @@ body {
 .meta-actions {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
+}
+.meta-actions push-button {
+  --btn-padding: 8px 12px;
 }
 
 /* ── Picker row (3 pickers side by side) ── */

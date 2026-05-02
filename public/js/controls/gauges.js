@@ -233,7 +233,8 @@ class CircularGauge extends HTMLElement {
 
   _drawCaption(ctx, w, h, cy, S) {
     const baseY = cy + S * CG_ARC_R + 20;
-    const font = `13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+    const ff = getComputedStyle(document.documentElement).getPropertyValue("--font-display").trim() || "system-ui, sans-serif";
+    const font = `13px ${ff}`;
     ctx.textBaseline = "top";
     ctx.font = font;
     const centerX = w / 2;
@@ -487,7 +488,8 @@ class LinearGauge extends HTMLElement {
   }
 
   _drawLabelBelow(ctx, centerX, baseY) {
-    const font = `13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+    const ff = getComputedStyle(document.documentElement).getPropertyValue("--font-display").trim() || "system-ui, sans-serif";
+    const font = `13px ${ff}`;
     ctx.textBaseline = "bottom";
     ctx.font = font;
     const displayVal = String(Math.round(this._value));

@@ -232,6 +232,8 @@ export function generatePalette(main, accents, {
     }
 
     // Semantic notification colours — calm, theme-aware
+    tokens["--color-note"]    = theme === "dark" ? "#5bbcb8" : "#3a8a88";
+    tokens["--color-message"] = theme === "dark" ? "#4da6e8" : "#2d7abc";
     tokens["--color-success"] = theme === "dark" ? "#5cb85c" : "#3a8a3a";
     tokens["--color-warning"] = theme === "dark" ? "#e8a838" : "#c08020";
     tokens["--color-error"]   = theme === "dark" ? "#d9534f" : "#b83230";
@@ -250,6 +252,11 @@ export function generatePalette(main, accents, {
  */
 export function applyPalette(tokens) {
   const root = document.documentElement;
+  // Clear stale accent properties (palettes may have 5 or 7 stops)
+  for (let i = 1; i <= 9; i++) {
+    root.style.removeProperty(`--primary-accent-${i}`);
+    root.style.removeProperty(`--secondary-accent-${i}`);
+  }
   for (const [prop, value] of Object.entries(tokens)) {
     root.style.setProperty(prop, value);
   }

@@ -15,6 +15,7 @@
        ════════════════════════════════════════════════════════════ -->
   <aside class="panel-left">
     <h1 data-i18n="app.title">Web App Controls</h1>
+    <span class="version-tag" id="versionTag"></span>
 
     <!-- Row 1: Language + Font -->
     <div class="ctrl-row">
@@ -103,7 +104,8 @@
     <!-- Save / Export / Reset -->
     <div class="meta-actions">
       <push-button id="btnSavePalette" label="Save" data-i18n-label="btn.save"></push-button>
-      <push-button id="btnExport" label="Export" data-i18n-label="btn.export"></push-button>
+      <push-button id="btnExportPalette" label="Export palette" data-i18n-label="btn.exportPalette"></push-button>
+      <push-button id="btnExportStyle" label="Export style" data-i18n-label="btn.exportStyle"></push-button>
       <push-button id="btnResetPalette" label="Reset" data-i18n-label="btn.reset"></push-button>
     </div>
 
@@ -159,6 +161,11 @@
         </div>
       </div>
 
+      <!-- A3b: Segmented control example -->
+      <div class="preview-panel">
+        <segmented-control values='["Day","Week","Month"]' data-i18n-values="seg.day,seg.week,seg.month" value="Week" columns="3"></segmented-control>
+      </div>
+
       <!-- A4: Checkboxes — 2 primary + 3 secondary -->
       <div class="preview-panel">
         <div style="display:flex; gap:18px; flex-wrap:wrap;">
@@ -184,11 +191,11 @@
       <!-- A6: Toggle switches — 2 primary + 3 secondary -->
       <div class="preview-panel">
         <div style="display:flex; gap:18px; flex-wrap:wrap;">
-          <toggle-switch label="Wi-Fi" data-i18n-label="toggle.wifi" checked></toggle-switch>
-          <toggle-switch label="Bluetooth" data-i18n-label="toggle.bluetooth"></toggle-switch>
+          <toggle-switch label="WiFi" data-i18n-label="toggle.wifi" checked></toggle-switch>
+          <toggle-switch label="BT" data-i18n-label="toggle.bluetooth"></toggle-switch>
           <toggle-switch label="VPN" data-i18n-label="toggle.vpn" accent="secondary" checked></toggle-switch>
-          <toggle-switch label="Location" data-i18n-label="toggle.location" accent="secondary"></toggle-switch>
-          <toggle-switch label="Disabled" data-i18n-label="btn.disabled" accent="secondary" disabled data-permanent-disabled></toggle-switch>
+          <toggle-switch label="Loc" data-i18n-label="toggle.location" accent="secondary"></toggle-switch>
+          <toggle-switch label="Off" data-i18n-label="btn.disabled" accent="secondary" disabled data-permanent-disabled></toggle-switch>
         </div>
       </div>
 
@@ -222,24 +229,24 @@
 
       <!-- B2: Rotary knobs (wrapped in rect containers) -->
       <div class="preview-panel">
-        <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
-          <div class="gauge-box">
-            <rotary-knob mode="continuous" min="0" max="100" value="42" step="1" label="Volume" flat></rotary-knob>
+        <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+          <div class="gauge-box" style="width:170px; height:170px;">
+            <rotary-knob mode="continuous" min="0" max="100" value="42" step="1" label="Volume" data-i18n-label="knob.volume" flat></rotary-knob>
           </div>
-          <div class="gauge-box">
-            <rotary-knob mode="enum" values='["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]' value="0" label="Day" flat></rotary-knob>
+          <div class="gauge-box" style="width:170px; height:170px;">
+            <rotary-knob mode="enum" values='["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]' data-i18n-values="day.mon,day.tue,day.wed,day.thu,day.fri,day.sat,day.sun" value="0" label="Day" data-i18n-label="knob.day" flat></rotary-knob>
           </div>
         </div>
       </div>
 
       <!-- B3: Circular gauges -->
       <div class="preview-panel">
-        <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
-          <div class="gauge-box" style="width:180px; height:200px;">
-            <circular-gauge value="62" min="0" max="100" start-angle="225" end-angle="135" segments="10" label="Speed"></circular-gauge>
+        <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+          <div class="gauge-box" style="width:150px; height:160px;">
+            <circular-gauge value="62" min="0" max="100" start-angle="225" end-angle="135" segments="10" label="Speed" data-i18n-label="gauge.speed"></circular-gauge>
           </div>
-          <div class="gauge-box" style="width:180px; height:200px;">
-            <circular-gauge value="38" min="0" max="100" start-angle="225" end-angle="135" segments="8" grow-segments label="RPM"></circular-gauge>
+          <div class="gauge-box" style="width:150px; height:160px;">
+            <circular-gauge value="38" min="0" max="100" start-angle="225" end-angle="135" segments="8" grow-segments label="RPM" data-i18n-label="gauge.rpm"></circular-gauge>
           </div>
         </div>
       </div>
@@ -248,13 +255,13 @@
       <div class="preview-panel">
         <div style="display:flex; gap:16px; justify-content:center; align-items:center; flex-wrap:wrap;">
           <div class="gauge-box" style="width:60px; height:180px;">
-            <linear-gauge value="55" min="0" max="100" direction="vertical" segments="8" label="Temp"></linear-gauge>
+            <linear-gauge value="55" min="0" max="100" direction="vertical" segments="8" label="Temp" data-i18n-label="gauge.temp"></linear-gauge>
           </div>
           <div class="gauge-box" style="width:60px; height:180px;">
-            <linear-gauge value="72" min="0" max="100" direction="vertical" segments="10" grow-segments label="Fuel"></linear-gauge>
+            <linear-gauge value="72" min="0" max="100" direction="vertical" segments="10" grow-segments label="Fuel" data-i18n-label="gauge.fuel"></linear-gauge>
           </div>
           <div class="gauge-box" style="flex:1; min-width:160px; height:60px;">
-            <linear-gauge value="45" min="0" max="100" direction="horizontal" segments="12" label="Level"></linear-gauge>
+            <linear-gauge value="45" min="0" max="100" direction="horizontal" segments="12" label="Level" data-i18n-label="gauge.level"></linear-gauge>
           </div>
         </div>
       </div>

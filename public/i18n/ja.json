@@ -1,6 +1,5 @@
 {
   "app.title": "ウェブアプリコントロール",
-
   "label.language": "言語",
   "label.style": "スタイル",
   "label.font": "フォント",
@@ -12,49 +11,38 @@
   "label.paletteNames": "パレット名",
   "label.paletteTools": "パレットツール",
   "label.disableAll": "すべて無効化",
-
   "swatch.main": "主色",
   "swatch.acc1": "強調1",
   "swatch.acc2": "強調2",
-
   "placeholder.gems": "宝石",
   "placeholder.natural": "自然",
   "placeholder.flower": "花",
   "placeholder.beverage": "飲料",
-
   "btn.save": "保存",
   "btn.reset": "リセット",
-  "btn.export": "エクスポート",
-
   "sat.accentsOnly": "アクセントのみ",
   "sat.wholeLayout": "全体レイアウト",
-
   "theme.dark": "ダーク",
   "theme.light": "ライト",
   "theme.both": "両方",
-
   "font.digital7": "Digital-7",
   "font.orbitron": "Orbitron",
   "font.system": "システム",
-
   "style.basic": "ベーシック",
   "style.flat": "フラット",
   "style.grad": "グラデ",
   "style.volume": "ボリューム",
   "style.groove": "グルーブ",
   "style.shadow": "シャドウ",
-
   "heading.title": "メイン見出し",
   "heading.section": "セクション見出し",
   "heading.subsection": "サブセクション",
   "text.lorem": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.",
   "text.comment": "コメントテキスト",
   "text.preview": "通常テキスト: このプレビューは、左側のグローバルコントロールパネルで選択したスタイルと配色の主要UI要素を表示します。",
-
   "field.textInput": "テキスト入力",
   "placeholder.typeHere": "ここに入力…",
   "placeholder.disabled": "無効",
-
   "btn.play": "▶ 再生",
   "btn.pause": "⏸ 一時停止",
   "btn.stop": "⏹ 停止",
@@ -62,28 +50,23 @@
   "btn.normal": "通常",
   "btn.disabled": "無効",
   "btn.secondary": "二次",
-
   "check.checked": "チェック済み",
   "check.unchecked": "未チェック",
   "check.mixed": "混合",
-
   "radio.optionA": "オプション A",
   "radio.optionB": "オプション B",
   "radio.optionC": "オプション C",
   "radio.optionD": "オプション D",
-
-  "toggle.wifi": "Wi-Fi",
-  "toggle.bluetooth": "Bluetooth",
-  "toggle.location": "位置情報",
+  "toggle.wifi": "WiFi",
+  "toggle.bluetooth": "BT",
+  "toggle.location": "Loc",
   "toggle.darkMode": "ダークモード",
   "toggle.notifications": "通知",
   "toggle.vpn": "VPN",
   "toggle.autoUpdate": "自動更新",
-
   "chart.monthlyRevenue": "月間収益",
   "chart.traffic": "トラフィック — セッション vs 離脱",
   "chart.activity": "日々の活動 — 歩数",
-
   "notif.note": "メモ",
   "notif.noteMsg": "これは情報メモです。",
   "notif.message": "メッセージ",
@@ -94,8 +77,26 @@
   "notif.warningMsg": "ディスク容量が不足しています。",
   "notif.error": "エラー",
   "notif.errorMsg": "サーバーとの接続が切れました。",
-
   "slider.value": "値",
   "slider.progress": "進行",
-  "slider.range": "範囲"
+  "slider.range": "範囲",
+  "seg.day": "日",
+  "seg.week": "週",
+  "seg.month": "月",
+  "knob.volume": "音量",
+  "knob.day": "曜日",
+  "day.mon": "月曜日",
+  "day.tue": "火曜日",
+  "day.wed": "水曜日",
+  "day.thu": "木曜日",
+  "day.fri": "金曜日",
+  "day.sat": "土曜日",
+  "day.sun": "日曜日",
+  "gauge.speed": "速度",
+  "gauge.rpm": "RPM",
+  "gauge.temp": "温度",
+  "gauge.fuel": "燃料",
+  "gauge.level": "レベル",
+  "btn.exportPalette": "パレット出力",
+  "btn.exportStyle": "スタイル出力"
 }

@@ -24,7 +24,8 @@
 
   "btn.save": "Save",
   "btn.reset": "Reset",
-  "btn.export": "Export",
+  "btn.exportPalette": "Export palette",
+  "btn.exportStyle": "Export style",
 
   "sat.accentsOnly": "Accents only",
   "sat.wholeLayout": "Whole layout",
@@ -72,9 +73,9 @@
   "radio.optionC": "Option C",
   "radio.optionD": "Option D",
 
-  "toggle.wifi": "Wi-Fi",
-  "toggle.bluetooth": "Bluetooth",
-  "toggle.location": "Location",
+  "toggle.wifi": "WiFi",
+  "toggle.bluetooth": "BT",
+  "toggle.location": "Loc",
   "toggle.darkMode": "Dark mode",
   "toggle.notifications": "Notifications",
   "toggle.vpn": "VPN",
@@ -97,5 +98,26 @@
 
   "slider.value": "Value",
   "slider.progress": "Progress",
-  "slider.range": "Range"
+  "slider.range": "Range",
+
+  "seg.day": "Day",
+  "seg.week": "Week",
+  "seg.month": "Month",
+
+  "knob.volume": "Volume",
+  "knob.day": "Day",
+
+  "day.mon": "Monday",
+  "day.tue": "Tuesday",
+  "day.wed": "Wednesday",
+  "day.thu": "Thursday",
+  "day.fri": "Friday",
+  "day.sat": "Saturday",
+  "day.sun": "Sunday",
+
+  "gauge.speed": "Speed",
+  "gauge.rpm": "RPM",
+  "gauge.temp": "Temp",
+  "gauge.fuel": "Fuel",
+  "gauge.level": "Level"
 }

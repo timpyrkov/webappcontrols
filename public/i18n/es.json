@@ -1,6 +1,5 @@
 {
   "app.title": "Controles de Aplicación Web",
-
   "label.language": "Idioma",
   "label.style": "Estilo",
   "label.font": "Fuente",
@@ -12,49 +11,38 @@
   "label.paletteNames": "Nombres de Paleta",
   "label.paletteTools": "Herramientas de Paleta",
   "label.disableAll": "Desactivar todo",
-
   "swatch.main": "Principal",
   "swatch.acc1": "Acento1",
   "swatch.acc2": "Acento2",
-
   "placeholder.gems": "Gemas",
   "placeholder.natural": "Natural",
   "placeholder.flower": "Flor",
   "placeholder.beverage": "Bebida",
-
   "btn.save": "Guardar",
   "btn.reset": "Restablecer",
-  "btn.export": "Exportar",
-
   "sat.accentsOnly": "Solo acentos",
   "sat.wholeLayout": "Diseño completo",
-
   "theme.dark": "Oscuro",
   "theme.light": "Claro",
   "theme.both": "Ambos",
-
   "font.digital7": "Digital-7",
   "font.orbitron": "Orbitron",
   "font.system": "Sistema",
-
   "style.basic": "Básico",
   "style.flat": "Plano",
   "style.grad": "Grad",
   "style.volume": "Volumen",
   "style.groove": "Surco",
   "style.shadow": "Sombra",
-
   "heading.title": "Título Principal",
   "heading.section": "Encabezado de Sección",
   "heading.subsection": "Subsección",
   "text.lorem": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.",
   "text.comment": "Texto de comentario",
   "text.preview": "Texto normal: Esta vista previa muestra los principales elementos de interfaz en el estilo y la coloración seleccionados en el panel de controles globales de la izquierda.",
-
   "field.textInput": "Entrada de texto",
   "placeholder.typeHere": "Escriba aquí…",
   "placeholder.disabled": "Desactivado",
-
   "btn.play": "▶ Reproducir",
   "btn.pause": "⏸ Pausa",
   "btn.stop": "⏹ Detener",
@@ -62,28 +50,23 @@
   "btn.normal": "Normal",
   "btn.disabled": "Desactivado",
   "btn.secondary": "Secundario",
-
   "check.checked": "Marcado",
   "check.unchecked": "Desmarcado",
   "check.mixed": "Mixto",
-
   "radio.optionA": "Opción A",
   "radio.optionB": "Opción B",
   "radio.optionC": "Opción C",
   "radio.optionD": "Opción D",
-
-  "toggle.wifi": "Wi-Fi",
-  "toggle.bluetooth": "Bluetooth",
-  "toggle.location": "Ubicación",
+  "toggle.wifi": "WiFi",
+  "toggle.bluetooth": "BT",
+  "toggle.location": "Loc",
   "toggle.darkMode": "Modo oscuro",
   "toggle.notifications": "Notificaciones",
   "toggle.vpn": "VPN",
   "toggle.autoUpdate": "Actualización auto.",
-
   "chart.monthlyRevenue": "Ingresos Mensuales",
   "chart.traffic": "Tráfico — Sesiones vs Rebotes",
   "chart.activity": "Actividad Diaria — Pasos",
-
   "notif.note": "Nota",
   "notif.noteMsg": "Esta es una nota informativa.",
   "notif.message": "Mensaje",
@@ -94,8 +77,26 @@
   "notif.warningMsg": "El espacio en disco se está agotando.",
   "notif.error": "Error",
   "notif.errorMsg": "Se perdió la conexión con el servidor.",
-
   "slider.value": "Valor",
   "slider.progress": "Progreso",
-  "slider.range": "Rango"
+  "slider.range": "Rango",
+  "seg.day": "Día",
+  "seg.week": "Semana",
+  "seg.month": "Mes",
+  "knob.volume": "Volumen",
+  "knob.day": "Día",
+  "day.mon": "Lunes",
+  "day.tue": "Martes",
+  "day.wed": "Miércoles",
+  "day.thu": "Jueves",
+  "day.fri": "Viernes",
+  "day.sat": "Sábado",
+  "day.sun": "Domingo",
+  "gauge.speed": "Veloc",
+  "gauge.rpm": "RPM",
+  "gauge.temp": "Temp",
+  "gauge.fuel": "Comb",
+  "gauge.level": "Nivel",
+  "btn.exportPalette": "Exportar paleta",
+  "btn.exportStyle": "Exportar estilo"
 }

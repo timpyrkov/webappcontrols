@@ -26,4 +26,11 @@
   --secondary-accent-3: #6a5238;
   --secondary-accent-4: #886840;
   --secondary-accent-5: #a08050;
+
+  /* Semantic notification colours */
+  --color-note:    #5bbcb8;
+  --color-message: #4da6e8;
+  --color-success: #5cb85c;
+  --color-warning: #e8a838;
+  --color-error:   #d9534f;
 }

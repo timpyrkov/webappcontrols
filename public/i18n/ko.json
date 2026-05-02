@@ -1,6 +1,5 @@
 {
   "app.title": "웹 앱 컨트롤",
-
   "label.language": "언어",
   "label.style": "스타일",
   "label.font": "글꼴",
@@ -12,49 +11,38 @@
   "label.paletteNames": "팔레트 이름",
   "label.paletteTools": "팔레트 도구",
   "label.disableAll": "모두 비활성화",
-
   "swatch.main": "기본",
   "swatch.acc1": "강조1",
   "swatch.acc2": "강조2",
-
   "placeholder.gems": "보석",
   "placeholder.natural": "자연",
   "placeholder.flower": "꽃",
   "placeholder.beverage": "음료",
-
   "btn.save": "저장",
   "btn.reset": "초기화",
-  "btn.export": "내보내기",
-
   "sat.accentsOnly": "강조만",
   "sat.wholeLayout": "전체 레이아웃",
-
   "theme.dark": "다크",
   "theme.light": "라이트",
   "theme.both": "모두",
-
   "font.digital7": "Digital-7",
   "font.orbitron": "Orbitron",
   "font.system": "시스템",
-
   "style.basic": "기본",
   "style.flat": "플랫",
   "style.grad": "그라드",
   "style.volume": "볼륨",
   "style.groove": "그루브",
   "style.shadow": "그림자",
-
   "heading.title": "제목",
   "heading.section": "섹션 헤더",
   "heading.subsection": "하위 섹션",
   "text.lorem": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.",
   "text.comment": "코멘트 텍스트",
   "text.preview": "일반 텍스트: 이 미리보기는 왼쪽 글로벌 제어판에서 선택한 스타일과 색상의 주요 UI 요소를 보여줍니다.",
-
   "field.textInput": "텍스트 입력",
   "placeholder.typeHere": "여기에 입력…",
   "placeholder.disabled": "비활성화",
-
   "btn.play": "▶ 재생",
   "btn.pause": "⏸ 일시정지",
   "btn.stop": "⏹ 정지",
@@ -62,28 +50,23 @@
   "btn.normal": "일반",
   "btn.disabled": "비활성화",
   "btn.secondary": "보조",
-
   "check.checked": "선택됨",
   "check.unchecked": "선택 안됨",
   "check.mixed": "혼합",
-
   "radio.optionA": "옵션 A",
   "radio.optionB": "옵션 B",
   "radio.optionC": "옵션 C",
   "radio.optionD": "옵션 D",
-
-  "toggle.wifi": "Wi-Fi",
-  "toggle.bluetooth": "블루투스",
-  "toggle.location": "위치",
+  "toggle.wifi": "WiFi",
+  "toggle.bluetooth": "BT",
+  "toggle.location": "Loc",
   "toggle.darkMode": "다크 모드",
   "toggle.notifications": "알림",
   "toggle.vpn": "VPN",
   "toggle.autoUpdate": "자동 업데이트",
-
   "chart.monthlyRevenue": "월별 수익",
   "chart.traffic": "트래픽 — 세션 vs 이탈",
   "chart.activity": "일일 활동 — 걸음 수",
-
   "notif.note": "참고",
   "notif.noteMsg": "정보 메모입니다.",
   "notif.message": "메시지",
@@ -94,8 +77,26 @@
   "notif.warningMsg": "디스크 공간이 부족합니다.",
   "notif.error": "오류",
   "notif.errorMsg": "서버 연결이 끊어졌습니다.",
-
   "slider.value": "값",
   "slider.progress": "진행",
-  "slider.range": "범위"
+  "slider.range": "범위",
+  "seg.day": "일",
+  "seg.week": "주",
+  "seg.month": "월",
+  "knob.volume": "볼륨",
+  "knob.day": "요일",
+  "day.mon": "월요일",
+  "day.tue": "화요일",
+  "day.wed": "수요일",
+  "day.thu": "목요일",
+  "day.fri": "금요일",
+  "day.sat": "토요일",
+  "day.sun": "일요일",
+  "gauge.speed": "속도",
+  "gauge.rpm": "RPM",
+  "gauge.temp": "온도",
+  "gauge.fuel": "연료",
+  "gauge.level": "레벨",
+  "btn.exportPalette": "팔레트 내보내기",
+  "btn.exportStyle": "스타일 내보내기"
 }
