@@ -78,7 +78,8 @@ body {
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  opacity: 0.45;
+  opacity: 0.5;
+  color: var(--neutral-7);
 }
 
 .panel-left .spacer {
@@ -105,13 +106,12 @@ body {
   min-width: 0;
 }
 
-/* Style column wider, Theme + Colorization narrower */
+/* Style column wider, Theme narrower */
 .ctrl-row-stc > .control-group:first-child {
-  flex: 1.6;
+  flex: 1.4;
 }
-.ctrl-row-stc > .control-group:nth-child(2),
-.ctrl-row-stc > .control-group:nth-child(3) {
-  flex: 0.8;
+.ctrl-row-stc > .control-group:nth-child(2) {
+  flex: 0.6;
 }
 
 .swatch-row {
@@ -181,7 +181,7 @@ body {
   -webkit-appearance: none;
   width: 14px;
   height: 14px;
-  border: 2px solid var(--neutral-2);
+  border: 2px solid var(--neutral-5);
   border-radius: 3px;
   background: transparent;
   cursor: pointer;
@@ -189,7 +189,7 @@ body {
 }
 
 .disable-toggle input[type="checkbox"]:checked {
-  background: var(--neutral-2);
+  background: var(--neutral-5);
 }
 
 .disable-toggle input[type="checkbox"]:checked::after {
@@ -270,12 +270,13 @@ body {
 .meta-input {
   min-width: 0;
   width: 100%;
-  padding: 5px 8px;
-  font: 12px/1 system-ui, sans-serif;
-  background: var(--neutral-1);
+  padding: 8px 12px;
+  font: 13px/1.2 system-ui, sans-serif;
+  background: var(--neutral-3);
   color: var(--fg);
-  border: 1px solid var(--edge-1);
-  border-radius: 4px;
+  border: 1px solid var(--neutral-5);
+  border-radius: 6px;
+  outline: none;
 }
 
 .meta-actions {
@@ -322,9 +323,9 @@ body {
   width: 64px;
   padding: 3px 6px;
   font: 11px/1 monospace;
-  background: var(--neutral-1);
+  background: var(--neutral-3);
   color: var(--fg);
-  border: 1px solid var(--edge-1);
+  border: 1px solid var(--neutral-5);
   border-radius: 4px;
   text-align: center;
 }

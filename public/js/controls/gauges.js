@@ -193,7 +193,7 @@ class CircularGauge extends HTMLElement {
 
     for (let i = 0; i < n; i++) {
       const t = (i + 0.5) / n;
-      const color = lerpColor(COLORS.accent1, COLORS.accent2, t);
+      const color = lerpColor(COLORS.accent1, COLORS.accent5, t);
       const a0 = startRad + i * segSpan + (this._direction === "cw" ? gapRad / 2 : -gapRad / 2);
       const a1 = startRad + (i + 1) * segSpan - (this._direction === "cw" ? gapRad / 2 : -gapRad / 2);
       const lw = this._growSegments ? baseW * (0.5 + (n > 1 ? i / (n - 1) : 1) * 1.0) : baseW;
@@ -217,7 +217,7 @@ class CircularGauge extends HTMLElement {
     ctx.beginPath();
     ctx.moveTo(cx, cy);
     ctx.lineTo(x, y);
-    ctx.strokeStyle = COLORS.accent2;
+    ctx.strokeStyle = COLORS.accent5;
     ctx.lineWidth = CG_HAND_W;
     ctx.lineCap = "round";
     ctx.stroke();
@@ -227,7 +227,7 @@ class CircularGauge extends HTMLElement {
     const r = S * CG_HUB_R;
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, TAU);
-    ctx.fillStyle = COLORS.neutral2;
+    ctx.fillStyle = COLORS.neutral5;
     ctx.fill();
   }
 
@@ -240,19 +240,25 @@ class CircularGauge extends HTMLElement {
     const centerX = w / 2;
     const displayVal = String(Math.round(this._value));
 
+    // Reference value = widest possible string for stable layout
+    const sMin = String(Math.round(this._min));
+    const sMax = String(Math.round(this._max));
+    const refVal = sMin.length >= sMax.length ? sMin : sMax;
+
     if (!this._label) {
-      ctx.fillStyle = COLORS.accent2;
-      ctx.textAlign = "center";
-      ctx.fillText(displayVal, centerX, baseY);
+      const refW = ctx.measureText(refVal).width;
+      const valX = centerX - refW / 2;
+      ctx.fillStyle = COLORS.accent1;
       ctx.textAlign = "left";
+      ctx.fillText(displayVal, valX, baseY);
       return;
     }
 
     const colonStr = " : ";
     const titleW  = ctx.measureText(this._label).width;
     const colonW  = ctx.measureText(colonStr).width;
-    const valW    = ctx.measureText(displayVal).width;
-    const totalW  = titleW + colonW + valW;
+    const refW    = ctx.measureText(refVal).width;
+    const totalW  = titleW + colonW + refW;
     let x = centerX - totalW / 2;
 
     ctx.textAlign = "left";
@@ -261,7 +267,7 @@ class CircularGauge extends HTMLElement {
     x += titleW;
     ctx.fillText(colonStr, x, baseY);
     x += colonW;
-    ctx.fillStyle = COLORS.accent2;
+    ctx.fillStyle = COLORS.accent1;
     ctx.fillText(displayVal, x, baseY);
   }
 
@@ -414,7 +420,7 @@ class LinearGauge extends HTMLElement {
     // segments
     for (let i = 0; i < n; i++) {
       const t = (i + 0.5) / n;
-      const color = lerpColor(COLORS.accent1, COLORS.accent2, t);
+      const color = lerpColor(COLORS.accent1, COLORS.accent5, t);
       const x0 = padX + i * segLen + gapPx / 2;
       const x1 = padX + (i + 1) * segLen - gapPx / 2;
       const lw = this._growSegments ? baseW * (0.5 + (n > 1 ? i / (n - 1) : 1) * 1.0) : baseW;
@@ -433,7 +439,7 @@ class LinearGauge extends HTMLElement {
     ctx.beginPath();
     ctx.moveTo(handX, trackY - baseW - LG_HAND_OVER);
     ctx.lineTo(handX, trackY + baseW + LG_HAND_OVER);
-    ctx.strokeStyle = COLORS.accent2;
+    ctx.strokeStyle = COLORS.accent5;
     ctx.lineWidth = LG_HAND_W;
     ctx.lineCap = "round";
     ctx.stroke();
@@ -457,7 +463,7 @@ class LinearGauge extends HTMLElement {
     // segments (bottom = max for vertical)
     for (let i = 0; i < n; i++) {
       const t = (i + 0.5) / n;
-      const color = lerpColor(COLORS.accent1, COLORS.accent2, t);
+      const color = lerpColor(COLORS.accent1, COLORS.accent5, t);
       const y0 = padY + (n - 1 - i) * segLen + gapPx / 2;
       const y1 = padY + (n - i) * segLen - gapPx / 2;
       const lw = this._growSegments ? baseW * (0.5 + (n > 1 ? i / (n - 1) : 1) * 1.0) : baseW;
@@ -476,7 +482,7 @@ class LinearGauge extends HTMLElement {
     ctx.beginPath();
     ctx.moveTo(trackX - baseW - LG_HAND_OVER, handY);
     ctx.lineTo(trackX + baseW + LG_HAND_OVER, handY);
-    ctx.strokeStyle = COLORS.accent2;
+    ctx.strokeStyle = COLORS.accent5;
     ctx.lineWidth = LG_HAND_W;
     ctx.lineCap = "round";
     ctx.stroke();
@@ -493,14 +499,20 @@ class LinearGauge extends HTMLElement {
     ctx.textBaseline = "bottom";
     ctx.font = font;
     const displayVal = String(Math.round(this._value));
+
+    // Reference value = widest possible string for stable layout
+    const sMin = String(Math.round(this._min));
+    const sMax = String(Math.round(this._max));
+    const refVal = sMin.length >= sMax.length ? sMin : sMax;
+
     // For vertical gauges, trim label to first letter to fit narrow width
     const isVert = this._direction === "vertical";
     const displayLabel = isVert ? this._label.charAt(0) : this._label;
     const colonStr = " : ";
     const titleW = ctx.measureText(displayLabel).width;
     const colonW = ctx.measureText(colonStr).width;
-    const valW   = ctx.measureText(displayVal).width;
-    const totalW = titleW + colonW + valW;
+    const refW   = ctx.measureText(refVal).width;
+    const totalW = titleW + colonW + refW;
     let x = centerX - totalW / 2;
 
     ctx.textAlign = "left";
@@ -509,7 +521,7 @@ class LinearGauge extends HTMLElement {
     x += titleW;
     ctx.fillText(colonStr, x, baseY);
     x += colonW;
-    ctx.fillStyle = COLORS.accent2;
+    ctx.fillStyle = COLORS.accent1;
     ctx.fillText(displayVal, x, baseY);
   }
 

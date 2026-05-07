@@ -86,7 +86,8 @@ const READY_STYLES = new Set(["flat"]);
 const COMMON_FILES = [
   "css/tokens.css",
   "js/tokens.js",
-  "js/gen_colors.js",
+  "js/palette_tools.js",
+  "js/palettes.js",
   "js/i18n.js",
 ];
 // JS control modules for flat style
@@ -199,19 +200,24 @@ Secondary accents (\`--secondary-accent-1\` through \`--secondary-accent-5\`):
 ## Palette generation (optional)
 
 Instead of defining colours manually, you can use the included
-\`js/gen_colors.js\` module:
+\`js/palette_tools.js\` and \`js/palettes.js\` modules:
 
 \`\`\`js
-import { generatePalette, applyPalette } from "./js/gen_colors.js";
+import { PALETTES, DEFAULT_PALETTE } from "./js/palettes.js";
+import { createPalette } from "./js/palette_tools.js";
 
-const result = generatePalette("#6a5238", ["#d08028", "#f0c030"], {
-  saturationMode: "accents-only", // or "whole-layout"
-});
+const palette = PALETTES[DEFAULT_PALETTE];
+const result = createPalette({ main: palette.main, seeds: palette.accents });
 
-// Apply dark theme
-applyPalette(result.dark);
-// Or light theme
-applyPalette(result.light);
+// Choose a variant
+const variant = result.darkTinted;   // or lightTinted
+// variant.neutrals[], variant.primary[], variant.secondary[],
+// variant.notifications{}, variant.categories[]
+
+// Apply to CSS
+for (const n of variant.neutrals)  root.setProperty(\`--\${n.label}\`, n.hex);
+for (const p of variant.primary)   root.setProperty(\`--\${p.label}\`, p.hex);
+for (const s of variant.secondary) root.setProperty(\`--\${s.label}\`, s.hex);
 \`\`\`
 
 ## Internationalization (i18n)

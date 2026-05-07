@@ -45,9 +45,9 @@ class PushButton extends HTMLElement {
         :host([disabled]) { opacity: 0.38; pointer-events: none; }
         .btn {
           display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-          background: var(--neutral-1);
+          background: var(--neutral-3);
           color: var(--fg);
-          border: 1px solid var(--edge-1);
+          border: 1px solid var(--neutral-5);
           border-radius: 6px;
           padding: var(--btn-padding, 10px 24px);
           min-width: var(--btn-min-width, auto);
@@ -58,7 +58,7 @@ class PushButton extends HTMLElement {
         }
         .btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .btn:hover:not(.pressed):not(:active) {
-          background: var(--neutral-2);
+          background: var(--neutral-5);
           ${noHoverEdge ? "" : `border-color: ${hoverEdge};`}
         }
         .btn:active, .btn.pressed {
@@ -112,7 +112,7 @@ class TextField extends HTMLElement {
           padding: 9px 12px;
           background: var(--bg);
           color: var(--fg);
-          border: 1px solid var(--edge-1);
+          border: 1px solid var(--neutral-5);
           border-radius: 6px;
           font: 14px/1.4 var(--font-display, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
           outline: none;
@@ -120,7 +120,7 @@ class TextField extends HTMLElement {
           box-sizing: border-box;
         }
         input:focus { border-color: var(--primary-accent-3); }
-        input::placeholder { color: var(--neutral-2); }
+        input::placeholder { color: var(--neutral-7); }
       </style>
       <div class="tf-wrap">
         ${caption ? `<span class="caption">${caption}</span>` : ""}
@@ -178,7 +178,7 @@ class CheckBox extends HTMLElement {
         .box {
           width: 18px; height: 18px;
           background: ${active ? accentVar : "var(--bg)"};
-          border: 2px solid ${active ? accentVar : "var(--neutral-2)"};
+          border: 2px solid ${active ? accentVar : "var(--neutral-5)"};
           border-radius: 4px;
           display: flex; align-items: center; justify-content: center;
           transition: background 0.12s, border-color 0.12s;
@@ -186,7 +186,7 @@ class CheckBox extends HTMLElement {
         }
         .wrap:hover .box:not(.active) {
           border-color: ${accentVar};
-          background: var(--neutral-1);
+          background: var(--neutral-3);
         }
         .mark {
           color: var(--bg);
@@ -244,7 +244,7 @@ class RadioButton extends HTMLElement {
         .wrap { display: flex; align-items: center; gap: 8px; }
         .circle {
           width: 18px; height: 18px;
-          border: 2px solid ${checked ? accentVar : "var(--neutral-2)"};
+          border: 2px solid ${checked ? accentVar : "var(--neutral-5)"};
           border-radius: 50%;
           display: flex; align-items: center; justify-content: center;
           transition: border-color 0.12s, background 0.12s;
@@ -252,7 +252,7 @@ class RadioButton extends HTMLElement {
         }
         .wrap:hover .circle:not(.active) {
           border-color: ${accentVar};
-          background: var(--neutral-1);
+          background: var(--neutral-3);
         }
         .dot {
           width: 10px; height: 10px;
@@ -311,24 +311,26 @@ class ToggleSwitch extends HTMLElement {
         .wrap { display: flex; align-items: center; gap: 10px; }
         .track {
           width: 40px; height: 22px;
-          background: ${on ? accentVar : "var(--neutral-1)"};
-          border: 1px solid ${on ? accentVar : "var(--edge-1)"};
+          background: ${on ? accentVar : "var(--neutral-3)"};
+          border: 1px solid ${on ? accentVar : "var(--neutral-5)"};
           border-radius: 11px;
           position: relative;
           transition: background 0.15s, border-color 0.15s;
         }
         .wrap:hover .track:not(.active) {
-          background: var(--neutral-2);
+          background: var(--neutral-5);
           border-color: ${accentVar};
         }
         .thumb {
           width: 16px; height: 16px;
-          background: ${on ? (isSecondary ? "var(--secondary-accent-1)" : "var(--primary-accent-1)") : "var(--neutral-4)"};
+          background: ${on ? (isSecondary ? "var(--secondary-accent-1)" : "var(--primary-accent-1)") : "var(--neutral-7)"};
           border-radius: 50%;
           position: absolute;
-          top: 2px;
-          left: ${on ? "20px" : "2px"};
-          transition: left 0.15s, background 0.15s;
+          top: 50%;
+          transform: translateY(-50%);
+          left: ${on ? "21px" : "3px"};
+          transition: left 0.15s, background 0.15s, filter 0.15s;
+          ${on ? "filter: brightness(1.35);" : ""}
         }
         .label {
           font: 13px/1 var(--font-display, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
@@ -427,9 +429,9 @@ class SegmentedControl extends HTMLElement {
           font-size: var(--seg-font-size, 13px);
           line-height: 1;
           font-family: var(--font-display, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
-          background: var(--neutral-1);
+          background: var(--neutral-3);
           color: var(--fg);
-          border: 1px solid var(--edge-1);
+          border: 1px solid var(--neutral-5);
           margin: -0.5px;
           cursor: pointer;
           position: relative;
@@ -440,14 +442,14 @@ class SegmentedControl extends HTMLElement {
         }
         .seg:hover:not(.active) {
           z-index: 2;
-          background: var(--neutral-2);
+          background: var(--neutral-5);
           ${noHoverEdge ? "" : `border-color: ${hoverEdge};`}
         }
         .seg.active {
           z-index: 1;
           background: ${accentBg};
           color: ${accentFg};
-          border-color: var(--edge-1);
+          border-color: var(--neutral-5);
           font-weight: 600;
         }
       </style>
@@ -524,7 +526,7 @@ class VerticalSlider extends HTMLElement {
         }
         .track {
           width: 6px; height: 100%;
-          background: var(--neutral-1);
+          background: var(--neutral-3);
           border-radius: 3px;
           position: relative;
         }
@@ -535,15 +537,16 @@ class VerticalSlider extends HTMLElement {
           display: ${showFill ? "block" : "none"};
         }
         .thumb, .thumb2 {
-          width: 18px; height: 18px;
-          background: var(--primary-accent-1);
-          border: 2px solid ${accentVar};
+          width: 16px; height: 16px;
+          background: var(--primary-accent-3);
+          border: none;
           border-radius: 50%;
           position: absolute;
           left: 50%;
           transform: translateX(-50%);
           z-index: 2;
           cursor: grab;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.35);
         }
         .thumb2 { display: ${isRange ? "block" : "none"}; }
         .label { font: 11px/1 var(--font-display, system-ui, sans-serif); color: var(--fg); opacity: 0.5; }
@@ -569,7 +572,7 @@ class VerticalSlider extends HTMLElement {
     const fill  = this.shadowRoot.querySelector(".fill");
     const valEl = this.shadowRoot.querySelector(".val");
     if (!thumb) return;
-    thumb.style.bottom = `calc(${p1}% - 9px)`;
+    thumb.style.bottom = `calc(${p1}% - 8px)`;
     if (mode === "range") {
       const f2 = this._frac(this._val2);
       const p2 = f2 * 100;
@@ -577,7 +580,7 @@ class VerticalSlider extends HTMLElement {
       fill.style.bottom = lo + "%";
       fill.style.height = (hi - lo) + "%";
       const thumb2 = this.shadowRoot.querySelector(".thumb2");
-      if (thumb2) thumb2.style.bottom = `calc(${p2}% - 9px)`;
+      if (thumb2) thumb2.style.bottom = `calc(${p2}% - 8px)`;
       if (valEl) valEl.textContent = `${Math.round(this._val)}–${Math.round(this._val2)}`;
     } else {
       fill.style.bottom = "0";
@@ -673,7 +676,7 @@ class RangeSlider extends HTMLElement {
         .val { font: 12px/1 var(--font-display, system-ui, sans-serif); color: var(--fg); opacity: 0.7; }
         .track {
           width: 100%; height: 6px;
-          background: var(--neutral-1);
+          background: var(--neutral-3);
           border-radius: 3px;
           position: relative; cursor: pointer;
           touch-action: none;
@@ -685,15 +688,16 @@ class RangeSlider extends HTMLElement {
           display: ${showFill ? "block" : "none"};
         }
         .thumb, .thumb2 {
-          width: 18px; height: 18px;
-          background: var(--primary-accent-1);
-          border: 2px solid ${accentVar};
+          width: 16px; height: 16px;
+          background: var(--primary-accent-3);
+          border: none;
           border-radius: 50%;
           position: absolute;
           top: 50%;
           transform: translate(-50%, -50%);
           z-index: 2;
           cursor: grab;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.35);
         }
         .thumb2 { display: ${isRange ? "block" : "none"}; }
       </style>
@@ -803,7 +807,7 @@ class ProgressBar extends HTMLElement {
         .lbl { font: 11px/1 var(--font-display, system-ui, sans-serif); color: var(--fg); opacity: 0.5; }
         .track {
           width: 100%; height: 6px;
-          background: var(--neutral-1);
+          background: var(--neutral-3);
           border-radius: 3px;
           overflow: hidden;
         }
@@ -964,16 +968,12 @@ class BarChart extends HTMLElement {
       ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
     }
 
-    // Determine how many primary accent stops the palette provides (5 or 7)
-    let accentCount = 5;
-    if (cs.getPropertyValue("--primary-accent-7").trim()) accentCount = 7;
-
     // Sort by value to rank bars by height
     const ranked = data.map((v, i) => ({ v, i })).sort((a, b) => a.v - b.v);
     const rankMap = new Map();
     ranked.forEach((item, rank) => { rankMap.set(item.i, rank); });
 
-    // Bars with rounded top edges
+    // Bars with rounded top edges — colored by category tokens based on value rank
     const barW = chartW / data.length * 0.7;
     const gap = chartW / data.length * 0.3;
     const cornerR = Math.min(barW / 2, 6);
@@ -982,11 +982,13 @@ class BarChart extends HTMLElement {
       const x = pad.left + i * (barW + gap) + gap / 2;
       const y = pad.top + chartH - barH;
 
-      // Color by height rank: lowest → accent-1, highest → accent-5/7
+      // Color by height rank: lowest → category-1, highest → category-7
       const t = data.length > 1 ? rankMap.get(i) / (data.length - 1) : 0.5;
-      const accentIdx = Math.round(t * (accentCount - 1)) + 1;
-      const ak = `--primary-accent-${accentIdx}`;
-      ctx.fillStyle = cs.getPropertyValue(ak).trim() || "#d08028";
+      const catIdx = Math.round(t * 6) + 1;
+      const catColor = cs.getPropertyValue(`--category-${catIdx}`).trim()
+                    || cs.getPropertyValue("--primary-accent-1").trim()
+                    || "#d08028";
+      ctx.fillStyle = catColor;
 
       // Rounded top rect
       ctx.beginPath();
@@ -1159,7 +1161,7 @@ class LineChart extends HTMLElement {
     const gridC = cs.getPropertyValue("--edge-1").trim() || "#2a2820";
     const dayColor = cs.getPropertyValue("--primary-accent-1").trim() || "#d08028";
     const nightColor = cs.getPropertyValue("--secondary-accent-5").trim() || "#4060c0";
-    const lineColor = cs.getPropertyValue("--primary-accent-5").trim() || "#f0c030";
+    const lineColor = cs.getPropertyValue("--primary-accent-1").trim() || "#d08028";
     const sunColor = cs.getPropertyValue("--primary-accent-5").trim() || "#f0c030";
     const moonColor = cs.getPropertyValue("--secondary-accent-5").trim() || "#4060c0";
 
@@ -1384,9 +1386,9 @@ class DateCalendar extends HTMLElement {
           background: none; border: 1px solid transparent;
           border-radius: 4px; padding: 6px 0; text-align: center; cursor: pointer;
         }
-        .day:hover { background: var(--neutral-1); }
+        .day:hover { background: var(--neutral-3); }
         .day.blank { pointer-events: none; }
-        .day.today { border-color: var(--neutral-2); }
+        .day.today { border-color: var(--neutral-5); }
         .day.sel {
           background: var(--primary-accent-3); color: var(--bg);
           border-color: var(--primary-accent-3); font-weight: 600;
@@ -1504,8 +1506,8 @@ class ColorPicker extends HTMLElement {
         .hex-input {
           width: 80px; padding: 4px 6px;
           font: 12px/1 monospace;
-          background: var(--neutral-1); color: var(--fg);
-          border: 1px solid var(--edge-1); border-radius: 4px;
+          background: var(--neutral-3); color: var(--fg);
+          border: 1px solid var(--neutral-4); border-radius: 4px;
         }
       </style>
       <div class="wrap">

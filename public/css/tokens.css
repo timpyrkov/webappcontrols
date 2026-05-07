@@ -1,31 +1,41 @@
-/* ── tokens.css — CSS custom properties (overwritten by gen_colors.js at runtime) ── */
+/* ── tokens.css — CSS custom properties (overwritten at runtime by app.js) ── */
 
 :root {
-  /* Defaults: Amber palette, dark theme, accents-only mode */
-  --bg:        #181610;
-  --fg:        #e8e4d8;
-  --neutral-1: #302c25;
-  --neutral-2: #58523e;
-  --neutral-3: #807858;
-  --neutral-4: #b0a878;
-  --panel-bg:  #201e18;
-  --panel-edge:#2a2820;
-  --edge-1:    #2a2820;
-  --edge-2:    #322e28;
+  /* Full neutral ramp (12 stops, dark→light for dark theme) */
+  --neutral-1:  #181610;
+  --neutral-2:  #201e18;
+  --neutral-3:  #2a2820;
+  --neutral-4:  #322e28;
+  --neutral-5:  #484030;
+  --neutral-6:  #585040;
+  --neutral-7:  #706848;
+  --neutral-8:  #908058;
+  --neutral-9:  #a89868;
+  --neutral-10: #c0b080;
+  --neutral-11: #d0c898;
+  --neutral-12: #e8e4d8;
 
-  /* Primary accents (Amber 5-stop interpolation) */
-  --primary-accent-1: #d08028;
-  --primary-accent-2: #d89828;
-  --primary-accent-3: #e0a828;
-  --primary-accent-4: #e8b830;
-  --primary-accent-5: #f0c030;
+  /* Aliases */
+  --bg:         var(--neutral-1);
+  --panel-bg:   var(--neutral-2);
+  --panel-edge: var(--neutral-3);
+  --edge-1:     var(--neutral-4);
+  --edge-2:     var(--neutral-5);
+  --fg:         var(--neutral-12);
 
-  /* Secondary accents (from main hue) */
-  --secondary-accent-1: #3a2810;
-  --secondary-accent-2: #503818;
+  /* Primary accents (lighter → darker) */
+  --primary-accent-1: #f0c030;
+  --primary-accent-2: #e8b030;
+  --primary-accent-3: #e0a028;
+  --primary-accent-4: #d89028;
+  --primary-accent-5: #d08028;
+
+  /* Secondary accents (lighter → darker) */
+  --secondary-accent-1: #a08050;
+  --secondary-accent-2: #886840;
   --secondary-accent-3: #6a5238;
-  --secondary-accent-4: #886840;
-  --secondary-accent-5: #a08050;
+  --secondary-accent-4: #503818;
+  --secondary-accent-5: #3a2810;
 
   /* Semantic notification colours */
   --color-note:    #5bbcb8;

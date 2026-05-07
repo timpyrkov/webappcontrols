@@ -257,9 +257,9 @@ class RotaryKnob extends HTMLElement {
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, TAU);
     if (this.hasAttribute("flat")) {
-      ctx.fillStyle = COLORS.neutral1;
+      ctx.fillStyle = COLORS.neutral3;
     } else {
-      ctx.fillStyle = this._makeLinGrad(ctx, cx, cy, r, GRAD_ANGLE_DEG, COLORS.neutral1, COLORS.neutral2);
+      ctx.fillStyle = this._makeLinGrad(ctx, cx, cy, r, GRAD_ANGLE_DEG, COLORS.neutral3, COLORS.neutral5);
     }
     ctx.fill();
   }
@@ -270,9 +270,9 @@ class RotaryKnob extends HTMLElement {
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, TAU);
     if (this.hasAttribute("flat")) {
-      ctx.fillStyle = COLORS.neutral2;
+      ctx.fillStyle = COLORS.neutral5;
     } else {
-      ctx.fillStyle = this._makeLinGrad(ctx, cx, cy, r, GRAD_ANGLE_DEG + 180, COLORS.neutral1, COLORS.neutral2);
+      ctx.fillStyle = this._makeLinGrad(ctx, cx, cy, r, GRAD_ANGLE_DEG + 180, COLORS.neutral3, COLORS.neutral5);
     }
     ctx.fill();
   }
@@ -289,11 +289,11 @@ class RotaryKnob extends HTMLElement {
 
     let style;
     if (this.hasAttribute("flat")) {
-      style = COLORS.accent2;
+      style = COLORS.accent1;
     } else {
       const g = ctx.createLinearGradient(x1, y1, x2, y2);
       g.addColorStop(0, COLORS.accent1);
-      g.addColorStop(1, COLORS.accent2);
+      g.addColorStop(1, COLORS.accent1);
       style = g;
     }
 
@@ -314,7 +314,7 @@ class RotaryKnob extends HTMLElement {
     // background arc (neutral-2) — full range with gap at top
     ctx.beginPath();
     ctx.arc(cx, cy, r, valAngle(gap), valAngle(TAU - gap));
-    ctx.strokeStyle = COLORS.neutral2;
+    ctx.strokeStyle = COLORS.neutral5;
     ctx.lineWidth   = ARC_W;
     ctx.lineCap     = "round";
     ctx.stroke();
@@ -323,33 +323,24 @@ class RotaryKnob extends HTMLElement {
     const endAngle = this._displayAngle;
     if (endAngle <= gap + 0.001) return;          // nothing to draw
 
-    if (this.hasAttribute("flat")) {
-      // Flat mode: single solid colour arc
+    // Gradient arc: accent1 at zero, accent2 at max (full track range)
+    const fullSpan = TAU - 2 * gap;
+    const steps = 60;
+    const startA = gap;
+    const spanA  = endAngle - gap;
+    ctx.lineWidth = ARC_W;
+    ctx.lineCap   = "round";
+    for (let i = 0; i < steps; i++) {
+      const t0 = i / steps, t1 = (i + 1) / steps;
+      if (t1 * spanA + startA > endAngle + 0.001) break;
+      const a0 = valAngle(startA + t0 * spanA);
+      const a1 = valAngle(startA + t1 * spanA);
+      const midAngle = startA + ((t0 + t1) / 2) * spanA;
+      const gradT = (midAngle - gap) / fullSpan;
       ctx.beginPath();
-      ctx.arc(cx, cy, r, valAngle(gap), valAngle(endAngle));
-      ctx.strokeStyle = COLORS.accent2;
-      ctx.lineWidth = ARC_W;
-      ctx.lineCap = "round";
+      ctx.arc(cx, cy, r, a0, a1);
+      ctx.strokeStyle = lerpColor(COLORS.accent1, COLORS.accent5, gradT);
       ctx.stroke();
-    } else {
-      // Gradient mode: conical-approximated gradient with many tiny arcs
-      const alpha = (endAngle - gap) / (TAU - 2 * gap);
-      const endColor = lerpColor(COLORS.accent2, COLORS.accent1, alpha);
-      const steps = 60;
-      const startA = gap;
-      const spanA  = endAngle - gap;
-      ctx.lineWidth = ARC_W;
-      ctx.lineCap   = "round";
-      for (let i = 0; i < steps; i++) {
-        const t0 = i / steps, t1 = (i + 1) / steps;
-        if (t1 * spanA + startA > endAngle + 0.001) break;
-        const a0 = valAngle(startA + t0 * spanA);
-        const a1 = valAngle(startA + t1 * spanA);
-        ctx.beginPath();
-        ctx.arc(cx, cy, r, a0, a1);
-        ctx.strokeStyle = lerpColor(COLORS.accent2, endColor, (t0 + t1) / 2);
-        ctx.stroke();
-      }
     }
   }
 
@@ -371,7 +362,7 @@ class RotaryKnob extends HTMLElement {
       const label = String(this._enumValues[i]).slice(0, 3);
       const isCurrent = (i === currentIdx);
       ctx.font = isCurrent ? `bold ${fontBase}` : fontBase;
-      ctx.fillStyle = isCurrent ? COLORS.accent2 : COLORS.accent1;
+      ctx.fillStyle = isCurrent ? COLORS.accent1 : COLORS.accent5;
       ctx.fillText(label, x, y);
     }
   }
@@ -383,7 +374,7 @@ class RotaryKnob extends HTMLElement {
     const font = `13px ${ff}`;
     ctx.textBaseline = "top";
     ctx.font = font;
-    const centerX = w / 2;  // always use canvas horizontal centre
+    const centerX = w / 2;
 
     let displayVal;
     if (this._mode === "enum") {
@@ -392,19 +383,32 @@ class RotaryKnob extends HTMLElement {
       displayVal = String(Math.round(this._value));
     }
 
+    // Reference value = widest possible string, used to keep layout stable
+    let refVal;
+    if (this._mode === "enum") {
+      refVal = this._enumValues.reduce((a, b) => String(b).length > String(a).length ? b : a, "");
+      refVal = String(refVal);
+    } else {
+      const sMin = String(Math.round(this._min));
+      const sMax = String(Math.round(this._max));
+      refVal = sMin.length >= sMax.length ? sMin : sMax;
+    }
+
     if (!this._label) {
-      ctx.fillStyle = COLORS.accent2;
-      ctx.textAlign = "center";
-      ctx.fillText(displayVal, centerX, baseY);
+      // Centre based on reference value width, then left-align actual value
+      const refW = ctx.measureText(refVal).width;
+      const valX = centerX - refW / 2;
+      ctx.fillStyle = COLORS.accent1;
       ctx.textAlign = "left";
+      ctx.fillText(displayVal, valX, baseY);
       return;
     }
 
     const colonStr = " : ";
     const titleW   = ctx.measureText(this._label).width;
     const colonW   = ctx.measureText(colonStr).width;
-    const valW     = ctx.measureText(displayVal).width;
-    const totalW   = titleW + colonW + valW;
+    const refW     = ctx.measureText(refVal).width;
+    const totalW   = titleW + colonW + refW;
     let x = centerX - totalW / 2;
 
     ctx.textAlign = "left";
@@ -415,7 +419,7 @@ class RotaryKnob extends HTMLElement {
     ctx.fillText(colonStr, x, baseY);
     x += colonW;
 
-    ctx.fillStyle = COLORS.accent2;
+    ctx.fillStyle = COLORS.accent1;
     ctx.fillText(displayVal, x, baseY);
   }
 

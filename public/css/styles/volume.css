@@ -2,9 +2,9 @@
 
 /* ── Push Button ── */
 push-button {
-  --btn-bg: var(--neutral-1);
+  --btn-bg: var(--neutral-3);
   --btn-fg: var(--fg);
-  --btn-border: var(--edge-1);
+  --btn-border: var(--neutral-5);
   --btn-radius: 18%;
   --btn-padding: 10px 28px;
 }
@@ -13,7 +13,7 @@ push-button {
 text-field {
   --field-bg: var(--bg);
   --field-fg: var(--fg);
-  --field-border: var(--edge-1);
+  --field-border: var(--neutral-5);
   --field-focus-border: var(--primary-accent-3);
   --field-radius: 8px;
   --field-padding: 9px 12px;
@@ -23,7 +23,7 @@ text-field {
 check-box {
   --check-size: 18px;
   --check-bg: var(--bg);
-  --check-border: var(--neutral-2);
+  --check-border: var(--neutral-5);
   --check-active-bg: var(--primary-accent-3);
   --check-active-border: var(--primary-accent-3);
   --check-radius: 4px;
@@ -33,7 +33,7 @@ check-box {
 radio-button {
   --radio-size: 18px;
   --radio-bg: var(--bg);
-  --radio-border: var(--neutral-2);
+  --radio-border: var(--neutral-5);
   --radio-active-bg: var(--primary-accent-3);
   --radio-active-border: var(--primary-accent-3);
 }
@@ -42,7 +42,7 @@ radio-button {
 toggle-switch {
   --toggle-width: 40px;
   --toggle-height: 22px;
-  --toggle-bg-off: var(--neutral-1);
+  --toggle-bg-off: var(--neutral-3);
   --toggle-bg-on: var(--primary-accent-3);
   --toggle-thumb: var(--fg);
   --toggle-radius: 11px;
@@ -50,11 +50,11 @@ toggle-switch {
 
 /* ── Segmented Control ── */
 segmented-control {
-  --seg-bg: var(--neutral-1);
+  --seg-bg: var(--neutral-3);
   --seg-fg: var(--fg);
   --seg-active-bg: var(--primary-accent-3);
   --seg-active-fg: var(--bg);
-  --seg-border: var(--edge-1);
+  --seg-border: var(--neutral-5);
   --seg-radius: 8px;
 }
 

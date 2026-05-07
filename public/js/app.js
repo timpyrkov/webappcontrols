@@ -4,14 +4,17 @@
  */
 import { checkAuth } from "./auth.js";
 import { PALETTES, PALETTE_ORDER, DEFAULT_PALETTE, PALETTE_I18N } from "./palettes.js";
-import { generatePalette, applyPalette, hexToOklch, oklchToHex } from "./gen_colors.js";
+import { createPalette, downloadPaletteJson } from "./palette_tools.js";
 import { getActiveStyle, switchStyle } from "./style-manager.js";
 import { loadLanguage, t } from "./i18n.js";
 
 /* ── State ── */
 let currentPalette = DEFAULT_PALETTE;
-let currentTheme = "dark";        // "dark" | "light" | "both"
-let currentSaturation = "accents-only";
+let currentTheme = "dark";        // "dark" | "light"
+let currentResult = null;          // output of createPalette()
+
+// Variant mapping (tinted only — no accented)
+const VARIANT_MAP = { dark: "darkTinted", light: "lightTinted" };
 
 // Editable copy of palette seeds (starts as clone of PALETTES)
 const editedPalettes = JSON.parse(JSON.stringify(PALETTES));
@@ -30,52 +33,62 @@ fetch("/api/version").then(r => r.json()).then(v => {
 function _gen() {
   const p = editedPalettes[currentPalette];
   if (!p) return null;
-  return generatePalette(p.main, p.accents, {
-    saturationMode: currentSaturation,
-    special: p.special,
-  });
+  currentResult = createPalette({ main: p.main, seeds: p.accents });
+  return currentResult;
 }
 
-function _applyTokensToElement(el, tokens) {
-  for (const [prop, value] of Object.entries(tokens)) {
-    el.style.setProperty(prop, value);
+/**
+ * Map a variant from createPalette() to existing CSS custom properties.
+ * Keeps full backward compatibility with all style CSS files and controls.
+ */
+function applyTokensToCSS(variant) {
+  const root = document.documentElement.style;
+  const n = variant.neutrals;
+  const N = n.length;   // typically 12
+  const M = variant.primary.length;
+
+  // Clear stale accent properties (palettes may have 5 or 7 stops)
+  for (let i = 1; i <= 9; i++) {
+    root.removeProperty(`--primary-accent-${i}`);
+    root.removeProperty(`--secondary-accent-${i}`);
   }
-}
 
-/* ── "Both" mode management ── */
+  // Backgrounds & foregrounds
+  root.setProperty("--bg",         n[0].hex);
+  root.setProperty("--panel-bg",   n[Math.min(1, N - 1)].hex);
+  root.setProperty("--panel-edge", n[Math.min(2, N - 1)].hex);
+  root.setProperty("--edge-1",     n[Math.min(3, N - 1)].hex);
+  root.setProperty("--edge-2",     n[Math.min(4, N - 1)].hex);
+  root.setProperty("--fg",         n[N - 1].hex);
 
-const mainPanel = document.querySelector(".panel-right");
-let bothMode = false;
-let originalHTML = null;
-
-function enterBothMode(result) {
-  if (bothMode) return;
-  bothMode = true;
-  originalHTML = mainPanel.innerHTML;
-
-  mainPanel.classList.add("both-mode");
-  mainPanel.innerHTML = `
-    <div class="both-half both-dark">${originalHTML}</div>
-    <div class="both-half both-light">${originalHTML}</div>`;
-
-  const darkHalf = mainPanel.querySelector(".both-dark");
-  const lightHalf = mainPanel.querySelector(".both-light");
-  _applyTokensToElement(darkHalf, result.dark);
-  _applyTokensToElement(lightHalf, result.light);
-  darkHalf.style.background = result.dark["--bg"];
-  darkHalf.style.color = result.dark["--fg"];
-  lightHalf.style.background = result.light["--bg"];
-  lightHalf.style.color = result.light["--fg"];
-}
-
-function exitBothMode() {
-  if (!bothMode) return;
-  bothMode = false;
-  mainPanel.classList.remove("both-mode");
-  if (originalHTML !== null) {
-    mainPanel.innerHTML = originalHTML;
-    originalHTML = null;
+  // Full neutral ramp 1..12
+  for (let i = 0; i < N; i++) {
+    root.setProperty(`--neutral-${i + 1}`, n[i].hex);
   }
+
+  // Primary accents
+  for (let i = 0; i < M; i++) {
+    root.setProperty(`--primary-accent-${i + 1}`, variant.primary[i].hex);
+  }
+
+  // Secondary accents
+  for (let i = 0; i < variant.secondary.length; i++) {
+    root.setProperty(`--secondary-accent-${i + 1}`, variant.secondary[i].hex);
+  }
+
+  // Notifications
+  for (const [, v] of Object.entries(variant.notifications)) {
+    root.setProperty(`--${v.label}`, v.hex);
+  }
+
+  // Categories (for bar-chart series etc.)
+  if (variant.categories) {
+    for (let i = 0; i < variant.categories.length; i++) {
+      root.setProperty(`--category-${i + 1}`, variant.categories[i].hex);
+    }
+  }
+
+  document.dispatchEvent(new CustomEvent("palette-changed", { detail: variant }));
 }
 
 /* ── Palette application ── */
@@ -83,16 +96,8 @@ function exitBothMode() {
 function refreshPalette() {
   const result = _gen();
   if (!result) return;
-
-  if (currentTheme === "both") {
-    // Apply dark theme to :root (left panel stays dark)
-    applyPalette(result.dark);
-    enterBothMode(result);
-  } else {
-    exitBothMode();
-    applyPalette(result[currentTheme]);
-  }
-
+  const variant = result[VARIANT_MAP[currentTheme]];
+  applyTokensToCSS(variant);
 }
 
 /* ── Wire palette segmented control ── */
@@ -164,17 +169,6 @@ if (themeSelect) {
   themeSelect.addEventListener("change", (e) => {
     const key = (e.detail?.value || "Dark");
     currentTheme = key.toLowerCase();
-    refreshPalette();
-  });
-}
-
-/* ── Wire saturation toggle ── */
-
-const satSelect = document.getElementById("saturationSelect");
-if (satSelect) {
-  satSelect.addEventListener("change", (e) => {
-    const key = e.detail?.value || "Accents only";
-    currentSaturation = key === "Whole layout" ? "whole-layout" : "accents-only";
     refreshPalette();
   });
 }
@@ -432,34 +426,8 @@ if (btnReset) {
 const btnExportPalette = document.getElementById("btnExportPalette");
 if (btnExportPalette) {
   btnExportPalette.addEventListener("activate", () => {
-    const p = editedPalettes[currentPalette];
-    if (!p) return;
-    const result = generatePalette(p.main, p.accents, {
-      saturationMode: currentSaturation,
-      special: p.special,
-    });
-    // Build comprehensive export object
-    const i18n = PALETTE_I18N[currentPalette] || {};
-    const exportObj = {
-      key: currentPalette,
-      names: {
-        gems:     Object.assign({}, { en: p.gems },     i18n.gems),
-        natural:  Object.assign({}, { en: p.natural },   i18n.natural),
-        flower:   Object.assign({}, { en: p.flower },    i18n.flower),
-        beverage: Object.assign({}, { en: p.beverage },  i18n.beverage),
-      },
-      seeds: { main: p.main, accents: p.accents, special: p.special },
-      dark: result.dark,
-      light: result.light,
-    };
-    const data = JSON.stringify(exportObj, null, 2);
-    const blob = new Blob([data], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `palette-${currentPalette}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    if (!currentResult) return;
+    downloadPaletteJson(currentResult, `palette-${currentPalette}.json`);
   });
 }
 
