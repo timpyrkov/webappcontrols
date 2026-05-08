@@ -96,6 +96,7 @@ function applyTokensToCSS(variant) {
 function refreshPalette() {
   const result = _gen();
   if (!result) return;
+  document.documentElement.dataset.theme = currentTheme;
   const variant = result[VARIANT_MAP[currentTheme]];
   applyTokensToCSS(variant);
 }
@@ -214,18 +215,20 @@ function _updateTitleGradient() {
   }
 }
 _updateTitleGradient();
+// Set initial flat state on canvas-based components
+document.querySelectorAll("rotary-knob, circular-gauge, bar-chart, line-chart").forEach((el) => el.setAttribute("flat", ""));
 
 if (styleSelect) {
-  const styleNameMap = { Basic: "basic", Flat: "flat", Grad: "gradient", Volume: "volume", Groove: "grooves", Shadow: "shadows" };
+  const styleNameMap = { Basic: "basic", Flat: "flat", Gradient: "gradient", Volume: "volume" };
   styleSelect.addEventListener("change", (e) => {
     const key = e.detail?.value || "Flat";  // stable key from keys attr
     _currentStyleKey = key;
     switchStyle(styleNameMap[key] || key.toLowerCase());
     _updateTitleGradient();
-    // Toggle flat attribute on rotary knobs
-    document.querySelectorAll("rotary-knob").forEach((knob) => {
-      if (key === "Flat" || key === "Basic") knob.setAttribute("flat", "");
-      else knob.removeAttribute("flat");
+    // Toggle flat attribute on canvas-based components
+    document.querySelectorAll("rotary-knob, circular-gauge, bar-chart, line-chart").forEach((el) => {
+      if (key === "Flat" || key === "Basic") el.setAttribute("flat", "");
+      else el.removeAttribute("flat");
     });
   });
 }
@@ -433,7 +436,7 @@ if (btnExportPalette) {
 
 /* ── Wire Export style ── */
 
-const _styleKeyToFile = { Basic: "basic", Flat: "flat", Grad: "gradient", Volume: "volume", Groove: "grooves", Shadow: "shadows" };
+const _styleKeyToFile = { Basic: "basic", Flat: "flat", Gradient: "gradient", Volume: "volume" };
 const btnExportStyle = document.getElementById("btnExportStyle");
 if (btnExportStyle) {
   btnExportStyle.addEventListener("activate", () => {

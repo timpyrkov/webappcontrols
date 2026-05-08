@@ -1,10 +1,154 @@
-/* ── gradient.css — Gradient style (placeholder — same as flat for now) ── */
-/* TODO: Add gradient-specific overrides */
+/* ── gradient.css — Gradient style: two-anchor linear-gradient fills ── */
 
-push-button { --btn-bg: var(--neutral-3); --btn-fg: var(--fg); --btn-border: var(--neutral-5); --btn-radius: 8px; --btn-padding: 10px 24px; }
-text-field { --field-bg: var(--bg); --field-fg: var(--fg); --field-border: var(--neutral-5); --field-focus-border: var(--primary-accent-3); --field-radius: 8px; --field-padding: 9px 12px; }
-check-box { --check-size: 18px; --check-bg: var(--bg); --check-border: var(--neutral-5); --check-active-bg: var(--primary-accent-3); --check-active-border: var(--primary-accent-3); --check-radius: 4px; }
-radio-button { --radio-size: 18px; --radio-bg: var(--bg); --radio-border: var(--neutral-5); --radio-active-bg: var(--primary-accent-3); --radio-active-border: var(--primary-accent-3); }
-toggle-switch { --toggle-width: 40px; --toggle-height: 22px; --toggle-bg-off: var(--neutral-3); --toggle-bg-on: var(--primary-accent-3); --toggle-thumb: var(--fg); --toggle-radius: 11px; }
-segmented-control { --seg-bg: var(--neutral-3); --seg-fg: var(--fg); --seg-active-bg: var(--primary-accent-3); --seg-active-fg: var(--bg); --seg-border: var(--neutral-5); --seg-radius: 5px; }
-notification-bar { --notif-radius: 8px; --notif-padding: 12px 16px; }
+/* ── Push Button ── */
+push-button {
+  --btn-bg: linear-gradient(to bottom, var(--neutral-4), var(--neutral-2));
+  --btn-fg: var(--fg);
+  --btn-border: var(--neutral-5);
+  --btn-hover-bg: linear-gradient(to bottom, var(--neutral-5), var(--neutral-3));
+  --btn-active-bg: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-5));
+  --btn-active-bg-secondary: linear-gradient(to bottom, var(--secondary-accent-1), var(--secondary-accent-5));
+  --btn-radius: 6px;
+  --btn-padding: 10px 24px;
+}
+
+/* ── Text Field ── */
+text-field {
+  --field-bg: linear-gradient(to bottom, var(--neutral-1), var(--neutral-2));
+  --field-fg: var(--fg);
+  --field-border: var(--neutral-5);
+  --field-focus-border: var(--primary-accent-3);
+  --field-radius: 6px;
+  --field-padding: 9px 12px;
+}
+
+/* ── Checkbox ── */
+check-box {
+  --check-size: 18px;
+  --check-bg: linear-gradient(to bottom, var(--neutral-2), var(--neutral-1));
+  --check-border: var(--neutral-5);
+  --check-hover-bg: linear-gradient(to bottom, var(--neutral-4), var(--neutral-2));
+  --check-active-bg: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-5));
+  --check-active-bg-secondary: linear-gradient(to bottom, var(--secondary-accent-1), var(--secondary-accent-5));
+  --check-radius: 4px;
+}
+
+/* ── Radio Button ── */
+radio-button {
+  --radio-size: 18px;
+  --radio-border: var(--neutral-5);
+  --radio-hover-bg: linear-gradient(to bottom, var(--neutral-4), var(--neutral-2));
+  --radio-dot-bg: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-5));
+  --radio-dot-bg-secondary: linear-gradient(to bottom, var(--secondary-accent-1), var(--secondary-accent-5));
+}
+
+/* ── Toggle Switch ── */
+toggle-switch {
+  --toggle-width: 40px;
+  --toggle-height: 22px;
+  --toggle-bg-off: linear-gradient(to bottom, var(--neutral-4), var(--neutral-2));
+  --toggle-bg-on: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-5));
+  --toggle-bg-on-secondary: linear-gradient(to bottom, var(--secondary-accent-1), var(--secondary-accent-5));
+  --toggle-hover-bg: linear-gradient(to bottom, var(--neutral-5), var(--neutral-3));
+  --toggle-thumb: linear-gradient(to bottom, var(--neutral-9), var(--neutral-6));
+  --toggle-thumb-on: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-3));
+  --toggle-thumb-on-secondary: linear-gradient(to bottom, var(--secondary-accent-1), var(--secondary-accent-3));
+  --toggle-thumb-border: 1px solid var(--neutral-5);
+  --toggle-border-off: var(--neutral-5);
+  --toggle-radius: 11px;
+}
+
+/* ── Segmented Control ── */
+segmented-control {
+  --seg-bg: linear-gradient(to bottom, var(--neutral-4), var(--neutral-2));
+  --seg-fg: var(--fg);
+  --seg-hover-bg: linear-gradient(to bottom, var(--neutral-5), var(--neutral-3));
+  --seg-active-bg: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-5));
+  --seg-active-bg-secondary: linear-gradient(to bottom, var(--secondary-accent-1), var(--secondary-accent-5));
+  --seg-border: var(--neutral-5);
+  --seg-radius: 5px;
+}
+
+/* ── Sliders & Progress ── */
+range-slider {
+  --track-height: 8px;
+  --track-radius: 4px;
+  --track-bg: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
+  --track-border: 1px solid var(--neutral-4);
+  --thumb-center: radial-gradient(circle closest-side, var(--neutral-3) 60%, transparent 61%), linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-5));
+  --thumb-border: none;
+  --thumb-shadow: none;
+  --thumb-outline: 1px solid var(--neutral-3);
+}
+vertical-slider {
+  --track-width: 8px;
+  --track-radius: 4px;
+  --track-bg: linear-gradient(to right, var(--neutral-2), var(--neutral-4));
+  --track-border: 1px solid var(--neutral-4);
+  --thumb-center: radial-gradient(circle closest-side, var(--neutral-3) 60%, transparent 61%), linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-5));
+  --thumb-border: none;
+  --thumb-shadow: none;
+  --thumb-outline: 1px solid var(--neutral-3);
+}
+
+progress-bar {
+  --track-bg: linear-gradient(to bottom, var(--neutral-2), var(--neutral-3));
+}
+
+/* ── Calendar ── */
+date-calendar {
+  --cal-sel-bg: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-5));
+}
+
+/* ── Notification ── */
+notification-bar {
+  --notif-radius: 8px;
+  --notif-padding: 12px 16px;
+  --notif-gradient: linear-gradient(to bottom, rgba(128,128,128,0.08) 0%, transparent 100%);
+}
+
+/* ── Page & Panel Backgrounds ── */
+:root {
+  --page-bg: linear-gradient(to top, var(--panel-bg), var(--bg));
+  --panel-bg-fill: linear-gradient(to top, var(--panel-edge), var(--panel-bg));
+}
+
+/* ── Light theme: reverse neutral gradient directions ── */
+[data-theme="light"] push-button {
+  --btn-bg: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
+  --btn-hover-bg: linear-gradient(to bottom, var(--neutral-3), var(--neutral-5));
+}
+[data-theme="light"] text-field {
+  --field-bg: linear-gradient(to bottom, var(--neutral-2), var(--neutral-1));
+}
+[data-theme="light"] check-box {
+  --check-bg: linear-gradient(to bottom, var(--neutral-1), var(--neutral-2));
+  --check-hover-bg: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
+}
+[data-theme="light"] radio-button {
+  --radio-hover-bg: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
+}
+[data-theme="light"] toggle-switch {
+  --toggle-bg-off: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
+  --toggle-hover-bg: linear-gradient(to bottom, var(--neutral-3), var(--neutral-5));
+  --toggle-thumb: linear-gradient(to bottom, var(--neutral-6), var(--neutral-9));
+}
+[data-theme="light"] segmented-control {
+  --seg-bg: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
+  --seg-hover-bg: linear-gradient(to bottom, var(--neutral-3), var(--neutral-5));
+}
+[data-theme="light"] range-slider {
+  --track-bg: linear-gradient(to bottom, var(--neutral-4), var(--neutral-2));
+  --thumb-center: radial-gradient(circle closest-side, var(--neutral-3) 60%, transparent 61%), linear-gradient(to bottom, var(--primary-accent-5), var(--primary-accent-1));
+}
+[data-theme="light"] vertical-slider {
+  --track-bg: linear-gradient(to right, var(--neutral-4), var(--neutral-2));
+  --thumb-center: radial-gradient(circle closest-side, var(--neutral-3) 60%, transparent 61%), linear-gradient(to bottom, var(--primary-accent-5), var(--primary-accent-1));
+}
+[data-theme="light"] progress-bar {
+  --track-bg: linear-gradient(to bottom, var(--neutral-3), var(--neutral-2));
+}
+[data-theme="light"] {
+  --page-bg: linear-gradient(to top, var(--bg), var(--panel-bg));
+  --panel-bg-fill: linear-gradient(to top, var(--panel-bg), var(--panel-edge));
+}

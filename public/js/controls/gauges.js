@@ -9,7 +9,7 @@
  * - Centered caption: "Label : Value"
  */
 
-import { COLORS, refreshColors } from "../tokens.js";
+import { COLORS, refreshColors, gradPair, captionAccent } from "../tokens.js";
 
 /* ── Shared constants ── */
 const DEG  = Math.PI / 180;
@@ -47,7 +47,7 @@ function lerpColor(hex1, hex2, t) {
 const CG_OUTER_R  = 0.42;
 const CG_ARC_R    = 0.42;
 const CG_ARC_W    = 8;
-const CG_HAND_R   = 0.36;
+const CG_HAND_R   = 0.30;
 const CG_HUB_R    = 0.06;
 const CG_HAND_W   = 3;
 const CG_GAP_FRAC = 0.25;   // gap between segments as fraction of segment angular span
@@ -86,6 +86,7 @@ class CircularGauge extends HTMLElement {
     if (!this._canvas) return;
     this._readAttributes();
     this._setTargetAngle(this._valueToAngle(this._value), false);
+    this._draw();
   }
 
   _buildDOM() {
@@ -117,6 +118,7 @@ class CircularGauge extends HTMLElement {
     this._segments   = parseInt(this.getAttribute("segments") ?? 10, 10);
     this._growSegments = this.hasAttribute("grow-segments");
     this._label      = this.getAttribute("label") || "";
+    this._flat       = this.hasAttribute("flat");
   }
 
   _resize() {
@@ -217,7 +219,14 @@ class CircularGauge extends HTMLElement {
     ctx.beginPath();
     ctx.moveTo(cx, cy);
     ctx.lineTo(x, y);
-    ctx.strokeStyle = COLORS.accent5;
+    if (this._flat) {
+      ctx.strokeStyle = COLORS.accent1;
+    } else {
+      const grad = ctx.createLinearGradient(cx, cy, x, y);
+      grad.addColorStop(0, COLORS.accent5);
+      grad.addColorStop(1, COLORS.accent1);
+      ctx.strokeStyle = grad;
+    }
     ctx.lineWidth = CG_HAND_W;
     ctx.lineCap = "round";
     ctx.stroke();
@@ -227,8 +236,21 @@ class CircularGauge extends HTMLElement {
     const r = S * CG_HUB_R;
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, TAU);
-    ctx.fillStyle = COLORS.neutral5;
+    if (this._flat) {
+      ctx.fillStyle = COLORS.neutral5;
+    } else {
+      const [hTop, hBot] = gradPair(COLORS.neutral9, COLORS.neutral5);
+      const grad = ctx.createLinearGradient(cx, cy - r, cx, cy + r);
+      grad.addColorStop(0, hTop);
+      grad.addColorStop(1, hBot);
+      ctx.fillStyle = grad;
+    }
     ctx.fill();
+    if (!this._flat) {
+      ctx.strokeStyle = COLORS.edge2;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
   }
 
   _drawCaption(ctx, w, h, cy, S) {
@@ -248,7 +270,7 @@ class CircularGauge extends HTMLElement {
     if (!this._label) {
       const refW = ctx.measureText(refVal).width;
       const valX = centerX - refW / 2;
-      ctx.fillStyle = COLORS.accent1;
+      ctx.fillStyle = captionAccent();
       ctx.textAlign = "left";
       ctx.fillText(displayVal, valX, baseY);
       return;
@@ -267,7 +289,7 @@ class CircularGauge extends HTMLElement {
     x += titleW;
     ctx.fillText(colonStr, x, baseY);
     x += colonW;
-    ctx.fillStyle = COLORS.accent1;
+    ctx.fillStyle = captionAccent();
     ctx.fillText(displayVal, x, baseY);
   }
 
@@ -296,8 +318,10 @@ class CircularGauge extends HTMLElement {
 
 const LG_TRACK_W   = 8;
 const LG_GAP_FRAC  = 0.20;
-const LG_HAND_W    = 3;
-const LG_HAND_OVER = 6; // hand overshoot past track edges (px)
+const LG_PTR_W     = 5;  // pointer stroke width
+const LG_PTR_OVER  = 3;  // pointer overshoot past track edges (px)
+const LG_PTR_FILL  = () => COLORS.neutral7;  // pointer fill color
+const LG_PTR_EDGE  = () => COLORS.edge2;     // pointer edge color
 
 class LinearGauge extends HTMLElement {
 
@@ -409,7 +433,7 @@ class LinearGauge extends HTMLElement {
 
   _drawHorizontal(ctx, w, h) {
     const n = this._segments;
-    const captionH = this._label ? 22 : 0;
+    const captionH = this._label ? 28 : 0;
     const trackY = (h - captionH) / 2;
     const padX = 10;
     const trackLen = w - padX * 2;
@@ -434,13 +458,22 @@ class LinearGauge extends HTMLElement {
       ctx.stroke();
     }
 
-    // hand
+    // pointer (rounded stroke)
     const handX = padX + this._displayFrac * trackLen;
+    const hY0 = trackY - baseW / 2 - LG_PTR_OVER;
+    const hY1 = trackY + baseW / 2 + LG_PTR_OVER;
     ctx.beginPath();
-    ctx.moveTo(handX, trackY - baseW - LG_HAND_OVER);
-    ctx.lineTo(handX, trackY + baseW + LG_HAND_OVER);
-    ctx.strokeStyle = COLORS.accent5;
-    ctx.lineWidth = LG_HAND_W;
+    ctx.moveTo(handX, hY0);
+    ctx.lineTo(handX, hY1);
+    ctx.strokeStyle = LG_PTR_EDGE();
+    ctx.lineWidth = LG_PTR_W + 2;
+    ctx.lineCap = "round";
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(handX, hY0);
+    ctx.lineTo(handX, hY1);
+    ctx.strokeStyle = LG_PTR_FILL();
+    ctx.lineWidth = LG_PTR_W;
     ctx.lineCap = "round";
     ctx.stroke();
 
@@ -477,13 +510,22 @@ class LinearGauge extends HTMLElement {
       ctx.stroke();
     }
 
-    // hand
+    // pointer (rounded stroke)
     const handY = padY + (1 - this._displayFrac) * trackLen;
+    const hX0 = trackX - baseW / 2 - LG_PTR_OVER;
+    const hX1 = trackX + baseW / 2 + LG_PTR_OVER;
     ctx.beginPath();
-    ctx.moveTo(trackX - baseW - LG_HAND_OVER, handY);
-    ctx.lineTo(trackX + baseW + LG_HAND_OVER, handY);
-    ctx.strokeStyle = COLORS.accent5;
-    ctx.lineWidth = LG_HAND_W;
+    ctx.moveTo(hX0, handY);
+    ctx.lineTo(hX1, handY);
+    ctx.strokeStyle = LG_PTR_EDGE();
+    ctx.lineWidth = LG_PTR_W + 2;
+    ctx.lineCap = "round";
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(hX0, handY);
+    ctx.lineTo(hX1, handY);
+    ctx.strokeStyle = LG_PTR_FILL();
+    ctx.lineWidth = LG_PTR_W;
     ctx.lineCap = "round";
     ctx.stroke();
 
@@ -521,7 +563,7 @@ class LinearGauge extends HTMLElement {
     x += titleW;
     ctx.fillText(colonStr, x, baseY);
     x += colonW;
-    ctx.fillStyle = COLORS.accent1;
+    ctx.fillStyle = captionAccent();
     ctx.fillText(displayVal, x, baseY);
   }
 

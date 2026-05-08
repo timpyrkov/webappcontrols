@@ -4,6 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Web App Controls</title>
+
+  <!-- Favicons & Web App Icons -->
+  <link rel="icon" href="/favicon.ico" sizes="48x48" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="/icons/icon-64x64.png" />
+  <link rel="icon" type="image/png" sizes="128x128" href="/icons/icon-128x128.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <meta name="theme-color" content="#0a0b11" />
+
   <link rel="stylesheet" href="css/tokens.css" />
   <link rel="stylesheet" href="css/layout.css" />
   <link rel="stylesheet" href="css/styles/flat.css" />
@@ -47,9 +58,9 @@
         <label data-i18n="label.style">Style</label>
         <segmented-control
           id="styleSelect"
-          keys='["Basic","Flat","Grad","Volume","Groove","Shadow"]'
-          values='["Basic","Flat","Grad","Volume","Groove","Shadow"]'
-          data-i18n-values="style.basic,style.flat,style.grad,style.volume,style.groove,style.shadow"
+          keys='["Basic","Flat","Gradient","Volume"]'
+          values='["Basic","Flat","Gradient","Volume"]'
+          data-i18n-values="style.basic,style.flat,style.gradient,style.volume"
           value="Flat"
           columns="2"
         ></segmented-control>
@@ -249,7 +260,7 @@
           <div class="gauge-box" style="width:60px; height:180px;">
             <linear-gauge value="72" min="0" max="100" direction="vertical" segments="10" grow-segments label="Fuel" data-i18n-label="gauge.fuel"></linear-gauge>
           </div>
-          <div class="gauge-box" style="flex:1; min-width:160px; height:60px;">
+          <div class="gauge-box" style="flex:1; min-width:160px; height:75px;">
             <linear-gauge value="45" min="0" max="100" direction="horizontal" segments="12" label="Level" data-i18n-label="gauge.level"></linear-gauge>
           </div>
         </div>

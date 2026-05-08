@@ -14,57 +14,75 @@ function get(prop, fallback) {
 
 export const COLORS = {
   /* Aliases (convenience shortcuts into the neutral ramp) */
-  bg:        get("--bg",           "#131015"),
-  panelBg:   get("--panel-bg",    "#1a1620"),
-  panelEdge: get("--panel-edge",  "#221e28"),
-  edge1:     get("--edge-1",      "#2a2530"),
-  edge2:     get("--edge-2",      "#322d38"),
-  fg:        get("--fg",          "#e8e4d8"),
+  bg:        get("--bg",           "#0a0b11"),
+  panelBg:   get("--panel-bg",    "#11131b"),
+  panelEdge: get("--panel-edge",  "#1b1e2c"),
+  edge1:     get("--edge-1",      "#2a2f45"),
+  edge2:     get("--edge-2",      "#404765"),
+  fg:        get("--fg",          "#f1f2f4"),
 
   /* Full neutral ramp (12 stops, n[0]..n[11]) */
-  neutral1:  get("--neutral-1",   "#131015"),
-  neutral2:  get("--neutral-2",   "#1a1620"),
-  neutral3:  get("--neutral-3",   "#221e28"),
-  neutral4:  get("--neutral-4",   "#2a2530"),
-  neutral5:  get("--neutral-5",   "#322d38"),
-  neutral6:  get("--neutral-6",   "#483e50"),
-  neutral7:  get("--neutral-7",   "#605568"),
-  neutral8:  get("--neutral-8",   "#786d80"),
-  neutral9:  get("--neutral-9",   "#908598"),
-  neutral10: get("--neutral-10",  "#a89db0"),
-  neutral11: get("--neutral-11",  "#c0b8c8"),
-  neutral12: get("--neutral-12",  "#e8e4d8"),
+  neutral1:  get("--neutral-1",   "#0a0b11"),
+  neutral2:  get("--neutral-2",   "#11131b"),
+  neutral3:  get("--neutral-3",   "#1b1e2c"),
+  neutral4:  get("--neutral-4",   "#2a2f45"),
+  neutral5:  get("--neutral-5",   "#404765"),
+  neutral6:  get("--neutral-6",   "#626881"),
+  neutral7:  get("--neutral-7",   "#888c9f"),
+  neutral8:  get("--neutral-8",   "#aaadbb"),
+  neutral9:  get("--neutral-9",   "#c6c8d1"),
+  neutral10: get("--neutral-10",  "#dbdce2"),
+  neutral11: get("--neutral-11",  "#e9e9ed"),
+  neutral12: get("--neutral-12",  "#f1f2f4"),
 
   /* Primary accents (up to 7, lighter → darker) */
-  accent1:  get("--primary-accent-1", "#f0c030"),
-  accent2:  get("--primary-accent-2", "#e8b030"),
-  accent3:  get("--primary-accent-3", "#e0a028"),
-  accent4:  get("--primary-accent-4", "#d89028"),
-  accent5:  get("--primary-accent-5", "#d08028"),
+  accent1:  get("--primary-accent-1", "#cfa630"),
+  accent2:  get("--primary-accent-2", "#cc972f"),
+  accent3:  get("--primary-accent-3", "#da891c"),
+  accent4:  get("--primary-accent-4", "#df7814"),
+  accent5:  get("--primary-accent-5", "#e9650a"),
 
   /* Secondary accents (up to 7, lighter → darker) */
-  secondary1: get("--secondary-accent-1", "#a888c0"),
-  secondary2: get("--secondary-accent-2", "#9878b8"),
-  secondary3: get("--secondary-accent-3", "#8868b0"),
-  secondary4: get("--secondary-accent-4", "#7858a8"),
-  secondary5: get("--secondary-accent-5", "#6848a0"),
+  secondary1: get("--secondary-accent-1", "#969aaa"),
+  secondary2: get("--secondary-accent-2", "#848a9e"),
+  secondary3: get("--secondary-accent-3", "#727994"),
+  secondary4: get("--secondary-accent-4", "#636a84"),
+  secondary5: get("--secondary-accent-5", "#545a75"),
 
   /* Notifications */
-  colorError:   get("--color-error",   "#d04040"),
-  colorWarning: get("--color-warning", "#e0a020"),
-  colorSuccess: get("--color-success", "#40a060"),
-  colorMessage: get("--color-message", "#4080d0"),
-  colorNote:    get("--color-note",    "#808080"),
+  colorError:   get("--color-error",   "#fb5e4b"),
+  colorWarning: get("--color-warning", "#d8a429"),
+  colorSuccess: get("--color-success", "#82b072"),
+  colorMessage: get("--color-message", "#7b9b8f"),
+  colorNote:    get("--color-note",    "#b27182"),
 
   /* Category colours (up to 7) */
-  category1: get("--category-1", "#f0c030"),
-  category2: get("--category-2", "#e8b030"),
-  category3: get("--category-3", "#e0a028"),
-  category4: get("--category-4", "#d89028"),
-  category5: get("--category-5", "#d08028"),
-  category6: get("--category-6", "#a888c0"),
-  category7: get("--category-7", "#6848a0"),
+  category1: get("--category-1", "#cfa630"),
+  category2: get("--category-2", "#c99b34"),
+  category3: get("--category-3", "#d19229"),
+  category4: get("--category-4", "#da891c"),
+  category5: get("--category-5", "#de7e16"),
+  category6: get("--category-6", "#df7215"),
+  category7: get("--category-7", "#e9650a"),
 };
+
+/**
+ * Return gradient color pair [top, bottom] for neutral volumetric fills.
+ * In Light theme the stops are swapped so the lighting direction stays consistent.
+ */
+export function gradPair(top, bottom) {
+  const isLight = document.documentElement.dataset.theme === "light";
+  return isLight ? [bottom, top] : [top, bottom];
+}
+
+/**
+ * Return accent color for caption values.
+ * Uses accent3 in Light theme (accent1 is too pale on light backgrounds).
+ */
+export function captionAccent() {
+  const isLight = document.documentElement.dataset.theme === "light";
+  return isLight ? COLORS.accent3 : COLORS.accent1;
+}
 
 /** Re-read all CSS custom properties. Call after palette-changed event. */
 export function refreshColors() {

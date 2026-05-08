@@ -45,10 +45,10 @@ class PushButton extends HTMLElement {
         :host([disabled]) { opacity: 0.38; pointer-events: none; }
         .btn {
           display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-          background: var(--neutral-3);
-          color: var(--fg);
-          border: 1px solid var(--neutral-5);
-          border-radius: 6px;
+          background: var(--btn-bg, var(--neutral-3));
+          color: var(--btn-fg, var(--fg));
+          border: 1px solid var(--btn-border, var(--neutral-5));
+          border-radius: var(--btn-radius, 6px);
           padding: var(--btn-padding, 10px 24px);
           min-width: var(--btn-min-width, auto);
           font: 14px/1 var(--font-display, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
@@ -58,11 +58,11 @@ class PushButton extends HTMLElement {
         }
         .btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .btn:hover:not(.pressed):not(:active) {
-          background: var(--neutral-5);
+          background: var(--btn-hover-bg, var(--neutral-5));
           ${noHoverEdge ? "" : `border-color: ${hoverEdge};`}
         }
         .btn:active, .btn.pressed {
-          background: ${accentBg};
+          background: ${isSecondary ? `var(--btn-active-bg-secondary, ${accentBg})` : `var(--btn-active-bg, ${accentBg})`};
           color: var(--bg);
           border-color: ${accentBg};
         }
@@ -91,17 +91,22 @@ class TextField extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+    this._internalUpdate = false;
   }
 
   connectedCallback() { this._render(); }
-  attributeChangedCallback() { if (this.shadowRoot.querySelector(".tf-wrap")) this._render(); }
+  attributeChangedCallback(name) {
+    if (!this.shadowRoot.querySelector(".tf-wrap")) return;
+    if (name === "value" && this._internalUpdate) return;
+    this._render();
+  }
 
   _render() {
     const caption = this.getAttribute("caption") || "";
     this.shadowRoot.innerHTML = `
       <style>
         :host { display: block; }
-        :host([disabled]) input { opacity: 0.38; pointer-events: none; }
+        :host([disabled]) input { opacity: 0.55; pointer-events: none; }
         .tf-wrap { display: flex; flex-direction: column; gap: 4px; }
         .caption {
           font: 11px/1 var(--font-display, system-ui, sans-serif);
@@ -109,17 +114,17 @@ class TextField extends HTMLElement {
         }
         input {
           width: 100%;
-          padding: 9px 12px;
-          background: var(--bg);
-          color: var(--fg);
-          border: 1px solid var(--neutral-5);
-          border-radius: 6px;
+          padding: var(--field-padding, 9px 12px);
+          background: var(--field-bg, var(--bg));
+          color: var(--field-fg, var(--fg));
+          border: 1px solid var(--field-border, var(--neutral-5));
+          border-radius: var(--field-radius, 6px);
           font: 14px/1.4 var(--font-display, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
           outline: none;
           transition: border-color 0.15s;
           box-sizing: border-box;
         }
-        input:focus { border-color: var(--primary-accent-3); }
+        input:focus { border-color: var(--field-focus-border, var(--primary-accent-3)); }
         input::placeholder { color: var(--neutral-7); }
       </style>
       <div class="tf-wrap">
@@ -134,7 +139,9 @@ class TextField extends HTMLElement {
 
     const input = this.shadowRoot.querySelector("input");
     input.addEventListener("input", () => {
+      this._internalUpdate = true;
       this.setAttribute("value", input.value);
+      this._internalUpdate = false;
       this.dispatchEvent(new CustomEvent("change", { bubbles: true, detail: { value: input.value } }));
     });
   }
@@ -176,17 +183,17 @@ class CheckBox extends HTMLElement {
         :host([disabled]) { opacity: 0.38; pointer-events: none; }
         .wrap { display: flex; align-items: center; gap: 8px; }
         .box {
-          width: 18px; height: 18px;
-          background: ${active ? accentVar : "var(--bg)"};
-          border: 2px solid ${active ? accentVar : "var(--neutral-5)"};
-          border-radius: 4px;
+          width: var(--check-size, 18px); height: var(--check-size, 18px);
+          background: ${active ? (isSecondary ? "var(--check-active-bg-secondary, var(--secondary-accent-3))" : "var(--check-active-bg, var(--primary-accent-3))") : "var(--check-bg, var(--bg))"};
+          border: 2px solid ${active ? accentVar : "var(--check-border, var(--neutral-5))"};
+          border-radius: var(--check-radius, 4px);
           display: flex; align-items: center; justify-content: center;
           transition: background 0.12s, border-color 0.12s;
           flex-shrink: 0;
         }
         .wrap:hover .box:not(.active) {
           border-color: ${accentVar};
-          background: var(--neutral-3);
+          background: var(--check-hover-bg, var(--neutral-3));
         }
         .mark {
           color: var(--bg);
@@ -243,8 +250,8 @@ class RadioButton extends HTMLElement {
         :host([disabled]) { opacity: 0.38; pointer-events: none; }
         .wrap { display: flex; align-items: center; gap: 8px; }
         .circle {
-          width: 18px; height: 18px;
-          border: 2px solid ${checked ? accentVar : "var(--neutral-5)"};
+          width: var(--radio-size, 18px); height: var(--radio-size, 18px);
+          border: 2px solid ${checked ? accentVar : "var(--radio-border, var(--neutral-5))"};
           border-radius: 50%;
           display: flex; align-items: center; justify-content: center;
           transition: border-color 0.12s, background 0.12s;
@@ -252,11 +259,11 @@ class RadioButton extends HTMLElement {
         }
         .wrap:hover .circle:not(.active) {
           border-color: ${accentVar};
-          background: var(--neutral-3);
+          background: var(--radio-hover-bg, var(--neutral-3));
         }
         .dot {
           width: 10px; height: 10px;
-          background: ${accentVar};
+          background: ${checked ? (isSecondary ? "var(--radio-dot-bg-secondary, var(--secondary-accent-3))" : "var(--radio-dot-bg, var(--primary-accent-3))") : accentVar};
           border-radius: 50%;
           display: ${checked ? "block" : "none"};
           transition: opacity 0.12s;
@@ -310,26 +317,28 @@ class ToggleSwitch extends HTMLElement {
         :host([disabled]) { opacity: 0.38; pointer-events: none; }
         .wrap { display: flex; align-items: center; gap: 10px; }
         .track {
-          width: 40px; height: 22px;
-          background: ${on ? accentVar : "var(--neutral-3)"};
-          border: 1px solid ${on ? accentVar : "var(--neutral-5)"};
-          border-radius: 11px;
+          width: var(--toggle-width, 40px); height: var(--toggle-height, 22px);
+          background: ${on ? (isSecondary ? "var(--toggle-bg-on-secondary, var(--secondary-accent-3))" : "var(--toggle-bg-on, var(--primary-accent-3))") : "var(--toggle-bg-off, var(--neutral-3))"};
+          border: 1px solid ${on ? accentVar : "var(--toggle-border-off, var(--neutral-5))"};
+          border-radius: var(--toggle-radius, 11px);
           position: relative;
           transition: background 0.15s, border-color 0.15s;
         }
         .wrap:hover .track:not(.active) {
-          background: var(--neutral-5);
+          background: var(--toggle-hover-bg, var(--neutral-5));
           border-color: ${accentVar};
         }
         .thumb {
           width: 16px; height: 16px;
-          background: ${on ? (isSecondary ? "var(--secondary-accent-1)" : "var(--primary-accent-1)") : "var(--neutral-7)"};
+          background: ${on ? (isSecondary ? "var(--toggle-thumb-on-secondary, var(--secondary-accent-1))" : "var(--toggle-thumb-on, var(--primary-accent-1))") : "var(--toggle-thumb, var(--neutral-7))"};
+          border: ${on ? (isSecondary ? "1px solid var(--secondary-accent-3)" : "1px solid var(--primary-accent-3)") : "var(--toggle-thumb-border, none)"};
           border-radius: 50%;
           position: absolute;
           top: 50%;
           transform: translateY(-50%);
           left: ${on ? "21px" : "3px"};
           transition: left 0.15s, background 0.15s, filter 0.15s;
+          box-sizing: border-box;
           ${on ? "filter: brightness(1.35);" : ""}
         }
         .label {
@@ -429,9 +438,9 @@ class SegmentedControl extends HTMLElement {
           font-size: var(--seg-font-size, 13px);
           line-height: 1;
           font-family: var(--font-display, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
-          background: var(--neutral-3);
-          color: var(--fg);
-          border: 1px solid var(--neutral-5);
+          background: var(--seg-bg, var(--neutral-3));
+          color: var(--seg-fg, var(--fg));
+          border: 1px solid var(--seg-border, var(--neutral-5));
           margin: -0.5px;
           cursor: pointer;
           position: relative;
@@ -442,12 +451,12 @@ class SegmentedControl extends HTMLElement {
         }
         .seg:hover:not(.active) {
           z-index: 2;
-          background: var(--neutral-5);
+          background: var(--seg-hover-bg, var(--neutral-5));
           ${noHoverEdge ? "" : `border-color: ${hoverEdge};`}
         }
         .seg.active {
           z-index: 1;
-          background: ${accentBg};
+          background: ${isSecondary ? `var(--seg-active-bg-secondary, ${accentBg})` : `var(--seg-active-bg, ${accentBg})`};
           color: ${accentFg};
           border-color: var(--neutral-5);
           font-weight: 600;
@@ -525,10 +534,12 @@ class VerticalSlider extends HTMLElement {
           touch-action: none;
         }
         .track {
-          width: 6px; height: 100%;
-          background: var(--neutral-3);
-          border-radius: 3px;
+          width: var(--track-width, 6px); height: 100%;
+          background: var(--track-bg, var(--neutral-3));
+          border: var(--track-border, none);
+          border-radius: var(--track-radius, 3px);
           position: relative;
+          box-sizing: border-box;
         }
         .fill {
           position: absolute; left: 0; right: 0;
@@ -538,15 +549,18 @@ class VerticalSlider extends HTMLElement {
         }
         .thumb, .thumb2 {
           width: 16px; height: 16px;
-          background: var(--primary-accent-3);
-          border: none;
+          background: var(--thumb-center, var(--neutral-3));
+          border: var(--thumb-border, 3px solid var(--thumb-ring, var(--primary-accent-3)));
           border-radius: 50%;
           position: absolute;
           left: 50%;
           transform: translateX(-50%);
           z-index: 2;
           cursor: grab;
-          box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+          box-shadow: var(--thumb-shadow, none);
+          outline: var(--thumb-outline, none);
+          outline-offset: 0px;
+          box-sizing: border-box;
         }
         .thumb2 { display: ${isRange ? "block" : "none"}; }
         .label { font: 11px/1 var(--font-display, system-ui, sans-serif); color: var(--fg); opacity: 0.5; }
@@ -675,11 +689,13 @@ class RangeSlider extends HTMLElement {
         .lbl { font: 12px/1 var(--font-display, system-ui, sans-serif); color: var(--fg); opacity: 0.5; }
         .val { font: 12px/1 var(--font-display, system-ui, sans-serif); color: var(--fg); opacity: 0.7; }
         .track {
-          width: 100%; height: 6px;
-          background: var(--neutral-3);
-          border-radius: 3px;
+          width: 100%; height: var(--track-height, 6px);
+          background: var(--track-bg, var(--neutral-3));
+          border: var(--track-border, none);
+          border-radius: var(--track-radius, 3px);
           position: relative; cursor: pointer;
           touch-action: none;
+          box-sizing: border-box;
         }
         .fill {
           position: absolute; top: 0; bottom: 0;
@@ -689,15 +705,18 @@ class RangeSlider extends HTMLElement {
         }
         .thumb, .thumb2 {
           width: 16px; height: 16px;
-          background: var(--primary-accent-3);
-          border: none;
+          background: var(--thumb-center, var(--neutral-3));
+          border: var(--thumb-border, 3px solid var(--thumb-ring, var(--primary-accent-3)));
           border-radius: 50%;
           position: absolute;
           top: 50%;
           transform: translate(-50%, -50%);
           z-index: 2;
           cursor: grab;
-          box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+          box-shadow: var(--thumb-shadow, none);
+          outline: var(--thumb-outline, none);
+          outline-offset: 0px;
+          box-sizing: border-box;
         }
         .thumb2 { display: ${isRange ? "block" : "none"}; }
       </style>
@@ -807,7 +826,7 @@ class ProgressBar extends HTMLElement {
         .lbl { font: 11px/1 var(--font-display, system-ui, sans-serif); color: var(--fg); opacity: 0.5; }
         .track {
           width: 100%; height: 6px;
-          background: var(--neutral-3);
+          background: var(--track-bg, var(--neutral-3));
           border-radius: 3px;
           overflow: hidden;
         }
@@ -859,10 +878,19 @@ class NotificationBar extends HTMLElement {
         :host { display: block; }
         .notif {
           display: flex; gap: 12px; align-items: flex-start;
-          padding: 12px 16px;
-          background: ${s.bg};
+          padding: var(--notif-padding, 12px 16px);
+          background: var(--notif-bg, ${s.bg});
           border: 1px solid ${s.border};
-          border-radius: 8px;
+          border-radius: var(--notif-radius, 8px);
+          position: relative;
+          overflow: hidden;
+        }
+        .notif::before {
+          content: "";
+          position: absolute; inset: 0;
+          background: var(--notif-gradient, none);
+          pointer-events: none;
+          border-radius: inherit;
         }
         .icon {
           font-size: 16px; line-height: 1;
@@ -895,7 +923,7 @@ function _chartFont() {
    ================================================================ */
 
 class BarChart extends HTMLElement {
-  static get observedAttributes() { return ["data", "labels", "title"]; }
+  static get observedAttributes() { return ["data", "labels", "title", "flat"]; }
 
   constructor() {
     super();
@@ -968,12 +996,20 @@ class BarChart extends HTMLElement {
       ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
     }
 
-    // Sort by value to rank bars by height
-    const ranked = data.map((v, i) => ({ v, i })).sort((a, b) => a.v - b.v);
-    const rankMap = new Map();
-    ranked.forEach((item, rank) => { rankMap.set(item.i, rank); });
+    // Accent gradient anchored to full chart height (accent-1 at bottom, accent-5 at top)
+    const accent1 = cs.getPropertyValue("--primary-accent-1").trim() || "#d08028";
+    const accent5 = cs.getPropertyValue("--primary-accent-5").trim() || "#a05010";
+    const isFlat = this.hasAttribute("flat");
 
-    // Bars with rounded top edges — colored by category tokens based on value rank
+    // For flat mode: rank bars to assign distinct category colors
+    let rankMap;
+    if (isFlat) {
+      const ranked = data.map((v, i) => ({ v, i })).sort((a, b) => a.v - b.v);
+      rankMap = new Map();
+      ranked.forEach((item, rank) => { rankMap.set(item.i, rank); });
+    }
+
+    // Bars with rounded top edges
     const barW = chartW / data.length * 0.7;
     const gap = chartW / data.length * 0.3;
     const cornerR = Math.min(barW / 2, 6);
@@ -982,13 +1018,18 @@ class BarChart extends HTMLElement {
       const x = pad.left + i * (barW + gap) + gap / 2;
       const y = pad.top + chartH - barH;
 
-      // Color by height rank: lowest → category-1, highest → category-7
-      const t = data.length > 1 ? rankMap.get(i) / (data.length - 1) : 0.5;
-      const catIdx = Math.round(t * 6) + 1;
-      const catColor = cs.getPropertyValue(`--category-${catIdx}`).trim()
-                    || cs.getPropertyValue("--primary-accent-1").trim()
-                    || "#d08028";
-      ctx.fillStyle = catColor;
+      if (!isFlat) {
+        // Gradient spans full chart height; bar shows its slice
+        const barGrad = ctx.createLinearGradient(x, pad.top, x, pad.top + chartH);
+        barGrad.addColorStop(0, accent5);
+        barGrad.addColorStop(1, accent1);
+        ctx.fillStyle = barGrad;
+      } else {
+        // Flat/Basic: distinct category color per bar based on value rank
+        const t = data.length > 1 ? rankMap.get(i) / (data.length - 1) : 0.5;
+        const catIdx = Math.round(t * 6) + 1;
+        ctx.fillStyle = cs.getPropertyValue(`--category-${catIdx}`).trim() || accent1;
+      }
 
       // Rounded top rect
       ctx.beginPath();
@@ -1019,7 +1060,7 @@ class BarChart extends HTMLElement {
    ================================================================ */
 
 class LineChart extends HTMLElement {
-  static get observedAttributes() { return ["data", "labels", "title", "mode"]; }
+  static get observedAttributes() { return ["data", "labels", "title", "mode", "flat"]; }
 
   constructor() {
     super();
@@ -1130,8 +1171,16 @@ class LineChart extends HTMLElement {
         coords.forEach(([x, y]) => ctx.lineTo(x, y));
         ctx.lineTo(coords[n - 1][0], pad.top + chartH);
         ctx.closePath();
-        ctx.fillStyle = color;
-        ctx.globalAlpha = 0.15;
+        if (!this.hasAttribute("flat")) {
+          const areaGrad = ctx.createLinearGradient(0, pad.top, 0, pad.top + chartH);
+          areaGrad.addColorStop(0, color);
+          areaGrad.addColorStop(1, "transparent");
+          ctx.fillStyle = areaGrad;
+          ctx.globalAlpha = 0.25;
+        } else {
+          ctx.fillStyle = color;
+          ctx.globalAlpha = 0.15;
+        }
         ctx.fill();
         ctx.globalAlpha = 1;
       }
@@ -1162,8 +1211,8 @@ class LineChart extends HTMLElement {
     const dayColor = cs.getPropertyValue("--primary-accent-1").trim() || "#d08028";
     const nightColor = cs.getPropertyValue("--secondary-accent-5").trim() || "#4060c0";
     const lineColor = cs.getPropertyValue("--primary-accent-1").trim() || "#d08028";
-    const sunColor = cs.getPropertyValue("--primary-accent-5").trim() || "#f0c030";
-    const moonColor = cs.getPropertyValue("--secondary-accent-5").trim() || "#4060c0";
+    const sunColor = cs.getPropertyValue("--primary-accent-1").trim() || "#f0c030";
+    const moonColor = cs.getPropertyValue("--secondary-accent-1").trim() || "#4060c0";
 
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, W, H);
@@ -1364,7 +1413,7 @@ class DateCalendar extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>
         :host { display: inline-block; user-select: none; }
-        :host([disabled]) { opacity: 0.38; pointer-events: none; }
+        :host([disabled]) { opacity: 0.55; pointer-events: none; }
         .cal { display: flex; flex-direction: column; gap: 4px; min-width: 220px; }
         .nav {
           display: flex; align-items: center; justify-content: space-between;
@@ -1390,7 +1439,7 @@ class DateCalendar extends HTMLElement {
         .day.blank { pointer-events: none; }
         .day.today { border-color: var(--neutral-5); }
         .day.sel {
-          background: var(--primary-accent-3); color: var(--bg);
+          background: var(--cal-sel-bg, var(--primary-accent-3)); color: var(--bg);
           border-color: var(--primary-accent-3); font-weight: 600;
         }
         .day.in-range {
@@ -1495,7 +1544,7 @@ class ColorPicker extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>
         :host { display: inline-block; user-select: none; }
-        :host([disabled]) { opacity: 0.38; pointer-events: none; }
+        :host([disabled]) { opacity: 0.55; pointer-events: none; }
         .wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
         canvas { border-radius: 50%; cursor: crosshair; }
         .hex-row { display: flex; align-items: center; gap: 6px; }

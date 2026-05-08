@@ -2,18 +2,18 @@
 
 :root {
   /* Full neutral ramp (12 stops, dark→light for dark theme) */
-  --neutral-1:  #181610;
-  --neutral-2:  #201e18;
-  --neutral-3:  #2a2820;
-  --neutral-4:  #322e28;
-  --neutral-5:  #484030;
-  --neutral-6:  #585040;
-  --neutral-7:  #706848;
-  --neutral-8:  #908058;
-  --neutral-9:  #a89868;
-  --neutral-10: #c0b080;
-  --neutral-11: #d0c898;
-  --neutral-12: #e8e4d8;
+  --neutral-1:  #0a0b11;
+  --neutral-2:  #11131b;
+  --neutral-3:  #1b1e2c;
+  --neutral-4:  #2a2f45;
+  --neutral-5:  #404765;
+  --neutral-6:  #626881;
+  --neutral-7:  #888c9f;
+  --neutral-8:  #aaadbb;
+  --neutral-9:  #c6c8d1;
+  --neutral-10: #dbdce2;
+  --neutral-11: #e9e9ed;
+  --neutral-12: #f1f2f4;
 
   /* Aliases */
   --bg:         var(--neutral-1);
@@ -24,23 +24,32 @@
   --fg:         var(--neutral-12);
 
   /* Primary accents (lighter → darker) */
-  --primary-accent-1: #f0c030;
-  --primary-accent-2: #e8b030;
-  --primary-accent-3: #e0a028;
-  --primary-accent-4: #d89028;
-  --primary-accent-5: #d08028;
+  --primary-accent-1: #cfa630;
+  --primary-accent-2: #cc972f;
+  --primary-accent-3: #da891c;
+  --primary-accent-4: #df7814;
+  --primary-accent-5: #e9650a;
 
   /* Secondary accents (lighter → darker) */
-  --secondary-accent-1: #a08050;
-  --secondary-accent-2: #886840;
-  --secondary-accent-3: #6a5238;
-  --secondary-accent-4: #503818;
-  --secondary-accent-5: #3a2810;
+  --secondary-accent-1: #969aaa;
+  --secondary-accent-2: #848a9e;
+  --secondary-accent-3: #727994;
+  --secondary-accent-4: #636a84;
+  --secondary-accent-5: #545a75;
 
   /* Semantic notification colours */
-  --color-note:    #5bbcb8;
-  --color-message: #4da6e8;
-  --color-success: #5cb85c;
-  --color-warning: #e8a838;
-  --color-error:   #d9534f;
+  --color-error:   #fb5e4b;
+  --color-warning: #d8a429;
+  --color-success: #82b072;
+  --color-message: #7b9b8f;
+  --color-note:    #b27182;
+
+  /* Category colours */
+  --category-1: #cfa630;
+  --category-2: #c99b34;
+  --category-3: #d19229;
+  --category-4: #da891c;
+  --category-5: #de7e16;
+  --category-6: #df7215;
+  --category-7: #e9650a;
 }

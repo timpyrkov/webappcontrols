@@ -1,4 +1,4 @@
-import { COLORS } from "../tokens.js";
+import { COLORS, gradPair, captionAccent } from "../tokens.js";
 
 /* ── Gradient direction (degrees, 0 = up, clockwise) ── */
 const GRAD_ANGLE_DEG = 135; // ← tweak this to change gradient direction
@@ -6,10 +6,10 @@ const GRAD_ANGLE_DEG = 135; // ← tweak this to change gradient direction
 /* ── Layout constants (fractions of component size) ── */
 const OUTER_R   = 0.30;   // outer circle radius
 const INNER_R   = 0.22;   // inner circle radius
-const ARC_R     = 0.37;   // value-indicator arc radius (continuous mode)
+const ARC_R     = 0.42;   // value-indicator arc radius (continuous mode)
 const ARC_W     = 6;      // arc stroke width (px, before DPR scale)
 const PTR_LEN   = 0.07;   // pointer length (fraction of size)
-const PTR_OFF   = 0.03;   // pointer offset from inner edge (fraction)
+const PTR_OFF   = 0.05;   // pointer offset from inner edge (fraction)
 const PTR_W     = 4;      // pointer stroke width (px)
 const GAP_DEG   = 20;     // gap at top for continuous arc (half-gap each side)
 const LABEL_R   = 0.46;   // enum label radius
@@ -257,11 +257,17 @@ class RotaryKnob extends HTMLElement {
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, TAU);
     if (this.hasAttribute("flat")) {
-      ctx.fillStyle = COLORS.neutral3;
+      ctx.fillStyle = COLORS.neutral5;
     } else {
-      ctx.fillStyle = this._makeLinGrad(ctx, cx, cy, r, GRAD_ANGLE_DEG, COLORS.neutral3, COLORS.neutral5);
+      const [oTop, oBot] = gradPair(COLORS.neutral5, COLORS.neutral3);
+      ctx.fillStyle = this._makeLinGrad(ctx, cx, cy, r, GRAD_ANGLE_DEG, oTop, oBot);
     }
     ctx.fill();
+    if (!this.hasAttribute("flat")) {
+      ctx.strokeStyle = COLORS.edge2;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
   }
 
   /* -- inner circle -- */
@@ -270,9 +276,10 @@ class RotaryKnob extends HTMLElement {
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, TAU);
     if (this.hasAttribute("flat")) {
-      ctx.fillStyle = COLORS.neutral5;
+      ctx.fillStyle = COLORS.neutral3;
     } else {
-      ctx.fillStyle = this._makeLinGrad(ctx, cx, cy, r, GRAD_ANGLE_DEG + 180, COLORS.neutral3, COLORS.neutral5);
+      const [iTop, iBot] = gradPair(COLORS.neutral5, COLORS.neutral3);
+      ctx.fillStyle = this._makeLinGrad(ctx, cx, cy, r, GRAD_ANGLE_DEG + 180, iTop, iBot);
     }
     ctx.fill();
   }
@@ -292,7 +299,7 @@ class RotaryKnob extends HTMLElement {
       style = COLORS.accent1;
     } else {
       const g = ctx.createLinearGradient(x1, y1, x2, y2);
-      g.addColorStop(0, COLORS.accent1);
+      g.addColorStop(0, COLORS.accent3);
       g.addColorStop(1, COLORS.accent1);
       style = g;
     }
@@ -362,7 +369,7 @@ class RotaryKnob extends HTMLElement {
       const label = String(this._enumValues[i]).slice(0, 3);
       const isCurrent = (i === currentIdx);
       ctx.font = isCurrent ? `bold ${fontBase}` : fontBase;
-      ctx.fillStyle = isCurrent ? COLORS.accent1 : COLORS.accent5;
+      ctx.fillStyle = isCurrent ? captionAccent() : COLORS.accent5;
       ctx.fillText(label, x, y);
     }
   }
@@ -398,7 +405,7 @@ class RotaryKnob extends HTMLElement {
       // Centre based on reference value width, then left-align actual value
       const refW = ctx.measureText(refVal).width;
       const valX = centerX - refW / 2;
-      ctx.fillStyle = COLORS.accent1;
+      ctx.fillStyle = captionAccent();
       ctx.textAlign = "left";
       ctx.fillText(displayVal, valX, baseY);
       return;
@@ -419,7 +426,7 @@ class RotaryKnob extends HTMLElement {
     ctx.fillText(colonStr, x, baseY);
     x += colonW;
 
-    ctx.fillStyle = COLORS.accent1;
+    ctx.fillStyle = captionAccent();
     ctx.fillText(displayVal, x, baseY);
   }
 
