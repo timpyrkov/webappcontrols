@@ -41,13 +41,20 @@ class PushButton extends HTMLElement {
 
     this.shadowRoot.innerHTML = `
       <style>
-        :host { display: inline-block; user-select: none; -webkit-user-select: none; }
-        :host([disabled]) { opacity: 0.38; pointer-events: none; }
+        :host {
+          display: inline-block; user-select: none; -webkit-user-select: none;
+          border-radius: var(--btn-radius, 6px);
+          box-shadow: var(--btn-shadow, none);
+        }
+        :host([disabled]) { pointer-events: none; }
+        :host([disabled]) .btn { opacity: 0.38; }
         .btn {
+          position: relative; isolation: isolate;
           display: inline-flex; align-items: center; justify-content: center; gap: 6px;
           background: var(--btn-bg, var(--neutral-3));
+          background-origin: var(--btn-bg-origin, padding-box);
           color: var(--btn-fg, var(--fg));
-          border: 1px solid var(--btn-border, var(--neutral-5));
+          border: var(--btn-border-width, 1px) solid var(--btn-border, var(--neutral-5));
           border-radius: var(--btn-radius, 6px);
           padding: var(--btn-padding, 10px 24px);
           min-width: var(--btn-min-width, auto);
@@ -56,15 +63,34 @@ class PushButton extends HTMLElement {
           transition: background 0.12s, border-color 0.12s, color 0.12s, transform 0.1s;
           white-space: nowrap;
         }
-        .btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .btn:focus-visible { outline: var(--btn-focus-ring, none); outline-offset: var(--btn-focus-ring-offset, 2px); }
+        .btn::before {
+          content: '';
+          position: absolute;
+          inset: var(--btn-bevel-width, 0px);
+          border-radius: calc(var(--btn-radius, 6px) - var(--btn-bevel-width, 0px));
+          background: var(--btn-overlay, none);
+          z-index: -1;
+          transition: background 0.12s;
+          pointer-events: none;
+        }
+        .btn svg { width: 1em; height: 1em; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .btn:hover:not(.pressed):not(:active) {
           background: var(--btn-hover-bg, var(--neutral-5));
-          ${noHoverEdge ? "" : `border-color: ${hoverEdge};`}
+          background-origin: var(--btn-bg-origin, padding-box);
+          ${noHoverEdge ? "" : `border-color: var(--btn-hover-border, ${hoverEdge});`}
+        }
+        .btn:hover:not(.pressed):not(:active)::before {
+          background: var(--btn-hover-overlay, var(--btn-overlay, none));
         }
         .btn:active, .btn.pressed {
           background: ${isSecondary ? `var(--btn-active-bg-secondary, ${accentBg})` : `var(--btn-active-bg, ${accentBg})`};
-          color: var(--bg);
-          border-color: ${accentBg};
+          background-origin: var(--btn-bg-origin, padding-box);
+          color: var(--btn-active-fg, var(--bg));
+          border-color: var(--btn-active-border, ${accentBg});
+        }
+        .btn:active::before, .btn.pressed::before {
+          background: ${isSecondary ? `var(--btn-active-overlay-secondary, var(--btn-overlay, none))` : `var(--btn-active-overlay, var(--btn-overlay, none))`};
         }
         .btn:active { transform: scale(0.97); }
       </style>
@@ -123,6 +149,7 @@ class TextField extends HTMLElement {
           outline: none;
           transition: border-color 0.15s;
           box-sizing: border-box;
+          box-shadow: var(--field-shadow, none);
         }
         input:focus { border-color: var(--field-focus-border, var(--primary-accent-3)); }
         input::placeholder { color: var(--neutral-7); }
@@ -190,6 +217,7 @@ class CheckBox extends HTMLElement {
           display: flex; align-items: center; justify-content: center;
           transition: background 0.12s, border-color 0.12s;
           flex-shrink: 0;
+          box-shadow: var(--check-shadow, none);
         }
         .wrap:hover .box:not(.active) {
           border-color: ${accentVar};
@@ -256,6 +284,7 @@ class RadioButton extends HTMLElement {
           display: flex; align-items: center; justify-content: center;
           transition: border-color 0.12s, background 0.12s;
           flex-shrink: 0;
+          box-shadow: var(--radio-shadow, none);
         }
         .wrap:hover .circle:not(.active) {
           border-color: ${accentVar};
@@ -323,6 +352,7 @@ class ToggleSwitch extends HTMLElement {
           border-radius: var(--toggle-radius, 11px);
           position: relative;
           transition: background 0.15s, border-color 0.15s;
+          box-shadow: var(--toggle-shadow, none);
         }
         .wrap:hover .track:not(.active) {
           background: var(--toggle-hover-bg, var(--neutral-5));
@@ -427,8 +457,13 @@ class SegmentedControl extends HTMLElement {
 
     this.shadowRoot.innerHTML = `
       <style>
-        :host { display: inline-block; user-select: none; -webkit-user-select: none; }
-        :host([disabled]) { opacity: 0.38; pointer-events: none; }
+        :host {
+          display: inline-block; user-select: none; -webkit-user-select: none;
+          border-radius: var(--seg-radius, 5px);
+          box-shadow: var(--seg-shadow, none);
+        }
+        :host([disabled]) { pointer-events: none; }
+        :host([disabled]) .grid { opacity: 0.38; }
         .grid {
           display: grid;
           grid-template-columns: repeat(${cols}, 1fr);
@@ -439,27 +474,45 @@ class SegmentedControl extends HTMLElement {
           line-height: 1;
           font-family: var(--font-display, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
           background: var(--seg-bg, var(--neutral-3));
+          background-origin: var(--seg-bg-origin, padding-box);
           color: var(--seg-fg, var(--fg));
           border: 1px solid var(--seg-border, var(--neutral-5));
           margin: -0.5px;
           cursor: pointer;
-          position: relative;
+          position: relative; isolation: isolate;
           transition: background 0.12s, color 0.12s, border-color 0.12s;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
+        .seg::before {
+          content: '';
+          position: absolute;
+          inset: var(--seg-bevel-width, 0px);
+          border-radius: inherit;
+          background: var(--seg-overlay, none);
+          z-index: -1;
+          transition: background 0.12s;
+          pointer-events: none;
+        }
         .seg:hover:not(.active) {
           z-index: 2;
           background: var(--seg-hover-bg, var(--neutral-5));
-          ${noHoverEdge ? "" : `border-color: ${hoverEdge};`}
+          background-origin: var(--seg-bg-origin, padding-box);
+          ${noHoverEdge ? "" : `border-color: var(--seg-hover-border, ${hoverEdge});`}
+        }
+        .seg:hover:not(.active)::before {
+          background: var(--seg-hover-overlay, var(--seg-overlay, none));
         }
         .seg.active {
           z-index: 1;
           background: ${isSecondary ? `var(--seg-active-bg-secondary, ${accentBg})` : `var(--seg-active-bg, ${accentBg})`};
-          color: ${accentFg};
-          border-color: var(--neutral-5);
-          font-weight: 600;
+          background-origin: var(--seg-bg-origin, padding-box);
+          color: var(--seg-active-fg, ${accentFg});
+          border-color: var(--seg-active-border, var(--neutral-5));
+        }
+        .seg.active::before {
+          background: ${isSecondary ? `var(--seg-active-overlay-secondary, var(--seg-overlay, none))` : `var(--seg-active-overlay, var(--seg-overlay, none))`};
         }
       </style>
       <div class="grid">${items}</div>`;

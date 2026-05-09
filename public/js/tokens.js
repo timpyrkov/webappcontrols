@@ -49,6 +49,12 @@ export const COLORS = {
   secondary4: get("--secondary-accent-4", "#636a84"),
   secondary5: get("--secondary-accent-5", "#545a75"),
 
+  /* Extended accents (lighter/darker edges for pseudo-3D) */
+  primaryLight:   get("--primary-light",   "#e0b840"),
+  primaryDark:    get("--primary-dark",    "#c05500"),
+  secondaryLight: get("--secondary-light", "#a8acba"),
+  secondaryDark:  get("--secondary-dark",  "#454b65"),
+
   /* Notifications */
   colorError:   get("--color-error",   "#fb5e4b"),
   colorWarning: get("--color-warning", "#d8a429"),
@@ -108,6 +114,11 @@ export function refreshColors() {
   COLORS.secondary3 = get("--secondary-accent-3", COLORS.secondary3);
   COLORS.secondary4 = get("--secondary-accent-4", COLORS.secondary4);
   COLORS.secondary5 = get("--secondary-accent-5", COLORS.secondary5);
+
+  COLORS.primaryLight   = get("--primary-light",   COLORS.primaryLight);
+  COLORS.primaryDark    = get("--primary-dark",    COLORS.primaryDark);
+  COLORS.secondaryLight = get("--secondary-light", COLORS.secondaryLight);
+  COLORS.secondaryDark  = get("--secondary-dark",  COLORS.secondaryDark);
 
   COLORS.colorError   = get("--color-error",   COLORS.colorError);
   COLORS.colorWarning = get("--color-warning", COLORS.colorWarning);

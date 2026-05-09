@@ -88,6 +88,13 @@ function applyTokensToCSS(variant) {
     }
   }
 
+  // Extended accents (lighter/darker edges for pseudo-3D effects)
+  if (variant.extendedAccents) {
+    for (const e of variant.extendedAccents) {
+      root.setProperty(`--${e.label}`, e.hex);
+    }
+  }
+
   document.dispatchEvent(new CustomEvent("palette-changed", { detail: variant }));
 }
 

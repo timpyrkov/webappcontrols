@@ -1,81 +1,154 @@
 /* ── gradient.css — Gradient style: two-anchor linear-gradient fills ── */
 
+/* ================================================================
+   Reusable Gradient Tokens
+   ================================================================
+   All component assignments below reference these tokens.
+   Volume.css overrides only these tokens to add pseudo-3D effects.
+   Light-theme reversal is handled once at the token level.
+   ================================================================ */
+:root {
+  /* Neutral raised surface (buttons, segments, toggle-off, hover states of checkbox/radio) */
+  --grad-raised: linear-gradient(to bottom, var(--neutral-4), var(--neutral-2));
+  --grad-raised-hover: linear-gradient(to bottom, var(--neutral-5), var(--neutral-3));
+
+  /* Neutral inset (checkbox bg — subtle, darker range) */
+  --grad-inset: linear-gradient(to bottom, var(--neutral-2), var(--neutral-1));
+
+  /* Field background */
+  --grad-field: linear-gradient(to bottom, var(--neutral-1), var(--neutral-2));
+
+  /* Track (slider/progress — reversed from raised) */
+  --grad-track: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
+  --grad-track-h: linear-gradient(to right, var(--neutral-2), var(--neutral-4));
+
+  /* Toggle / slider thumb (off state, high-contrast neutral) */
+  --grad-thumb: linear-gradient(to bottom, var(--neutral-9), var(--neutral-6));
+
+  /* Accent — full range (active states) */
+  --grad-accent: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-5));
+  --grad-accent-sec: linear-gradient(to bottom, var(--secondary-accent-1), var(--secondary-accent-5));
+
+  /* Accent — narrow range (knob pointer) */
+  --grad-accent-narrow: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-3));
+  --grad-accent-narrow-sec: linear-gradient(to bottom, var(--secondary-accent-1), var(--secondary-accent-3));
+
+  /* Slider thumb ring (multi-layer: centre dot + accent ring) */
+  --grad-slider-ring: radial-gradient(circle closest-side, var(--neutral-3) 60%, transparent 61%), var(--grad-accent);
+
+  /* Page & Panel backgrounds */
+  --page-bg: linear-gradient(to top, var(--panel-bg), var(--bg));
+  --panel-bg-fill: linear-gradient(to top, var(--panel-edge), var(--panel-bg));
+
+  /* Component box-shadow (none for Gradient mode) */
+  --shadow-btn: none;
+  --shadow-field: none;
+  --shadow-check: none;
+  --shadow-radio: none;
+  --shadow-toggle: none;
+  --shadow-seg: none;
+}
+
+/* ── Light theme: reverse neutral gradients at token level ── */
+[data-theme="light"] {
+  --grad-raised: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
+  --grad-raised-hover: linear-gradient(to bottom, var(--neutral-3), var(--neutral-5));
+  --grad-inset: linear-gradient(to bottom, var(--neutral-1), var(--neutral-2));
+  --grad-field: linear-gradient(to bottom, var(--neutral-2), var(--neutral-1));
+  --grad-track: linear-gradient(to bottom, var(--neutral-4), var(--neutral-2));
+  --grad-track-h: linear-gradient(to right, var(--neutral-4), var(--neutral-2));
+  --grad-thumb: linear-gradient(to bottom, var(--neutral-6), var(--neutral-9));
+  --grad-slider-ring: radial-gradient(circle closest-side, var(--neutral-3) 60%, transparent 61%), linear-gradient(to bottom, var(--primary-accent-5), var(--primary-accent-1));
+  --page-bg: linear-gradient(to top, var(--bg), var(--panel-bg));
+  --panel-bg-fill: linear-gradient(to top, var(--panel-bg), var(--panel-edge));
+}
+
+/* ================================================================
+   Component Assignments (reference tokens above)
+   ================================================================ */
+
 /* ── Push Button ── */
 push-button {
-  --btn-bg: linear-gradient(to bottom, var(--neutral-4), var(--neutral-2));
+  --btn-bg: var(--grad-raised);
   --btn-fg: var(--fg);
   --btn-border: var(--neutral-5);
-  --btn-hover-bg: linear-gradient(to bottom, var(--neutral-5), var(--neutral-3));
-  --btn-active-bg: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-5));
-  --btn-active-bg-secondary: linear-gradient(to bottom, var(--secondary-accent-1), var(--secondary-accent-5));
+  --btn-hover-bg: var(--grad-raised-hover);
+  --btn-active-bg: var(--grad-accent);
+  --btn-active-bg-secondary: var(--grad-accent-sec);
   --btn-radius: 6px;
   --btn-padding: 10px 24px;
+  --btn-shadow: var(--shadow-btn);
 }
 
 /* ── Text Field ── */
 text-field {
-  --field-bg: linear-gradient(to bottom, var(--neutral-1), var(--neutral-2));
+  --field-bg: var(--grad-field);
   --field-fg: var(--fg);
   --field-border: var(--neutral-5);
   --field-focus-border: var(--primary-accent-3);
   --field-radius: 6px;
   --field-padding: 9px 12px;
+  --field-shadow: var(--shadow-field);
 }
 
 /* ── Checkbox ── */
 check-box {
   --check-size: 18px;
-  --check-bg: linear-gradient(to bottom, var(--neutral-2), var(--neutral-1));
+  --check-bg: var(--grad-inset);
   --check-border: var(--neutral-5);
-  --check-hover-bg: linear-gradient(to bottom, var(--neutral-4), var(--neutral-2));
-  --check-active-bg: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-5));
-  --check-active-bg-secondary: linear-gradient(to bottom, var(--secondary-accent-1), var(--secondary-accent-5));
+  --check-hover-bg: var(--grad-raised);
+  --check-active-bg: var(--grad-accent);
+  --check-active-bg-secondary: var(--grad-accent-sec);
   --check-radius: 4px;
+  --check-shadow: var(--shadow-check);
 }
 
 /* ── Radio Button ── */
 radio-button {
   --radio-size: 18px;
   --radio-border: var(--neutral-5);
-  --radio-hover-bg: linear-gradient(to bottom, var(--neutral-4), var(--neutral-2));
-  --radio-dot-bg: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-5));
-  --radio-dot-bg-secondary: linear-gradient(to bottom, var(--secondary-accent-1), var(--secondary-accent-5));
+  --radio-hover-bg: var(--grad-raised);
+  --radio-dot-bg: var(--grad-accent);
+  --radio-dot-bg-secondary: var(--grad-accent-sec);
+  --radio-shadow: var(--shadow-radio);
 }
 
 /* ── Toggle Switch ── */
 toggle-switch {
   --toggle-width: 40px;
   --toggle-height: 22px;
-  --toggle-bg-off: linear-gradient(to bottom, var(--neutral-4), var(--neutral-2));
-  --toggle-bg-on: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-5));
-  --toggle-bg-on-secondary: linear-gradient(to bottom, var(--secondary-accent-1), var(--secondary-accent-5));
-  --toggle-hover-bg: linear-gradient(to bottom, var(--neutral-5), var(--neutral-3));
-  --toggle-thumb: linear-gradient(to bottom, var(--neutral-9), var(--neutral-6));
-  --toggle-thumb-on: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-3));
-  --toggle-thumb-on-secondary: linear-gradient(to bottom, var(--secondary-accent-1), var(--secondary-accent-3));
+  --toggle-bg-off: var(--grad-raised);
+  --toggle-bg-on: var(--grad-accent);
+  --toggle-bg-on-secondary: var(--grad-accent-sec);
+  --toggle-hover-bg: var(--grad-raised-hover);
+  --toggle-thumb: var(--grad-thumb);
+  --toggle-thumb-on: var(--grad-accent-narrow);
+  --toggle-thumb-on-secondary: var(--grad-accent-narrow-sec);
   --toggle-thumb-border: 1px solid var(--neutral-5);
   --toggle-border-off: var(--neutral-5);
   --toggle-radius: 11px;
+  --toggle-shadow: var(--shadow-toggle);
 }
 
 /* ── Segmented Control ── */
 segmented-control {
-  --seg-bg: linear-gradient(to bottom, var(--neutral-4), var(--neutral-2));
+  --seg-bg: var(--grad-raised);
   --seg-fg: var(--fg);
-  --seg-hover-bg: linear-gradient(to bottom, var(--neutral-5), var(--neutral-3));
-  --seg-active-bg: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-5));
-  --seg-active-bg-secondary: linear-gradient(to bottom, var(--secondary-accent-1), var(--secondary-accent-5));
+  --seg-hover-bg: var(--grad-raised-hover);
+  --seg-active-bg: var(--grad-accent);
+  --seg-active-bg-secondary: var(--grad-accent-sec);
   --seg-border: var(--neutral-5);
   --seg-radius: 5px;
+  --seg-shadow: var(--shadow-seg);
 }
 
 /* ── Sliders & Progress ── */
 range-slider {
   --track-height: 8px;
   --track-radius: 4px;
-  --track-bg: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
+  --track-bg: var(--grad-track);
   --track-border: 1px solid var(--neutral-4);
-  --thumb-center: radial-gradient(circle closest-side, var(--neutral-3) 60%, transparent 61%), linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-5));
+  --thumb-center: var(--grad-slider-ring);
   --thumb-border: none;
   --thumb-shadow: none;
   --thumb-outline: 1px solid var(--neutral-3);
@@ -83,9 +156,9 @@ range-slider {
 vertical-slider {
   --track-width: 8px;
   --track-radius: 4px;
-  --track-bg: linear-gradient(to right, var(--neutral-2), var(--neutral-4));
+  --track-bg: var(--grad-track-h);
   --track-border: 1px solid var(--neutral-4);
-  --thumb-center: radial-gradient(circle closest-side, var(--neutral-3) 60%, transparent 61%), linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-5));
+  --thumb-center: var(--grad-slider-ring);
   --thumb-border: none;
   --thumb-shadow: none;
   --thumb-outline: 1px solid var(--neutral-3);
@@ -97,7 +170,7 @@ progress-bar {
 
 /* ── Calendar ── */
 date-calendar {
-  --cal-sel-bg: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-5));
+  --cal-sel-bg: var(--grad-accent);
 }
 
 /* ── Notification ── */
@@ -105,50 +178,4 @@ notification-bar {
   --notif-radius: 8px;
   --notif-padding: 12px 16px;
   --notif-gradient: linear-gradient(to bottom, rgba(128,128,128,0.08) 0%, transparent 100%);
-}
-
-/* ── Page & Panel Backgrounds ── */
-:root {
-  --page-bg: linear-gradient(to top, var(--panel-bg), var(--bg));
-  --panel-bg-fill: linear-gradient(to top, var(--panel-edge), var(--panel-bg));
-}
-
-/* ── Light theme: reverse neutral gradient directions ── */
-[data-theme="light"] push-button {
-  --btn-bg: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
-  --btn-hover-bg: linear-gradient(to bottom, var(--neutral-3), var(--neutral-5));
-}
-[data-theme="light"] text-field {
-  --field-bg: linear-gradient(to bottom, var(--neutral-2), var(--neutral-1));
-}
-[data-theme="light"] check-box {
-  --check-bg: linear-gradient(to bottom, var(--neutral-1), var(--neutral-2));
-  --check-hover-bg: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
-}
-[data-theme="light"] radio-button {
-  --radio-hover-bg: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
-}
-[data-theme="light"] toggle-switch {
-  --toggle-bg-off: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
-  --toggle-hover-bg: linear-gradient(to bottom, var(--neutral-3), var(--neutral-5));
-  --toggle-thumb: linear-gradient(to bottom, var(--neutral-6), var(--neutral-9));
-}
-[data-theme="light"] segmented-control {
-  --seg-bg: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
-  --seg-hover-bg: linear-gradient(to bottom, var(--neutral-3), var(--neutral-5));
-}
-[data-theme="light"] range-slider {
-  --track-bg: linear-gradient(to bottom, var(--neutral-4), var(--neutral-2));
-  --thumb-center: radial-gradient(circle closest-side, var(--neutral-3) 60%, transparent 61%), linear-gradient(to bottom, var(--primary-accent-5), var(--primary-accent-1));
-}
-[data-theme="light"] vertical-slider {
-  --track-bg: linear-gradient(to right, var(--neutral-4), var(--neutral-2));
-  --thumb-center: radial-gradient(circle closest-side, var(--neutral-3) 60%, transparent 61%), linear-gradient(to bottom, var(--primary-accent-5), var(--primary-accent-1));
-}
-[data-theme="light"] progress-bar {
-  --track-bg: linear-gradient(to bottom, var(--neutral-3), var(--neutral-2));
-}
-[data-theme="light"] {
-  --page-bg: linear-gradient(to top, var(--bg), var(--panel-bg));
-  --panel-bg-fill: linear-gradient(to top, var(--panel-bg), var(--panel-edge));
 }
