@@ -15,10 +15,14 @@ import { COLORS, refreshColors, gradPair, captionAccent } from "../tokens.js";
 const NICHE_STYLE = {
   rimEnabled:   true,       // toggle rim glow on/off
   depthEnabled: true,       // toggle depth glow on/off
-  rimColor:     '#ffffff',  // override: null = palette neutral12 (light), or '#ffffff', 'red', etc. for debug
-  depthColor:   '#000000',  // override: null = palette neutral1 (dark), or '#000000', 'cyan', etc. for debug
-  rimBlur:      6,          // shadowBlur radius
+  rimColor:     null,       // null = auto from CSS niche tokens, or '#ffffff', 'red', etc. for debug
+  depthColor:   null,       // null = auto from CSS niche tokens, or '#000000', 'cyan', etc. for debug
+  rimBlur:      5,         // shadowBlur radius (spread of the gaussian blur)
   depthBlur:    3,          // shadowBlur radius
+  rimSpread:    0,          // how much larger the hidden glow shape is than the border (px)
+  depthSpread:  0,          // larger shape = more shadow visible beyond the border edge
+  rimPasses:    2,          // number of draw passes (stacks opacity)
+  depthPasses:  2,          // number of draw passes
 };
 
 /* ── Shared constants ── */
@@ -40,6 +44,214 @@ function lerpColor(hex1, hex2, t) {
 function hexAlpha(hex, alpha) {
   const [r, g, b] = hexToRgb(hex);
   return `rgba(${r},${g},${b},${alpha})`;
+}
+
+/**
+ * Return [rimColor, depthColor] matching CSS --niche-rim / --niche-depth
+ * from volume.css, respecting the current theme and NICHE_STYLE overrides.
+ */
+function nicheColors() {
+  const isLight = document.documentElement.dataset.theme === "light";
+  const rim = NICHE_STYLE.rimColor ||
+    (isLight ? 'white' : COLORS.neutral4);
+  const depth = NICHE_STYLE.depthColor ||
+    (isLight ? COLORS.neutral12 : COLORS.neutral1);
+  return [rim, depth];
+}
+
+/* ── Groove shading (concave lighting, adapted from groove/ prototype) ── */
+const GROOVE = {
+  lightAngle: 240,    // degrees — light source direction (0=right, 90=bottom, 180=left, 270=top, 45=top-right)
+  depth:      0.8,   // 0..1 — how pronounced the concavity is
+  shiftLight: 4,     // px offset of the light halo from edge
+  shiftDark:  4,     // px offset of the dark halo from edge
+  blur:       3,     // px blur applied to halos
+  blurBloom:  0.7,   // 0..1 — bloom factor (lower = tighter glow)
+};
+
+let _grooveScratch = null;
+function _grooveEnsureScratch(w, h, dpr) {
+  if (!_grooveScratch) _grooveScratch = document.createElement("canvas");
+  const sw = Math.round(w * dpr);
+  const sh = Math.round(h * dpr);
+  if (_grooveScratch.width !== sw || _grooveScratch.height !== sh) {
+    _grooveScratch.width = sw;
+    _grooveScratch.height = sh;
+  }
+  return { sw, sh, sctx: _grooveScratch.getContext("2d") };
+}
+
+function _grooveAdjustL(hex, deltaL) {
+  const [r, g, b] = hexToRgb(hex);
+  const rf = r / 255, gf = g / 255, bf = b / 255;
+  const max = Math.max(rf, gf, bf), min = Math.min(rf, gf, bf);
+  let h = 0, s = 0, l = (max + min) / 2;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    if (max === rf) h = (gf - bf) / d + (gf < bf ? 6 : 0);
+    else if (max === gf) h = (bf - rf) / d + 2;
+    else h = (rf - gf) / d + 4;
+    h /= 6;
+  }
+  l = Math.max(0, Math.min(1, l + deltaL / 100));
+  let rr, gg, bb;
+  if (s === 0) { rr = gg = bb = l; } else {
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    const hue2rgb = (pp, qq, t) => { if (t < 0) t += 1; if (t > 1) t -= 1; if (t < 1/6) return pp + (qq - pp) * 6 * t; if (t < 1/2) return qq; if (t < 2/3) return pp + (qq - pp) * (2/3 - t) * 6; return pp; };
+    rr = hue2rgb(p, q, h + 1/3); gg = hue2rgb(p, q, h); bb = hue2rgb(p, q, h - 1/3);
+  }
+  return { r: Math.round(rr * 255), g: Math.round(gg * 255), b: Math.round(bb * 255) };
+}
+
+/**
+ * Render the full grooved annulus on a scratch canvas (base color + 4 halo
+ * passes mimicking top-left lighting), then composite it into the main canvas
+ * masked to the gauge's track shape (arc with rounded caps).
+ *
+ * Faithful adaptation of the prototype in /groove/app.js.
+ * 
+ * @param {string} trackShape - "tapered" or "uniform"
+ * @param {number} minHW, maxHW - half-widths for tapered track (ignored for uniform)
+ */
+function drawGrooveShading(ctx, cx, cy, R1, R2, startRad, endRad, ccw, baseHex, canvasW, canvasH, dpr, trackShape = "uniform", minHW = 0, maxHW = 0) {
+  const { depth, shiftLight, shiftDark, blur, blurBloom, lightAngle } = GROOVE;
+  if (depth <= 0) return;
+
+  const lightRad = lightAngle * Math.PI / 180;
+  const ux = Math.cos(lightRad);
+  const uy = Math.sin(lightRad);
+  const dL = 8 + depth * 26;
+  const lightRgb = _grooveAdjustL(baseHex, dL);
+  const darkRgb = _grooveAdjustL(baseHex, -dL);
+  const haloAlpha = 0.28 + depth * 0.55;
+  const strength = depth;
+
+  const { sw, sh, sctx } = _grooveEnsureScratch(canvasW, canvasH, dpr);
+  // Reset scratch to fresh state with the base groove color filling the canvas
+  sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  sctx.globalCompositeOperation = "source-over";
+  sctx.globalAlpha = 1;
+  sctx.filter = "none";
+  sctx.clearRect(0, 0, canvasW, canvasH);
+  sctx.fillStyle = baseHex;
+  sctx.fillRect(0, 0, canvasW, canvasH);
+
+  // Helper: render one halo (inner or outer, displaced by ox,oy, tinted rgb)
+  // directly onto the main scratch with optional blur
+  const haloCanvas = document.createElement("canvas");
+  haloCanvas.width = sw;
+  haloCanvas.height = sh;
+  const hctx = haloCanvas.getContext("2d");
+
+  const renderHalo = (kind, rgb, ox, oy) => {
+    hctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    hctx.globalCompositeOperation = "source-over";
+    hctx.globalAlpha = 1;
+    hctx.filter = "none";
+    hctx.clearRect(0, 0, canvasW, canvasH);
+
+    // 1) Fill canvas with tint at haloAlpha
+    hctx.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${haloAlpha})`;
+    hctx.fillRect(0, 0, canvasW, canvasH);
+
+    // 2) Cut out everything except the appropriate region (matching prototype)
+    hctx.globalCompositeOperation = "destination-out";
+    hctx.fillStyle = "rgba(0,0,0,1)";
+    if (kind === "inner") {
+      // Keep only inside the displaced inner disk
+      hctx.beginPath();
+      hctx.rect(0, 0, canvasW, canvasH);
+      hctx.arc(cx + ox, cy + oy, R1, 0, Math.PI * 2, true);
+      hctx.fill("evenodd");
+    } else {
+      // Keep only outside the displaced outer circle
+      hctx.beginPath();
+      hctx.arc(cx + ox, cy + oy, R2, 0, Math.PI * 2);
+      hctx.fill();
+    }
+
+    // 3) Composite onto scratch with blur
+    sctx.save();
+    sctx.globalCompositeOperation = "source-over";
+    const bloom = blur > 0 ? blurBloom : 1;
+    sctx.globalAlpha = Math.min(1, strength * Math.max(0.15, bloom));
+    sctx.filter = blur > 0 ? `blur(${Math.max(0.25, blur)}px)` : "none";
+    sctx.drawImage(haloCanvas, 0, 0, sw, sh, 0, 0, canvasW, canvasH);
+    sctx.filter = "none";
+    sctx.restore();
+  };
+
+  const passes = [
+    ["outer", lightRgb, ux * shiftLight, uy * shiftLight],
+    ["outer", darkRgb, -ux * shiftDark, -uy * shiftDark],
+    ["inner", lightRgb, ux * shiftLight, uy * shiftLight],
+    ["inner", darkRgb, -ux * shiftDark, -uy * shiftDark],
+  ];
+  for (const [kind, rgb, ox, oy] of passes) {
+    renderHalo(kind, rgb, ox, oy);
+  }
+
+  // 4) Mask scratch to the actual track shape (arc with rounded caps)
+  sctx.globalCompositeOperation = "destination-in";
+  sctx.globalAlpha = 1;
+  
+  if (trackShape === "tapered") {
+    // Tapered track: draw the path + circular end caps
+    const r = (R1 + R2) / 2;  // center radius
+    const sweep = ccw ? -(endRad - startRad) : (endRad - startRad);
+    const steps = 64;
+    const startCx = cx + Math.cos(startRad) * r;
+    const startCy = cy + Math.sin(startRad) * r;
+    const endCx = cx + Math.cos(endRad) * r;
+    const endCy = cy + Math.sin(endRad) * r;
+    
+    sctx.fillStyle = "rgba(0,0,0,1)";
+    sctx.beginPath();
+    for (let s = 0; s <= steps; s++) {
+      const f = s / steps;
+      const angle = startRad + f * sweep;
+      const hw = minHW + f * (maxHW - minHW);
+      const px = cx + Math.cos(angle) * (r + hw);
+      const py = cy + Math.sin(angle) * (r + hw);
+      if (s === 0) sctx.moveTo(px, py); else sctx.lineTo(px, py);
+    }
+    for (let s = steps; s >= 0; s--) {
+      const f = s / steps;
+      const angle = startRad + f * sweep;
+      const hw = minHW + f * (maxHW - minHW);
+      const px = cx + Math.cos(angle) * (r - hw);
+      const py = cy + Math.sin(angle) * (r - hw);
+      sctx.lineTo(px, py);
+    }
+    sctx.closePath();
+    sctx.fill();
+    sctx.beginPath();
+    sctx.arc(startCx, startCy, minHW, 0, Math.PI * 2);
+    sctx.fill();
+    sctx.beginPath();
+    sctx.arc(endCx, endCy, maxHW, 0, Math.PI * 2);
+    sctx.fill();
+  } else {
+    // Uniform track: use arc stroke with round lineCap
+    const r = (R1 + R2) / 2;
+    const trackW = R2 - R1;
+    sctx.strokeStyle = "rgba(0,0,0,1)";
+    sctx.lineWidth = trackW;
+    sctx.lineCap = "round";
+    sctx.beginPath();
+    sctx.arc(cx, cy, r, startRad, endRad, ccw);
+    sctx.stroke();
+  }
+
+  // 5) Composite scratch onto main canvas (no blur — already baked in)
+  ctx.save();
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.globalCompositeOperation = "source-over";
+  ctx.globalAlpha = 1;
+  ctx.drawImage(_grooveScratch, 0, 0, sw, sh, 0, 0, canvasW, canvasH);
+  ctx.restore();
 }
 
 /* ================================================================
@@ -212,11 +424,10 @@ class CircularGauge extends HTMLElement {
     if (this._volume) {
       const ccw = this._direction !== "cw";
       const endRad = startRad + sweep;
-      const nicheRim = NICHE_STYLE.rimColor || COLORS.neutral12;
-      const nicheDepth = NICHE_STYLE.depthColor || COLORS.neutral1;
+      const [nicheRim, nicheDepth] = nicheColors();
       const borderCol = COLORS.neutral4;
       const [fillA, fillB] = gradPair(COLORS.neutral2, COLORS.neutral4);
-      const grad = ctx.createLinearGradient(cx, cy - r, cx, cy + r);
+      const grad = ctx.createRadialGradient(cx, cy, r - baseW, cx, cy, r + baseW);
       grad.addColorStop(0, fillA);
       grad.addColorStop(1, fillB);
       const trackPad = 4;
@@ -265,7 +476,7 @@ class CircularGauge extends HTMLElement {
           ctx.shadowColor = nicheRim;
           ctx.shadowBlur = NICHE_STYLE.rimBlur;
           ctx.fillStyle = nicheRim;
-          drawTaper(1);
+          for (let p = 0; p < NICHE_STYLE.rimPasses; p++) drawTaper(1 + NICHE_STYLE.rimSpread);
           ctx.restore();
         }
         // 2) Depth glow beneath — shape larger than border by depthSpread
@@ -274,7 +485,7 @@ class CircularGauge extends HTMLElement {
           ctx.shadowColor = nicheDepth;
           ctx.shadowBlur = NICHE_STYLE.depthBlur;
           ctx.fillStyle = nicheDepth;
-          drawTaper(1);
+          for (let p = 0; p < NICHE_STYLE.depthPasses; p++) drawTaper(1 + NICHE_STYLE.depthSpread);
           ctx.restore();
         }
         // 3) Track: border + fill
@@ -282,6 +493,9 @@ class CircularGauge extends HTMLElement {
         drawTaper(1);
         ctx.fillStyle = grad;
         drawTaper(0);
+        // 4) Groove shading (concave lighting)
+        const dpr = window.devicePixelRatio || 1;
+        drawGrooveShading(ctx, cx, cy, r - maxHW, r + maxHW, startRad, endRad, ccw, COLORS.neutral3, this._w, this._h, dpr, "tapered", minHW, maxHW);
       } else {
         // Uniform track
         const drawArc = () => {
@@ -296,8 +510,8 @@ class CircularGauge extends HTMLElement {
           ctx.shadowColor = nicheRim;
           ctx.shadowBlur = NICHE_STYLE.rimBlur;
           ctx.strokeStyle = nicheRim;
-          ctx.lineWidth = borderW;
-          drawArc();
+          ctx.lineWidth = borderW + NICHE_STYLE.rimSpread * 2;
+          for (let p = 0; p < NICHE_STYLE.rimPasses; p++) drawArc();
           ctx.restore();
         }
         // 2) Depth glow beneath — lineWidth wider than border by 2*depthSpread
@@ -306,8 +520,8 @@ class CircularGauge extends HTMLElement {
           ctx.shadowColor = nicheDepth;
           ctx.shadowBlur = NICHE_STYLE.depthBlur;
           ctx.strokeStyle = nicheDepth;
-          ctx.lineWidth = borderW;
-          drawArc();
+          ctx.lineWidth = borderW + NICHE_STYLE.depthSpread * 2;
+          for (let p = 0; p < NICHE_STYLE.depthPasses; p++) drawArc();
           ctx.restore();
         }
         // 3) Track: border + fill
@@ -317,6 +531,10 @@ class CircularGauge extends HTMLElement {
         ctx.strokeStyle = grad;
         ctx.lineWidth = trackW;
         drawArc();
+        // 4) Groove shading (concave lighting)
+        const dpr = window.devicePixelRatio || 1;
+        const halfW = trackW / 2;
+        drawGrooveShading(ctx, cx, cy, r - halfW, r + halfW, startRad, endRad, ccw, COLORS.neutral3, this._w, this._h, dpr, "uniform");
       }
     }
 
@@ -375,17 +593,18 @@ class CircularGauge extends HTMLElement {
 
     // Volume: hub niche — two glow objects beneath, hub covers them
     if (this._volume) {
-      const nicheRim = NICHE_STYLE.rimColor || COLORS.neutral12;
-      const nicheDepth = NICHE_STYLE.depthColor || COLORS.neutral1;
+      const [nicheRim, nicheDepth] = nicheColors();
       // 1) Rim glow — circle larger than hub by rimSpread
       if (NICHE_STYLE.rimEnabled) {
         ctx.save();
         ctx.shadowColor = nicheRim;
         ctx.shadowBlur = NICHE_STYLE.rimBlur;
-        ctx.beginPath();
-        ctx.arc(cx, cy, r, 0, TAU);
         ctx.fillStyle = nicheRim;
-        ctx.fill();
+        for (let p = 0; p < NICHE_STYLE.rimPasses; p++) {
+          ctx.beginPath();
+          ctx.arc(cx, cy, r + NICHE_STYLE.rimSpread, 0, TAU);
+          ctx.fill();
+        }
         ctx.restore();
       }
       // 2) Depth glow — circle larger than hub by depthSpread
@@ -393,10 +612,12 @@ class CircularGauge extends HTMLElement {
         ctx.save();
         ctx.shadowColor = nicheDepth;
         ctx.shadowBlur = NICHE_STYLE.depthBlur;
-        ctx.beginPath();
-        ctx.arc(cx, cy, r, 0, TAU);
         ctx.fillStyle = nicheDepth;
-        ctx.fill();
+        for (let p = 0; p < NICHE_STYLE.depthPasses; p++) {
+          ctx.beginPath();
+          ctx.arc(cx, cy, r + NICHE_STYLE.depthSpread, 0, TAU);
+          ctx.fill();
+        }
         ctx.restore();
       }
     }
@@ -406,8 +627,8 @@ class CircularGauge extends HTMLElement {
     if (this._flat) {
       ctx.fillStyle = COLORS.neutral5;
     } else {
-      const [hTop, hBot] = gradPair(COLORS.neutral9, COLORS.neutral5);
-      const grad = ctx.createLinearGradient(cx, cy - r, cx, cy + r);
+      const [hTop, hBot] = gradPair(COLORS.neutral6, COLORS.neutral4);
+      const grad = ctx.createRadialGradient(cx, cy - r * 0.3, r * 0.1, cx, cy, r);
       grad.addColorStop(0, hTop);
       grad.addColorStop(1, hBot);
       ctx.fillStyle = grad;
@@ -612,8 +833,7 @@ class LinearGauge extends HTMLElement {
 
     // Volume: track niche — two same-shape glow objects beneath, then track on top
     if (this._volume) {
-      const nicheRim = NICHE_STYLE.rimColor || COLORS.neutral12;
-      const nicheDepth = NICHE_STYLE.depthColor || COLORS.neutral1;
+      const [nicheRim, nicheDepth] = nicheColors();
       const borderCol = COLORS.neutral4;
       const [fillA, fillB] = gradPair(COLORS.neutral2, COLORS.neutral4);
       const grad = ctx.createLinearGradient(padX, trackY - baseW / 2, padX, trackY + baseW / 2);
@@ -641,7 +861,7 @@ class LinearGauge extends HTMLElement {
           ctx.shadowColor = nicheRim;
           ctx.shadowBlur = NICHE_STYLE.rimBlur;
           ctx.fillStyle = nicheRim;
-          drawStadium(1);
+          for (let p = 0; p < NICHE_STYLE.rimPasses; p++) drawStadium(1 + NICHE_STYLE.rimSpread);
           ctx.restore();
         }
         // 2) Depth glow beneath — larger by depthSpread
@@ -650,7 +870,7 @@ class LinearGauge extends HTMLElement {
           ctx.shadowColor = nicheDepth;
           ctx.shadowBlur = NICHE_STYLE.depthBlur;
           ctx.fillStyle = nicheDepth;
-          drawStadium(1);
+          for (let p = 0; p < NICHE_STYLE.depthPasses; p++) drawStadium(1 + NICHE_STYLE.depthSpread);
           ctx.restore();
         }
         // 3) Track: border + fill
@@ -673,8 +893,8 @@ class LinearGauge extends HTMLElement {
           ctx.shadowColor = nicheRim;
           ctx.shadowBlur = NICHE_STYLE.rimBlur;
           ctx.strokeStyle = nicheRim;
-          ctx.lineWidth = borderLW;
-          drawLine();
+          ctx.lineWidth = borderLW + NICHE_STYLE.rimSpread * 2;
+          for (let p = 0; p < NICHE_STYLE.rimPasses; p++) drawLine();
           ctx.restore();
         }
         // 2) Depth glow beneath — wider by 2*depthSpread
@@ -683,8 +903,8 @@ class LinearGauge extends HTMLElement {
           ctx.shadowColor = nicheDepth;
           ctx.shadowBlur = NICHE_STYLE.depthBlur;
           ctx.strokeStyle = nicheDepth;
-          ctx.lineWidth = borderLW;
-          drawLine();
+          ctx.lineWidth = borderLW + NICHE_STYLE.depthSpread * 2;
+          for (let p = 0; p < NICHE_STYLE.depthPasses; p++) drawLine();
           ctx.restore();
         }
         // 3) Track: border + fill
@@ -739,8 +959,8 @@ class LinearGauge extends HTMLElement {
     ctx.moveTo(handX, hY0);
     ctx.lineTo(handX, hY1);
     if (this._volume) {
-      const [ptA, ptB] = gradPair(COLORS.neutral6, COLORS.neutral9);
-      const ptGrad = ctx.createLinearGradient(handX - LG_PTR_W / 2, trackY, handX + LG_PTR_W / 2, trackY);
+      const [ptA, ptB] = gradPair(COLORS.neutral5, COLORS.neutral7);
+      const ptGrad = ctx.createLinearGradient(handX + LG_PTR_W / 2, trackY, handX - LG_PTR_W / 2, trackY);
       ptGrad.addColorStop(0, ptA);
       ptGrad.addColorStop(1, ptB);
       ctx.strokeStyle = ptGrad;
@@ -772,8 +992,7 @@ class LinearGauge extends HTMLElement {
 
     // Volume: track niche — two same-shape glow objects beneath, then track on top
     if (this._volume) {
-      const nicheRim = NICHE_STYLE.rimColor || COLORS.neutral12;
-      const nicheDepth = NICHE_STYLE.depthColor || COLORS.neutral1;
+      const [nicheRim, nicheDepth] = nicheColors();
       const borderCol = COLORS.neutral4;
       const [fillA, fillB] = gradPair(COLORS.neutral2, COLORS.neutral4);
       const grad = ctx.createLinearGradient(trackX - baseW / 2, padY, trackX + baseW / 2, padY);
@@ -801,7 +1020,7 @@ class LinearGauge extends HTMLElement {
           ctx.shadowColor = nicheRim;
           ctx.shadowBlur = NICHE_STYLE.rimBlur;
           ctx.fillStyle = nicheRim;
-          drawStadium(1);
+          for (let p = 0; p < NICHE_STYLE.rimPasses; p++) drawStadium(1 + NICHE_STYLE.rimSpread);
           ctx.restore();
         }
         // 2) Depth glow beneath — larger by depthSpread
@@ -810,7 +1029,7 @@ class LinearGauge extends HTMLElement {
           ctx.shadowColor = nicheDepth;
           ctx.shadowBlur = NICHE_STYLE.depthBlur;
           ctx.fillStyle = nicheDepth;
-          drawStadium(1);
+          for (let p = 0; p < NICHE_STYLE.depthPasses; p++) drawStadium(1 + NICHE_STYLE.depthSpread);
           ctx.restore();
         }
         // 3) Track: border + fill
@@ -833,8 +1052,8 @@ class LinearGauge extends HTMLElement {
           ctx.shadowColor = nicheRim;
           ctx.shadowBlur = NICHE_STYLE.rimBlur;
           ctx.strokeStyle = nicheRim;
-          ctx.lineWidth = borderLW;
-          drawLine();
+          ctx.lineWidth = borderLW + NICHE_STYLE.rimSpread * 2;
+          for (let p = 0; p < NICHE_STYLE.rimPasses; p++) drawLine();
           ctx.restore();
         }
         // 2) Depth glow beneath — wider by 2*depthSpread
@@ -843,8 +1062,8 @@ class LinearGauge extends HTMLElement {
           ctx.shadowColor = nicheDepth;
           ctx.shadowBlur = NICHE_STYLE.depthBlur;
           ctx.strokeStyle = nicheDepth;
-          ctx.lineWidth = borderLW;
-          drawLine();
+          ctx.lineWidth = borderLW + NICHE_STYLE.depthSpread * 2;
+          for (let p = 0; p < NICHE_STYLE.depthPasses; p++) drawLine();
           ctx.restore();
         }
         // 3) Track: border + fill
@@ -899,8 +1118,8 @@ class LinearGauge extends HTMLElement {
     ctx.moveTo(hX0, handY);
     ctx.lineTo(hX1, handY);
     if (this._volume) {
-      const [ptA, ptB] = gradPair(COLORS.neutral6, COLORS.neutral9);
-      const ptGrad = ctx.createLinearGradient(trackX, handY - LG_PTR_W / 2, trackX, handY + LG_PTR_W / 2);
+      const [ptA, ptB] = gradPair(COLORS.neutral5, COLORS.neutral7);
+      const ptGrad = ctx.createLinearGradient(trackX, handY + LG_PTR_W / 2, trackX, handY - LG_PTR_W / 2);
       ptGrad.addColorStop(0, ptA);
       ptGrad.addColorStop(1, ptB);
       ctx.strokeStyle = ptGrad;
