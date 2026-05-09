@@ -81,6 +81,7 @@
   --shadow-radio:  var(--niche-shadow);
   --shadow-toggle: var(--niche-shadow);
   --shadow-seg:    var(--niche-shadow);
+  --shadow-track:  var(--niche-shadow);
 }
 
 /* ── Light theme: reverse neutral gradients at token level ── */
@@ -227,6 +228,7 @@ range-slider {
   --track-radius: 4px;
   --track-bg: var(--grad-track);
   --track-border: 1px solid var(--neutral-4);
+  --track-shadow: var(--shadow-track);
   --thumb-center: var(--grad-slider-ring);
   --thumb-border: none;
   --thumb-shadow: 0 2px 6px rgba(0,0,0,0.4);
@@ -237,6 +239,7 @@ vertical-slider {
   --track-radius: 4px;
   --track-bg: var(--grad-track-h);
   --track-border: 1px solid var(--neutral-4);
+  --track-shadow: var(--shadow-track);
   --thumb-center: var(--grad-slider-ring);
   --thumb-border: none;
   --thumb-shadow: 0 2px 6px rgba(0,0,0,0.4);

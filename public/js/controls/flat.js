@@ -593,6 +593,7 @@ class VerticalSlider extends HTMLElement {
           border-radius: var(--track-radius, 3px);
           position: relative;
           box-sizing: border-box;
+          box-shadow: var(--track-shadow, none);
         }
         .fill {
           position: absolute; left: 0; right: 0;
@@ -749,6 +750,7 @@ class RangeSlider extends HTMLElement {
           position: relative; cursor: pointer;
           touch-action: none;
           box-sizing: border-box;
+          box-shadow: var(--track-shadow, none);
         }
         .fill {
           position: absolute; top: 0; bottom: 0;

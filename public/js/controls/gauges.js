@@ -11,6 +11,16 @@
 
 import { COLORS, refreshColors, gradPair, captionAccent } from "../tokens.js";
 
+/* ── DEBUG: niche glow inspection flags ── */
+const NICHE_DEBUG = {
+  rimEnabled:   true,       // toggle rim glow on/off
+  depthEnabled: true,       // toggle depth glow on/off
+  rimColor:     '#ffffff',  // override: null = auto (white/black), or 'red','blue', etc. for debug
+  depthColor:   '#000000',  // override: null = auto (black/white), or 'cyan','magenta', etc. for debug
+  rimBlur:      8,          // shadowBlur radius
+  depthBlur:    6,          // shadowBlur radius
+};
+
 /* ── Shared constants ── */
 const DEG  = Math.PI / 180;
 const TAU  = Math.PI * 2;
@@ -26,6 +36,10 @@ function rgbToHex([r, g, b]) {
 function lerpColor(hex1, hex2, t) {
   const a = hexToRgb(hex1), b = hexToRgb(hex2);
   return rgbToHex(a.map((v, i) => Math.round(v + (b[i] - v) * t)));
+}
+function hexAlpha(hex, alpha) {
+  const [r, g, b] = hexToRgb(hex);
+  return `rgba(${r},${g},${b},${alpha})`;
 }
 
 /* ================================================================
@@ -56,7 +70,7 @@ class CircularGauge extends HTMLElement {
 
   static get observedAttributes() {
     return ["value", "min", "max", "start-angle", "end-angle",
-            "direction", "segments", "grow-segments", "label", "flat"];
+            "direction", "segments", "grow-segments", "label", "flat", "volume"];
   }
 
   constructor() {
@@ -119,6 +133,7 @@ class CircularGauge extends HTMLElement {
     this._growSegments = this.hasAttribute("grow-segments");
     this._label      = this.getAttribute("label") || "";
     this._flat       = this.hasAttribute("flat");
+    this._volume     = this.hasAttribute("volume");
   }
 
   _resize() {
@@ -193,6 +208,119 @@ class CircularGauge extends HTMLElement {
     const gapRad = Math.abs(segSpan) * CG_GAP_FRAC;
     const baseW = CG_ARC_W;
 
+    // Volume: track niche — two same-shape objects beneath, then the track on top
+    if (this._volume) {
+      const ccw = this._direction !== "cw";
+      const endRad = startRad + sweep;
+      const isLight = document.documentElement.dataset.theme === "light";
+      const nicheRim = NICHE_DEBUG.rimColor || (isLight ? COLORS.neutral1 : COLORS.neutral12);
+      const nicheDepth = NICHE_DEBUG.depthColor || (isLight ? COLORS.neutral12 : COLORS.neutral1);
+      const borderCol = COLORS.neutral4;
+      const [fillA, fillB] = gradPair(COLORS.neutral2, COLORS.neutral4);
+      const grad = ctx.createLinearGradient(cx, cy - r, cx, cy + r);
+      grad.addColorStop(0, fillA);
+      grad.addColorStop(1, fillB);
+      const trackPad = 4;
+      const trackW = baseW + trackPad;
+      const borderW = trackW + 2;
+
+      if (this._growSegments) {
+        const minHW = (baseW * 0.5 + trackPad) / 2;
+        const maxHW = (baseW * 1.5 + trackPad) / 2;
+        const steps = 64;
+        const startCx = cx + Math.cos(startRad) * r;
+        const startCy = cy + Math.sin(startRad) * r;
+        const endCx = cx + Math.cos(endRad) * r;
+        const endCy = cy + Math.sin(endRad) * r;
+        // Helper: draw tapered band + end caps at given margin
+        const drawTaper = (m) => {
+          ctx.beginPath();
+          for (let s = 0; s <= steps; s++) {
+            const f = s / steps;
+            const angle = startRad + f * sweep;
+            const hw = minHW + f * (maxHW - minHW) + m;
+            const px = cx + Math.cos(angle) * (r + hw);
+            const py = cy + Math.sin(angle) * (r + hw);
+            if (s === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+          }
+          for (let s = steps; s >= 0; s--) {
+            const f = s / steps;
+            const angle = startRad + f * sweep;
+            const hw = minHW + f * (maxHW - minHW) + m;
+            const px = cx + Math.cos(angle) * (r - hw);
+            const py = cy + Math.sin(angle) * (r - hw);
+            ctx.lineTo(px, py);
+          }
+          ctx.closePath();
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(startCx, startCy, minHW + m, 0, TAU);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(endCx, endCy, maxHW + m, 0, TAU);
+          ctx.fill();
+        };
+        // 1) Rim glow beneath — shape larger than border by rimSpread
+        if (NICHE_DEBUG.rimEnabled) {
+          ctx.save();
+          ctx.shadowColor = nicheRim;
+          ctx.shadowBlur = NICHE_DEBUG.rimBlur;
+          ctx.fillStyle = nicheRim;
+          drawTaper(1);
+          ctx.restore();
+        }
+        // 2) Depth glow beneath — shape larger than border by depthSpread
+        if (NICHE_DEBUG.depthEnabled) {
+          ctx.save();
+          ctx.shadowColor = nicheDepth;
+          ctx.shadowBlur = NICHE_DEBUG.depthBlur;
+          ctx.fillStyle = nicheDepth;
+          drawTaper(1);
+          ctx.restore();
+        }
+        // 3) Track: border + fill
+        ctx.fillStyle = borderCol;
+        drawTaper(1);
+        ctx.fillStyle = grad;
+        drawTaper(0);
+      } else {
+        // Uniform track
+        const drawArc = () => {
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, startRad, endRad, ccw);
+          ctx.lineCap = "round";
+          ctx.stroke();
+        };
+        // 1) Rim glow beneath — lineWidth wider than border by 2*rimSpread
+        if (NICHE_DEBUG.rimEnabled) {
+          ctx.save();
+          ctx.shadowColor = nicheRim;
+          ctx.shadowBlur = NICHE_DEBUG.rimBlur;
+          ctx.strokeStyle = nicheRim;
+          ctx.lineWidth = borderW;
+          drawArc();
+          ctx.restore();
+        }
+        // 2) Depth glow beneath — lineWidth wider than border by 2*depthSpread
+        if (NICHE_DEBUG.depthEnabled) {
+          ctx.save();
+          ctx.shadowColor = nicheDepth;
+          ctx.shadowBlur = NICHE_DEBUG.depthBlur;
+          ctx.strokeStyle = nicheDepth;
+          ctx.lineWidth = borderW;
+          drawArc();
+          ctx.restore();
+        }
+        // 3) Track: border + fill
+        ctx.strokeStyle = borderCol;
+        ctx.lineWidth = borderW;
+        drawArc();
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = trackW;
+        drawArc();
+      }
+    }
+
     for (let i = 0; i < n; i++) {
       const t = (i + 0.5) / n;
       const color = lerpColor(COLORS.accent1, COLORS.accent5, t);
@@ -216,6 +344,15 @@ class CircularGauge extends HTMLElement {
     const x = cx + Math.cos(ang) * handR;
     const y = cy + Math.sin(ang) * handR;
 
+    // Volume: needle shadow
+    if (this._volume) {
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,0.45)';
+      ctx.shadowBlur = 4;
+      ctx.shadowOffsetX = 1;
+      ctx.shadowOffsetY = 2;
+    }
+
     ctx.beginPath();
     ctx.moveTo(cx, cy);
     ctx.lineTo(x, y);
@@ -230,10 +367,42 @@ class CircularGauge extends HTMLElement {
     ctx.lineWidth = CG_HAND_W;
     ctx.lineCap = "round";
     ctx.stroke();
+
+    if (this._volume) ctx.restore();
   }
 
   _drawHub(ctx, cx, cy, S) {
     const r = S * CG_HUB_R;
+
+    // Volume: hub niche — two glow objects beneath, hub covers them
+    if (this._volume) {
+      const isLight = document.documentElement.dataset.theme === "light";
+      const nicheRim = NICHE_DEBUG.rimColor || (isLight ? COLORS.neutral1 : COLORS.neutral12);
+      const nicheDepth = NICHE_DEBUG.depthColor || (isLight ? COLORS.neutral12 : COLORS.neutral1);
+      // 1) Rim glow — circle larger than hub by rimSpread
+      if (NICHE_DEBUG.rimEnabled) {
+        ctx.save();
+        ctx.shadowColor = nicheRim;
+        ctx.shadowBlur = NICHE_DEBUG.rimBlur;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, TAU);
+        ctx.fillStyle = nicheRim;
+        ctx.fill();
+        ctx.restore();
+      }
+      // 2) Depth glow — circle larger than hub by depthSpread
+      if (NICHE_DEBUG.depthEnabled) {
+        ctx.save();
+        ctx.shadowColor = nicheDepth;
+        ctx.shadowBlur = NICHE_DEBUG.depthBlur;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, TAU);
+        ctx.fillStyle = nicheDepth;
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, TAU);
     if (this._flat) {
@@ -327,7 +496,7 @@ class LinearGauge extends HTMLElement {
 
   static get observedAttributes() {
     return ["value", "min", "max", "size", "direction",
-            "segments", "grow-segments", "label", "flat"];
+            "segments", "grow-segments", "label", "flat", "volume"];
   }
 
   constructor() {
@@ -387,6 +556,7 @@ class LinearGauge extends HTMLElement {
     this._segments = parseInt(this.getAttribute("segments") ?? 10, 10);
     this._growSegments = this.hasAttribute("grow-segments");
     this._label = this.getAttribute("label") || "";
+    this._volume = this.hasAttribute("volume");
   }
 
   _resize() {
@@ -435,11 +605,100 @@ class LinearGauge extends HTMLElement {
     const n = this._segments;
     const captionH = this._label ? 28 : 0;
     const trackY = (h - captionH) / 2;
-    const padX = 10;
+    const padX = 10 + (this._volume ? 4 : 0);
     const trackLen = w - padX * 2;
     const segLen = trackLen / n;
     const gapPx = segLen * LG_GAP_FRAC;
     const baseW = LG_TRACK_W;
+    const trackPad = 4;
+
+    // Volume: track niche — two same-shape glow objects beneath, then track on top
+    if (this._volume) {
+      const isLight = document.documentElement.dataset.theme === "light";
+      const nicheRim = NICHE_DEBUG.rimColor || (isLight ? COLORS.neutral1 : COLORS.neutral12);
+      const nicheDepth = NICHE_DEBUG.depthColor || (isLight ? COLORS.neutral12 : COLORS.neutral1);
+      const borderCol = COLORS.neutral4;
+      const [fillA, fillB] = gradPair(COLORS.neutral2, COLORS.neutral4);
+      const grad = ctx.createLinearGradient(padX, trackY - baseW / 2, padX, trackY + baseW / 2);
+      grad.addColorStop(0, fillA);
+      grad.addColorStop(1, fillB);
+      const trackW = baseW + trackPad;
+      const borderLW = trackW + 2;
+
+      if (this._growSegments) {
+        const minR = (baseW * 0.5 + trackPad) / 2;
+        const maxR = (baseW * 1.5 + trackPad) / 2;
+        const drawStadium = (m) => {
+          const r1 = minR + m, r2 = maxR + m;
+          ctx.beginPath();
+          ctx.arc(padX, trackY, r1, Math.PI * 0.5, -Math.PI * 0.5, false);
+          ctx.lineTo(padX + trackLen, trackY - r2);
+          ctx.arc(padX + trackLen, trackY, r2, -Math.PI * 0.5, Math.PI * 0.5, false);
+          ctx.lineTo(padX, trackY + r1);
+          ctx.closePath();
+          ctx.fill();
+        };
+        // 1) Rim glow beneath — larger by rimSpread
+        if (NICHE_DEBUG.rimEnabled) {
+          ctx.save();
+          ctx.shadowColor = nicheRim;
+          ctx.shadowBlur = NICHE_DEBUG.rimBlur;
+          ctx.fillStyle = nicheRim;
+          drawStadium(1);
+          ctx.restore();
+        }
+        // 2) Depth glow beneath — larger by depthSpread
+        if (NICHE_DEBUG.depthEnabled) {
+          ctx.save();
+          ctx.shadowColor = nicheDepth;
+          ctx.shadowBlur = NICHE_DEBUG.depthBlur;
+          ctx.fillStyle = nicheDepth;
+          drawStadium(1);
+          ctx.restore();
+        }
+        // 3) Track: border + fill
+        ctx.fillStyle = borderCol;
+        drawStadium(1);
+        ctx.fillStyle = grad;
+        drawStadium(0);
+      } else {
+        // Uniform track
+        const drawLine = () => {
+          ctx.beginPath();
+          ctx.moveTo(padX, trackY);
+          ctx.lineTo(padX + trackLen, trackY);
+          ctx.lineCap = "round";
+          ctx.stroke();
+        };
+        // 1) Rim glow beneath — wider by 2*rimSpread
+        if (NICHE_DEBUG.rimEnabled) {
+          ctx.save();
+          ctx.shadowColor = nicheRim;
+          ctx.shadowBlur = NICHE_DEBUG.rimBlur;
+          ctx.strokeStyle = nicheRim;
+          ctx.lineWidth = borderLW;
+          drawLine();
+          ctx.restore();
+        }
+        // 2) Depth glow beneath — wider by 2*depthSpread
+        if (NICHE_DEBUG.depthEnabled) {
+          ctx.save();
+          ctx.shadowColor = nicheDepth;
+          ctx.shadowBlur = NICHE_DEBUG.depthBlur;
+          ctx.strokeStyle = nicheDepth;
+          ctx.lineWidth = borderLW;
+          drawLine();
+          ctx.restore();
+        }
+        // 3) Track: border + fill
+        ctx.strokeStyle = borderCol;
+        ctx.lineWidth = borderLW;
+        drawLine();
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = trackW;
+        drawLine();
+      }
+    }
 
     // segments
     for (let i = 0; i < n; i++) {
@@ -458,10 +717,20 @@ class LinearGauge extends HTMLElement {
       ctx.stroke();
     }
 
+    // Volume: pointer shadow
+    if (this._volume) {
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,0.45)';
+      ctx.shadowBlur = 4;
+      ctx.shadowOffsetX = 1;
+      ctx.shadowOffsetY = 2;
+    }
+
     // pointer (rounded stroke)
     const handX = padX + this._displayFrac * trackLen;
-    const hY0 = trackY - baseW / 2 - LG_PTR_OVER;
-    const hY1 = trackY + baseW / 2 + LG_PTR_OVER;
+    const trackHW = baseW / 2 + (this._volume ? trackPad / 2 : 0);
+    const hY0 = trackY - trackHW - LG_PTR_OVER;
+    const hY1 = trackY + trackHW + LG_PTR_OVER;
     ctx.beginPath();
     ctx.moveTo(handX, hY0);
     ctx.lineTo(handX, hY1);
@@ -472,10 +741,20 @@ class LinearGauge extends HTMLElement {
     ctx.beginPath();
     ctx.moveTo(handX, hY0);
     ctx.lineTo(handX, hY1);
-    ctx.strokeStyle = LG_PTR_FILL();
+    if (this._volume) {
+      const [ptA, ptB] = gradPair(COLORS.neutral6, COLORS.neutral9);
+      const ptGrad = ctx.createLinearGradient(handX - LG_PTR_W / 2, trackY, handX + LG_PTR_W / 2, trackY);
+      ptGrad.addColorStop(0, ptA);
+      ptGrad.addColorStop(1, ptB);
+      ctx.strokeStyle = ptGrad;
+    } else {
+      ctx.strokeStyle = LG_PTR_FILL();
+    }
     ctx.lineWidth = LG_PTR_W;
     ctx.lineCap = "round";
     ctx.stroke();
+
+    if (this._volume) ctx.restore();
 
     // caption
     if (this._label) {
@@ -487,11 +766,100 @@ class LinearGauge extends HTMLElement {
     const n = this._segments;
     const captionH = this._label ? 22 : 0;
     const trackX = w / 2;
-    const padY = 8;
+    const padY = 8 + (this._volume ? 6 : 0);
     const trackLen = h - padY * 2 - captionH;
     const segLen = trackLen / n;
     const gapPx = segLen * LG_GAP_FRAC;
     const baseW = LG_TRACK_W;
+    const trackPad = 4;
+
+    // Volume: track niche — two same-shape glow objects beneath, then track on top
+    if (this._volume) {
+      const isLight = document.documentElement.dataset.theme === "light";
+      const nicheRim = NICHE_DEBUG.rimColor || (isLight ? COLORS.neutral1 : COLORS.neutral12);
+      const nicheDepth = NICHE_DEBUG.depthColor || (isLight ? COLORS.neutral12 : COLORS.neutral1);
+      const borderCol = COLORS.neutral4;
+      const [fillA, fillB] = gradPair(COLORS.neutral2, COLORS.neutral4);
+      const grad = ctx.createLinearGradient(trackX - baseW / 2, padY, trackX + baseW / 2, padY);
+      grad.addColorStop(0, fillA);
+      grad.addColorStop(1, fillB);
+      const trackW = baseW + trackPad;
+      const borderLW = trackW + 2;
+
+      if (this._growSegments) {
+        const maxR = (baseW * 1.5 + trackPad) / 2;
+        const minR = (baseW * 0.5 + trackPad) / 2;
+        const drawStadium = (m) => {
+          const r1 = maxR + m, r2 = minR + m;
+          ctx.beginPath();
+          ctx.arc(trackX, padY, r1, Math.PI, 0, false);
+          ctx.lineTo(trackX + r2, padY + trackLen);
+          ctx.arc(trackX, padY + trackLen, r2, 0, Math.PI, false);
+          ctx.lineTo(trackX - r1, padY);
+          ctx.closePath();
+          ctx.fill();
+        };
+        // 1) Rim glow beneath — larger by rimSpread
+        if (NICHE_DEBUG.rimEnabled) {
+          ctx.save();
+          ctx.shadowColor = nicheRim;
+          ctx.shadowBlur = NICHE_DEBUG.rimBlur;
+          ctx.fillStyle = nicheRim;
+          drawStadium(1);
+          ctx.restore();
+        }
+        // 2) Depth glow beneath — larger by depthSpread
+        if (NICHE_DEBUG.depthEnabled) {
+          ctx.save();
+          ctx.shadowColor = nicheDepth;
+          ctx.shadowBlur = NICHE_DEBUG.depthBlur;
+          ctx.fillStyle = nicheDepth;
+          drawStadium(1);
+          ctx.restore();
+        }
+        // 3) Track: border + fill
+        ctx.fillStyle = borderCol;
+        drawStadium(1);
+        ctx.fillStyle = grad;
+        drawStadium(0);
+      } else {
+        // Uniform track
+        const drawLine = () => {
+          ctx.beginPath();
+          ctx.moveTo(trackX, padY);
+          ctx.lineTo(trackX, padY + trackLen);
+          ctx.lineCap = "round";
+          ctx.stroke();
+        };
+        // 1) Rim glow beneath — wider by 2*rimSpread
+        if (NICHE_DEBUG.rimEnabled) {
+          ctx.save();
+          ctx.shadowColor = nicheRim;
+          ctx.shadowBlur = NICHE_DEBUG.rimBlur;
+          ctx.strokeStyle = nicheRim;
+          ctx.lineWidth = borderLW;
+          drawLine();
+          ctx.restore();
+        }
+        // 2) Depth glow beneath — wider by 2*depthSpread
+        if (NICHE_DEBUG.depthEnabled) {
+          ctx.save();
+          ctx.shadowColor = nicheDepth;
+          ctx.shadowBlur = NICHE_DEBUG.depthBlur;
+          ctx.strokeStyle = nicheDepth;
+          ctx.lineWidth = borderLW;
+          drawLine();
+          ctx.restore();
+        }
+        // 3) Track: border + fill
+        ctx.strokeStyle = borderCol;
+        ctx.lineWidth = borderLW;
+        drawLine();
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = trackW;
+        drawLine();
+      }
+    }
 
     // segments (bottom = max for vertical)
     for (let i = 0; i < n; i++) {
@@ -510,10 +878,20 @@ class LinearGauge extends HTMLElement {
       ctx.stroke();
     }
 
+    // Volume: pointer shadow
+    if (this._volume) {
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,0.45)';
+      ctx.shadowBlur = 4;
+      ctx.shadowOffsetX = 1;
+      ctx.shadowOffsetY = 2;
+    }
+
     // pointer (rounded stroke)
     const handY = padY + (1 - this._displayFrac) * trackLen;
-    const hX0 = trackX - baseW / 2 - LG_PTR_OVER;
-    const hX1 = trackX + baseW / 2 + LG_PTR_OVER;
+    const trackHW = baseW / 2 + (this._volume ? trackPad / 2 : 0);
+    const hX0 = trackX - trackHW - LG_PTR_OVER;
+    const hX1 = trackX + trackHW + LG_PTR_OVER;
     ctx.beginPath();
     ctx.moveTo(hX0, handY);
     ctx.lineTo(hX1, handY);
@@ -524,10 +902,20 @@ class LinearGauge extends HTMLElement {
     ctx.beginPath();
     ctx.moveTo(hX0, handY);
     ctx.lineTo(hX1, handY);
-    ctx.strokeStyle = LG_PTR_FILL();
+    if (this._volume) {
+      const [ptA, ptB] = gradPair(COLORS.neutral6, COLORS.neutral9);
+      const ptGrad = ctx.createLinearGradient(trackX, handY - LG_PTR_W / 2, trackX, handY + LG_PTR_W / 2);
+      ptGrad.addColorStop(0, ptA);
+      ptGrad.addColorStop(1, ptB);
+      ctx.strokeStyle = ptGrad;
+    } else {
+      ctx.strokeStyle = LG_PTR_FILL();
+    }
     ctx.lineWidth = LG_PTR_W;
     ctx.lineCap = "round";
     ctx.stroke();
+
+    if (this._volume) ctx.restore();
 
     // caption
     if (this._label) {

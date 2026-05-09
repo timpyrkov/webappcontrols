@@ -237,6 +237,10 @@ if (styleSelect) {
       if (key === "Flat" || key === "Basic") el.setAttribute("flat", "");
       else el.removeAttribute("flat");
     });
+    document.querySelectorAll("circular-gauge, linear-gauge").forEach((el) => {
+      if (key === "Volume") el.setAttribute("volume", "");
+      else el.removeAttribute("volume");
+    });
   });
 }
 
