@@ -11,14 +11,14 @@
 
 import { COLORS, refreshColors, gradPair, captionAccent } from "../tokens.js";
 
-/* ── DEBUG: niche glow inspection flags ── */
-const NICHE_DEBUG = {
+/* ── Niche shadow styling ── */
+const NICHE_STYLE = {
   rimEnabled:   true,       // toggle rim glow on/off
   depthEnabled: true,       // toggle depth glow on/off
-  rimColor:     '#ffffff',  // override: null = auto (white/black), or 'red','blue', etc. for debug
-  depthColor:   '#000000',  // override: null = auto (black/white), or 'cyan','magenta', etc. for debug
-  rimBlur:      8,          // shadowBlur radius
-  depthBlur:    6,          // shadowBlur radius
+  rimColor:     '#ffffff',  // override: null = palette neutral12 (light), or '#ffffff', 'red', etc. for debug
+  depthColor:   '#000000',  // override: null = palette neutral1 (dark), or '#000000', 'cyan', etc. for debug
+  rimBlur:      6,          // shadowBlur radius
+  depthBlur:    3,          // shadowBlur radius
 };
 
 /* ── Shared constants ── */
@@ -212,9 +212,8 @@ class CircularGauge extends HTMLElement {
     if (this._volume) {
       const ccw = this._direction !== "cw";
       const endRad = startRad + sweep;
-      const isLight = document.documentElement.dataset.theme === "light";
-      const nicheRim = NICHE_DEBUG.rimColor || (isLight ? COLORS.neutral1 : COLORS.neutral12);
-      const nicheDepth = NICHE_DEBUG.depthColor || (isLight ? COLORS.neutral12 : COLORS.neutral1);
+      const nicheRim = NICHE_STYLE.rimColor || COLORS.neutral12;
+      const nicheDepth = NICHE_STYLE.depthColor || COLORS.neutral1;
       const borderCol = COLORS.neutral4;
       const [fillA, fillB] = gradPair(COLORS.neutral2, COLORS.neutral4);
       const grad = ctx.createLinearGradient(cx, cy - r, cx, cy + r);
@@ -261,19 +260,19 @@ class CircularGauge extends HTMLElement {
           ctx.fill();
         };
         // 1) Rim glow beneath — shape larger than border by rimSpread
-        if (NICHE_DEBUG.rimEnabled) {
+        if (NICHE_STYLE.rimEnabled) {
           ctx.save();
           ctx.shadowColor = nicheRim;
-          ctx.shadowBlur = NICHE_DEBUG.rimBlur;
+          ctx.shadowBlur = NICHE_STYLE.rimBlur;
           ctx.fillStyle = nicheRim;
           drawTaper(1);
           ctx.restore();
         }
         // 2) Depth glow beneath — shape larger than border by depthSpread
-        if (NICHE_DEBUG.depthEnabled) {
+        if (NICHE_STYLE.depthEnabled) {
           ctx.save();
           ctx.shadowColor = nicheDepth;
-          ctx.shadowBlur = NICHE_DEBUG.depthBlur;
+          ctx.shadowBlur = NICHE_STYLE.depthBlur;
           ctx.fillStyle = nicheDepth;
           drawTaper(1);
           ctx.restore();
@@ -292,20 +291,20 @@ class CircularGauge extends HTMLElement {
           ctx.stroke();
         };
         // 1) Rim glow beneath — lineWidth wider than border by 2*rimSpread
-        if (NICHE_DEBUG.rimEnabled) {
+        if (NICHE_STYLE.rimEnabled) {
           ctx.save();
           ctx.shadowColor = nicheRim;
-          ctx.shadowBlur = NICHE_DEBUG.rimBlur;
+          ctx.shadowBlur = NICHE_STYLE.rimBlur;
           ctx.strokeStyle = nicheRim;
           ctx.lineWidth = borderW;
           drawArc();
           ctx.restore();
         }
         // 2) Depth glow beneath — lineWidth wider than border by 2*depthSpread
-        if (NICHE_DEBUG.depthEnabled) {
+        if (NICHE_STYLE.depthEnabled) {
           ctx.save();
           ctx.shadowColor = nicheDepth;
-          ctx.shadowBlur = NICHE_DEBUG.depthBlur;
+          ctx.shadowBlur = NICHE_STYLE.depthBlur;
           ctx.strokeStyle = nicheDepth;
           ctx.lineWidth = borderW;
           drawArc();
@@ -376,14 +375,13 @@ class CircularGauge extends HTMLElement {
 
     // Volume: hub niche — two glow objects beneath, hub covers them
     if (this._volume) {
-      const isLight = document.documentElement.dataset.theme === "light";
-      const nicheRim = NICHE_DEBUG.rimColor || (isLight ? COLORS.neutral1 : COLORS.neutral12);
-      const nicheDepth = NICHE_DEBUG.depthColor || (isLight ? COLORS.neutral12 : COLORS.neutral1);
+      const nicheRim = NICHE_STYLE.rimColor || COLORS.neutral12;
+      const nicheDepth = NICHE_STYLE.depthColor || COLORS.neutral1;
       // 1) Rim glow — circle larger than hub by rimSpread
-      if (NICHE_DEBUG.rimEnabled) {
+      if (NICHE_STYLE.rimEnabled) {
         ctx.save();
         ctx.shadowColor = nicheRim;
-        ctx.shadowBlur = NICHE_DEBUG.rimBlur;
+        ctx.shadowBlur = NICHE_STYLE.rimBlur;
         ctx.beginPath();
         ctx.arc(cx, cy, r, 0, TAU);
         ctx.fillStyle = nicheRim;
@@ -391,10 +389,10 @@ class CircularGauge extends HTMLElement {
         ctx.restore();
       }
       // 2) Depth glow — circle larger than hub by depthSpread
-      if (NICHE_DEBUG.depthEnabled) {
+      if (NICHE_STYLE.depthEnabled) {
         ctx.save();
         ctx.shadowColor = nicheDepth;
-        ctx.shadowBlur = NICHE_DEBUG.depthBlur;
+        ctx.shadowBlur = NICHE_STYLE.depthBlur;
         ctx.beginPath();
         ctx.arc(cx, cy, r, 0, TAU);
         ctx.fillStyle = nicheDepth;
@@ -614,9 +612,8 @@ class LinearGauge extends HTMLElement {
 
     // Volume: track niche — two same-shape glow objects beneath, then track on top
     if (this._volume) {
-      const isLight = document.documentElement.dataset.theme === "light";
-      const nicheRim = NICHE_DEBUG.rimColor || (isLight ? COLORS.neutral1 : COLORS.neutral12);
-      const nicheDepth = NICHE_DEBUG.depthColor || (isLight ? COLORS.neutral12 : COLORS.neutral1);
+      const nicheRim = NICHE_STYLE.rimColor || COLORS.neutral12;
+      const nicheDepth = NICHE_STYLE.depthColor || COLORS.neutral1;
       const borderCol = COLORS.neutral4;
       const [fillA, fillB] = gradPair(COLORS.neutral2, COLORS.neutral4);
       const grad = ctx.createLinearGradient(padX, trackY - baseW / 2, padX, trackY + baseW / 2);
@@ -639,19 +636,19 @@ class LinearGauge extends HTMLElement {
           ctx.fill();
         };
         // 1) Rim glow beneath — larger by rimSpread
-        if (NICHE_DEBUG.rimEnabled) {
+        if (NICHE_STYLE.rimEnabled) {
           ctx.save();
           ctx.shadowColor = nicheRim;
-          ctx.shadowBlur = NICHE_DEBUG.rimBlur;
+          ctx.shadowBlur = NICHE_STYLE.rimBlur;
           ctx.fillStyle = nicheRim;
           drawStadium(1);
           ctx.restore();
         }
         // 2) Depth glow beneath — larger by depthSpread
-        if (NICHE_DEBUG.depthEnabled) {
+        if (NICHE_STYLE.depthEnabled) {
           ctx.save();
           ctx.shadowColor = nicheDepth;
-          ctx.shadowBlur = NICHE_DEBUG.depthBlur;
+          ctx.shadowBlur = NICHE_STYLE.depthBlur;
           ctx.fillStyle = nicheDepth;
           drawStadium(1);
           ctx.restore();
@@ -671,20 +668,20 @@ class LinearGauge extends HTMLElement {
           ctx.stroke();
         };
         // 1) Rim glow beneath — wider by 2*rimSpread
-        if (NICHE_DEBUG.rimEnabled) {
+        if (NICHE_STYLE.rimEnabled) {
           ctx.save();
           ctx.shadowColor = nicheRim;
-          ctx.shadowBlur = NICHE_DEBUG.rimBlur;
+          ctx.shadowBlur = NICHE_STYLE.rimBlur;
           ctx.strokeStyle = nicheRim;
           ctx.lineWidth = borderLW;
           drawLine();
           ctx.restore();
         }
         // 2) Depth glow beneath — wider by 2*depthSpread
-        if (NICHE_DEBUG.depthEnabled) {
+        if (NICHE_STYLE.depthEnabled) {
           ctx.save();
           ctx.shadowColor = nicheDepth;
-          ctx.shadowBlur = NICHE_DEBUG.depthBlur;
+          ctx.shadowBlur = NICHE_STYLE.depthBlur;
           ctx.strokeStyle = nicheDepth;
           ctx.lineWidth = borderLW;
           drawLine();
@@ -775,9 +772,8 @@ class LinearGauge extends HTMLElement {
 
     // Volume: track niche — two same-shape glow objects beneath, then track on top
     if (this._volume) {
-      const isLight = document.documentElement.dataset.theme === "light";
-      const nicheRim = NICHE_DEBUG.rimColor || (isLight ? COLORS.neutral1 : COLORS.neutral12);
-      const nicheDepth = NICHE_DEBUG.depthColor || (isLight ? COLORS.neutral12 : COLORS.neutral1);
+      const nicheRim = NICHE_STYLE.rimColor || COLORS.neutral12;
+      const nicheDepth = NICHE_STYLE.depthColor || COLORS.neutral1;
       const borderCol = COLORS.neutral4;
       const [fillA, fillB] = gradPair(COLORS.neutral2, COLORS.neutral4);
       const grad = ctx.createLinearGradient(trackX - baseW / 2, padY, trackX + baseW / 2, padY);
@@ -800,19 +796,19 @@ class LinearGauge extends HTMLElement {
           ctx.fill();
         };
         // 1) Rim glow beneath — larger by rimSpread
-        if (NICHE_DEBUG.rimEnabled) {
+        if (NICHE_STYLE.rimEnabled) {
           ctx.save();
           ctx.shadowColor = nicheRim;
-          ctx.shadowBlur = NICHE_DEBUG.rimBlur;
+          ctx.shadowBlur = NICHE_STYLE.rimBlur;
           ctx.fillStyle = nicheRim;
           drawStadium(1);
           ctx.restore();
         }
         // 2) Depth glow beneath — larger by depthSpread
-        if (NICHE_DEBUG.depthEnabled) {
+        if (NICHE_STYLE.depthEnabled) {
           ctx.save();
           ctx.shadowColor = nicheDepth;
-          ctx.shadowBlur = NICHE_DEBUG.depthBlur;
+          ctx.shadowBlur = NICHE_STYLE.depthBlur;
           ctx.fillStyle = nicheDepth;
           drawStadium(1);
           ctx.restore();
@@ -832,20 +828,20 @@ class LinearGauge extends HTMLElement {
           ctx.stroke();
         };
         // 1) Rim glow beneath — wider by 2*rimSpread
-        if (NICHE_DEBUG.rimEnabled) {
+        if (NICHE_STYLE.rimEnabled) {
           ctx.save();
           ctx.shadowColor = nicheRim;
-          ctx.shadowBlur = NICHE_DEBUG.rimBlur;
+          ctx.shadowBlur = NICHE_STYLE.rimBlur;
           ctx.strokeStyle = nicheRim;
           ctx.lineWidth = borderLW;
           drawLine();
           ctx.restore();
         }
         // 2) Depth glow beneath — wider by 2*depthSpread
-        if (NICHE_DEBUG.depthEnabled) {
+        if (NICHE_STYLE.depthEnabled) {
           ctx.save();
           ctx.shadowColor = nicheDepth;
-          ctx.shadowBlur = NICHE_DEBUG.depthBlur;
+          ctx.shadowBlur = NICHE_STYLE.depthBlur;
           ctx.strokeStyle = nicheDepth;
           ctx.lineWidth = borderLW;
           drawLine();
