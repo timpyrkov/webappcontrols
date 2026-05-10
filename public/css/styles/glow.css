@@ -1,0 +1,297 @@
+/* ── glow.css — Glow style: inherits Volume, adds glow effects (WIP) ── */
+
+/* ================================================================
+   Reusable Gradient Tokens — Glow Mode
+   ================================================================
+   Currently identical to volume.css. Will be tuned to use glow effects
+   for values and captions, and change some element colors/gradients.
+   ================================================================ */
+:root {
+  /* Neutral raised surface */
+  --grad-raised: linear-gradient(to bottom, var(--neutral-4), var(--neutral-2));
+  --grad-raised-hover: linear-gradient(to bottom, var(--neutral-5), var(--neutral-3));
+
+  /* Neutral inset */
+  --grad-inset: linear-gradient(to bottom, var(--neutral-2), var(--neutral-1));
+
+  /* Field background */
+  --grad-field: linear-gradient(to bottom, var(--neutral-1), var(--neutral-2));
+
+  /* Track */
+  --grad-track: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
+  --grad-track-h: linear-gradient(to right, var(--neutral-2), var(--neutral-4));
+
+  /* Toggle / slider thumb (off) */
+  --grad-thumb: linear-gradient(to bottom, var(--neutral-7), var(--neutral-5));
+
+  /* Accent — full range */
+  --grad-accent: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-5));
+  --grad-accent-sec: linear-gradient(to bottom, var(--secondary-accent-1), var(--secondary-accent-5));
+
+  /* Accent — narrow range */
+  --grad-accent-narrow: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-3));
+  --grad-accent-narrow-sec: linear-gradient(to bottom, var(--secondary-accent-1), var(--secondary-accent-3));
+
+  /* Accent — extended range (wider contrast, for bevels/edges) */
+  --grad-accent-ext: linear-gradient(to bottom, var(--primary-light), var(--primary-accent-4));
+  --grad-accent-ext-sec: linear-gradient(to bottom, var(--secondary-light), var(--secondary-accent-4));
+
+  /* Neutral — extended range (wider contrast, for bevels/edges) */
+  --grad-raised-ext: linear-gradient(to bottom, var(--neutral-5), var(--neutral-3));
+  --grad-raised-hover-ext: linear-gradient(to bottom, var(--neutral-6), var(--neutral-4));
+
+  /* Accent — deflection (4-stop: slow→fast→slow = convex surface) */
+  --grad-accent-defl: linear-gradient(to bottom,
+    var(--primary-accent-1) 0%, var(--primary-accent-2) 40%,
+    var(--primary-accent-4) 60%, var(--primary-accent-5) 100%);
+  --grad-accent-defl-sec: linear-gradient(to bottom,
+    var(--secondary-accent-1) 0%, var(--secondary-accent-2) 40%,
+    var(--secondary-accent-4) 60%, var(--secondary-accent-5) 100%);
+
+  /* Neutral — deflection (4-stop: slow→fast→slow = convex surface) */
+  --grad-raised-defl: linear-gradient(to bottom,
+    var(--neutral-4) 0%, var(--neutral-3) 40%,
+    var(--neutral-3) 60%, var(--neutral-2) 100%);
+  --grad-raised-hover-defl: linear-gradient(to bottom,
+    var(--neutral-5) 0%, var(--neutral-4) 40%,
+    var(--neutral-4) 60%, var(--neutral-4) 100%);
+
+  /* Slider thumb ring */
+  --grad-slider-ring: radial-gradient(circle closest-side, var(--neutral-3) 60%, transparent 61%), var(--grad-accent);
+
+  /* Page & Panel backgrounds */
+  --page-bg: linear-gradient(to top, var(--panel-bg), var(--bg));
+  --panel-bg-fill: linear-gradient(to top, var(--panel-edge), var(--panel-bg));
+
+  /* ── Niche tokens — Volume's "recessed pocket" effect ──
+     Layers, painted front to back:
+       1. Sharp dark ring — niche walls in shadow (the primary cue)
+       2. Compact dark depth — tight drop shadow under the button */
+  --niche-depth:  color-mix(in srgb, var(--neutral-1) 90%, transparent);
+  --niche-rim:     color-mix(in srgb, var(--neutral-4) 80%, transparent);
+  --niche-floor:   var(--neutral-1);
+  --niche-shadow:
+    0 0 1px 1px var(--niche-depth),
+    0 0 2px 2px var(--niche-rim);
+
+  /* Wire all component shadows to the unified niche */
+  --shadow-btn:    var(--niche-shadow);
+  --shadow-field:  var(--niche-shadow);
+  --shadow-check:  var(--niche-shadow);
+  --shadow-radio:  var(--niche-shadow);
+  --shadow-toggle: var(--niche-shadow);
+  --shadow-seg:    var(--niche-shadow);
+  --shadow-track:  var(--niche-shadow);
+}
+
+/* ── Light theme: reverse neutral gradients at token level ── */
+[data-theme="light"] {
+  --grad-raised: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
+  --grad-raised-hover: linear-gradient(to bottom, var(--neutral-3), var(--neutral-5));
+  --grad-inset: linear-gradient(to bottom, var(--neutral-1), var(--neutral-2));
+  --grad-field: linear-gradient(to bottom, var(--neutral-2), var(--neutral-1));
+  --grad-track: linear-gradient(to bottom, var(--neutral-4), var(--neutral-2));
+  --grad-track-h: linear-gradient(to right, var(--neutral-4), var(--neutral-2));
+  --grad-thumb: linear-gradient(to bottom, var(--neutral-5), var(--neutral-7));
+  --grad-slider-ring: radial-gradient(circle closest-side, var(--neutral-3) 60%, transparent 61%), linear-gradient(to bottom, var(--primary-accent-5), var(--primary-accent-1));
+  --page-bg: linear-gradient(to top, var(--bg), var(--panel-bg));
+  --panel-bg-fill: linear-gradient(to top, var(--panel-bg), var(--panel-edge));
+
+  /* Extended — only NEUTRAL ext flips (because neutral-1 is light here, neutral-5 dark).
+     Accent ext does NOT flip: --primary-light / --primary-dark are
+     absolute lightness anchors, the same value in both themes, so the
+     :root definition (light at top → dark at bottom) is correct in
+     light theme too and matches the inner --grad-accent overlay. */
+  --grad-raised-ext: linear-gradient(to bottom, var(--neutral-1), var(--neutral-5));
+  --grad-raised-hover-ext: linear-gradient(to bottom, var(--neutral-2), var(--neutral-6));
+
+  /* Deflection — only neutrals flip (because neutral-2 is light here, neutral-5 dark).
+     Accent indices keep the same lightness ordering across themes, so
+     --grad-accent-defl / --grad-accent-defl-sec inherit from :root unchanged
+     and the active button gradient flows the same way as in dark theme. */
+  --grad-raised-defl: linear-gradient(to bottom,
+    var(--neutral-2) 0%, var(--neutral-3) 40%,
+    var(--neutral-3) 60%, var(--neutral-4) 100%);
+  --grad-raised-hover-defl: linear-gradient(to bottom,
+    var(--neutral-3) 0%, var(--neutral-4) 40%,
+    var(--neutral-4) 60%, var(--neutral-5) 100%);
+
+  /* Niche tuning for light theme: same approach as dark theme.
+     Dark ring is the dominant cue; bottom highlight stays subtle so the
+     button never looks like it's floating above a brighter plate. */
+  --niche-depth:  color-mix(in srgb, var(--neutral-10) 90%, transparent);
+  --niche-rim:     color-mix(in srgb, #ffffff 100%, transparent);
+  --niche-floor:   var(--neutral-7);
+}
+/* Light theme plates: swap inner/outer for all states except Active */
+[data-theme="light"] push-button {
+  --btn-bg: var(--grad-raised);
+  --btn-overlay: var(--grad-raised-ext);
+  --btn-hover-bg: var(--grad-raised-hover);
+  --btn-hover-overlay: var(--grad-raised-hover-ext);
+  --btn-disabled-bg: linear-gradient(to bottom, var(--neutral-1), var(--neutral-3));
+  --btn-disabled-overlay: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
+}
+[data-theme="light"] segmented-control {
+  --seg-bg: var(--grad-raised);
+  --seg-overlay: var(--grad-raised-ext);
+  --seg-hover-bg: var(--grad-raised-hover);
+  --seg-hover-overlay: var(--grad-raised-hover-ext);
+}
+
+/* ================================================================
+   Component Assignments (reference tokens above)
+   ================================================================ */
+
+/* ── Push Button ── */
+push-button {
+  background: var(--niche-floor);
+  border-radius: var(--btn-radius, 6px);
+  --btn-bg: var(--grad-raised-ext);
+  --btn-fg: var(--fg);
+  --btn-border: transparent;
+  --btn-bevel-width: 3px;               /* Fallback while JS hasn't measured yet */
+  --btn-bevel-ref-height: 40px;         /* Reference button height */
+  --btn-bevel-ref-pad: 3px;             /* Padding at reference height; scales linearly */
+  --btn-overlay: var(--grad-raised);
+  --btn-hover-bg: var(--grad-raised-hover-ext);
+  --btn-hover-border: transparent;
+  --btn-hover-overlay: var(--grad-raised-hover);
+  --btn-active-bg: var(--grad-accent-ext);
+  --btn-active-bg-secondary: var(--grad-accent-ext-sec);
+  --btn-active-overlay: var(--grad-accent);
+  --btn-active-overlay-secondary: var(--grad-accent-sec);
+  --btn-active-border: transparent;
+  --btn-active-fg: var(--bg);
+  --btn-radius: 6px;
+  --btn-shadow: var(--shadow-btn);
+  --btn-focus-ring: 2px solid var(--primary-accent-3);
+  --btn-focus-ring-offset: 2px;
+  --btn-disabled-opacity: 1;
+  --btn-disabled-bg: linear-gradient(to bottom, var(--neutral-4), var(--neutral-2));
+  --btn-disabled-overlay: linear-gradient(to bottom, var(--neutral-3), var(--neutral-1));
+  --btn-disabled-fg: color-mix(in srgb, var(--fg) 35%, transparent);
+}
+
+/* ── Text Field ── */
+text-field {
+  --field-bg: var(--grad-field);
+  --field-fg: var(--fg);
+  --field-border: var(--neutral-5);
+  --field-focus-border: var(--primary-accent-3);
+  --field-radius: 6px;
+  --field-padding: 9px 12px;
+  --field-shadow: var(--shadow-field);
+}
+
+/* ── Checkbox ── */
+check-box {
+  --check-size: 18px;
+  --check-bg: var(--grad-inset);
+  --check-border: var(--neutral-5);
+  --check-hover-bg: var(--grad-raised);
+  --check-active-bg: var(--grad-accent);
+  --check-active-bg-secondary: var(--grad-accent-sec);
+  --check-radius: 4px;
+  --check-shadow: var(--shadow-check);
+}
+
+/* ── Radio Button ── */
+radio-button {
+  --radio-size: 18px;
+  --radio-border: var(--neutral-5);
+  --radio-hover-bg: var(--grad-raised);
+  --radio-dot-bg: var(--grad-accent);
+  --radio-dot-bg-secondary: var(--grad-accent-sec);
+  --radio-shadow: var(--shadow-radio);
+}
+
+/* ── Toggle Switch ── */
+toggle-switch {
+  --toggle-width: 40px;
+  --toggle-height: 22px;
+  --toggle-bg-off: var(--grad-raised);
+  --toggle-bg-on: var(--grad-accent);
+  --toggle-bg-on-secondary: var(--grad-accent-sec);
+  --toggle-hover-bg: var(--grad-raised-hover);
+  --toggle-thumb: var(--grad-thumb);
+  --toggle-thumb-on: var(--grad-accent-narrow);
+  --toggle-thumb-on-secondary: var(--grad-accent-narrow-sec);
+  --toggle-thumb-border: 1px solid var(--neutral-5);
+  --toggle-border-off: var(--neutral-5);
+  --toggle-radius: 11px;
+  --toggle-shadow: var(--shadow-toggle);
+}
+
+/* ── Segmented Control ── */
+segmented-control {
+  --seg-bg: var(--grad-raised-ext);
+  --seg-fg: var(--fg);
+  --seg-border: var(--neutral-5);
+  --seg-bevel-width: 3px;               /* Fallback while JS hasn't measured yet */
+  --seg-bevel-ref-height: 40px;         /* Reference segment height */
+  --seg-bevel-ref-pad: 3px;             /* Padding at reference height; scales linearly */
+  --seg-overlay: var(--grad-raised);
+  --seg-hover-bg: var(--grad-raised-hover-ext);
+  --seg-hover-border: var(--neutral-5);
+  --seg-hover-overlay: var(--grad-raised-hover);
+  --seg-active-bg: var(--grad-accent-ext);
+  --seg-active-bg-secondary: var(--grad-accent-ext-sec);
+  --seg-active-overlay: var(--grad-accent);
+  --seg-active-overlay-secondary: var(--grad-accent-sec);
+  --seg-active-border: var(--neutral-5);
+  --seg-radius: 5px;
+  --seg-shadow: var(--shadow-seg);
+}
+
+/* ── Sliders & Progress ── */
+range-slider {
+  --track-height: 8px;
+  --track-radius: 4px;
+  --track-bg: var(--grad-track);
+  --track-border: 1px solid var(--neutral-4);
+  --track-shadow: var(--shadow-track);
+  --thumb-center: var(--grad-slider-ring);
+  --thumb-border: none;
+  --thumb-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  --thumb-outline: 1px solid var(--neutral-3);
+}
+vertical-slider {
+  --track-width: 8px;
+  --track-radius: 4px;
+  --track-bg: var(--grad-track-h);
+  --track-border: 1px solid var(--neutral-4);
+  --track-shadow: var(--shadow-track);
+  --thumb-center: var(--grad-slider-ring);
+  --thumb-border: none;
+  --thumb-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  --thumb-outline: 1px solid var(--neutral-3);
+}
+
+progress-bar {
+  --track-bg: linear-gradient(to bottom, var(--neutral-2), var(--neutral-3));
+}
+
+/* ── Calendar ── */
+date-calendar {
+  --cal-sel-bg: var(--grad-accent-ext);
+  --cal-sel-border: transparent;
+  --cal-sel-bevel: 2px;                 /* Fallback while JS hasn't measured yet */
+  --cal-bevel-ref-height: 40px;         /* Same reference as buttons for visual consistency */
+  --cal-bevel-ref-pad: 3px;             /* A ~27px day cell → round(3 * 27/40) = 2px */
+  --cal-sel-overlay: var(--grad-accent);
+}
+
+/* ── Notification ── */
+notification-bar {
+  --notif-radius: 8px;
+  --notif-padding: 12px 16px;
+  --notif-gradient: linear-gradient(to bottom, rgba(128,128,128,0.08) 0%, transparent 100%);
+  --notif-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+/* ── Charts ── */
+bar-chart,
+line-chart {
+  --chart-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}

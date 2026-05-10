@@ -1136,7 +1136,7 @@ class BarChart extends HTMLElement {
         barGrad.addColorStop(1, accent1);
         ctx.fillStyle = barGrad;
       } else {
-        // Flat/Basic: distinct category color per bar based on value rank
+        // Flat/Glow: distinct category color per bar based on value rank
         const t = data.length > 1 ? rankMap.get(i) / (data.length - 1) : 0.5;
         const catIdx = Math.round(t * 6) + 1;
         ctx.fillStyle = cs.getPropertyValue(`--category-${catIdx}`).trim() || accent1;

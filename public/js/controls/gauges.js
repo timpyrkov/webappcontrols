@@ -13,8 +13,8 @@ import { COLORS, refreshColors, gradPair, captionAccent } from "../tokens.js";
 
 /* ── Niche shadow styling ── */
 const NICHE_STYLE = {
-  rimEnabled:   true,       // toggle rim glow on/off
-  depthEnabled: true,       // toggle depth glow on/off
+  rimEnabled:   false,      // toggle rim glow on/off
+  depthEnabled: false,      // toggle depth glow on/off
   rimColor:     null,       // null = auto from CSS niche tokens, or '#ffffff', 'red', etc. for debug
   depthColor:   null,       // null = auto from CSS niche tokens, or '#000000', 'cyan', etc. for debug
   rimBlur:      5,         // shadowBlur radius (spread of the gaussian blur)
@@ -61,12 +61,14 @@ function nicheColors() {
 
 /* ── Groove shading (concave lighting, adapted from groove/ prototype) ── */
 const GROOVE = {
-  lightAngle: 240,    // degrees — light source direction (0=right, 90=bottom, 180=left, 270=top, 45=top-right)
-  depth:      0.8,   // 0..1 — how pronounced the concavity is
-  shiftLight: 4,     // px offset of the light halo from edge
-  shiftDark:  4,     // px offset of the dark halo from edge
-  blur:       3,     // px blur applied to halos
-  blurBloom:  0.7,   // 0..1 — bloom factor (lower = tighter glow)
+  lightAngle:    240,   // degrees — light source direction (0=right, 90=bottom, 180=left, 270=top, 45=top-right)
+  depth:         0.8,   // 0..1 — how pronounced the concavity is
+  shiftLight:    4,     // px offset of the light halo from edge
+  shiftDark:     4,     // px offset of the dark halo from edge
+  blur:          3,     // px blur applied to halos
+  blurBloom:     0.7,   // 0..1 — bloom factor (lower = tighter glow)
+  lightEnabled:  false, // Light halo disabled for cleaner recessed look
+  darkEnabled:   true,  // Dark halo creates the groove effect
 };
 
 let _grooveScratch = null;
@@ -116,7 +118,7 @@ function _grooveAdjustL(hex, deltaL) {
  * @param {number} minHW, maxHW - half-widths for tapered track (ignored for uniform)
  */
 function drawGrooveShading(ctx, cx, cy, R1, R2, startRad, endRad, ccw, baseHex, canvasW, canvasH, dpr, trackShape = "uniform", minHW = 0, maxHW = 0) {
-  const { depth, shiftLight, shiftDark, blur, blurBloom, lightAngle } = GROOVE;
+  const { depth, shiftLight, shiftDark, blur, blurBloom, lightAngle, lightEnabled, darkEnabled } = GROOVE;
   if (depth <= 0) return;
 
   const lightRad = lightAngle * Math.PI / 180;
@@ -183,12 +185,15 @@ function drawGrooveShading(ctx, cx, cy, R1, R2, startRad, endRad, ccw, baseHex, 
     sctx.restore();
   };
 
-  const passes = [
-    ["outer", lightRgb, ux * shiftLight, uy * shiftLight],
-    ["outer", darkRgb, -ux * shiftDark, -uy * shiftDark],
-    ["inner", lightRgb, ux * shiftLight, uy * shiftLight],
-    ["inner", darkRgb, -ux * shiftDark, -uy * shiftDark],
-  ];
+  const passes = [];
+  if (lightEnabled) {
+    passes.push(["outer", lightRgb, ux * shiftLight, uy * shiftLight]);
+    passes.push(["inner", lightRgb, ux * shiftLight, uy * shiftLight]);
+  }
+  if (darkEnabled) {
+    passes.push(["outer", darkRgb, -ux * shiftDark, -uy * shiftDark]);
+    passes.push(["inner", darkRgb, -ux * shiftDark, -uy * shiftDark]);
+  }
   for (const [kind, rgb, ox, oy] of passes) {
     renderHalo(kind, rgb, ox, oy);
   }
@@ -499,7 +504,7 @@ class CircularGauge extends HTMLElement {
         drawTaper(0);
         // 4) Groove shading (concave lighting)
         const dpr = window.devicePixelRatio || 1;
-        drawGrooveShading(ctx, cx, cy, r - maxHW, r + maxHW, startRad, endRad, ccw, COLORS.neutral3, this._w, this._h, dpr, "tapered", minHW, maxHW);
+        drawGrooveShading(ctx, cx, cy, r - maxHW, r + maxHW, startRad, endRad, ccw, COLORS.neutral4, this._w, this._h, dpr, "tapered", minHW, maxHW);
       } else {
         // Uniform track
         const drawArc = () => {
@@ -540,7 +545,7 @@ class CircularGauge extends HTMLElement {
         // 4) Groove shading (concave lighting)
         const dpr = window.devicePixelRatio || 1;
         const halfW = trackW / 2;
-        drawGrooveShading(ctx, cx, cy, r - halfW, r + halfW, startRad, endRad, ccw, COLORS.neutral3, this._w, this._h, dpr, "uniform");
+        drawGrooveShading(ctx, cx, cy, r - halfW, r + halfW, startRad, endRad, ccw, COLORS.neutral4, this._w, this._h, dpr, "uniform");
       }
     }
 
@@ -841,7 +846,7 @@ class LinearGauge extends HTMLElement {
     if (this._volume) {
       const [nicheRim, nicheDepth] = nicheColors();
       const borderCol = COLORS.neutral4;
-      const [fillA, fillB] = gradPair(COLORS.neutral2, COLORS.neutral4);
+      const [fillA, fillB] = gradPair(COLORS.neutral4, COLORS.neutral5);
       const grad = ctx.createLinearGradient(padX, trackY - baseW / 2, padX, trackY + baseW / 2);
       grad.addColorStop(0, fillA);
       grad.addColorStop(1, fillB);
@@ -1004,7 +1009,7 @@ class LinearGauge extends HTMLElement {
     if (this._volume) {
       const [nicheRim, nicheDepth] = nicheColors();
       const borderCol = COLORS.neutral4;
-      const [fillA, fillB] = gradPair(COLORS.neutral2, COLORS.neutral4);
+      const [fillA, fillB] = gradPair(COLORS.neutral4, COLORS.neutral5);
       const grad = ctx.createLinearGradient(trackX - baseW / 2, padY, trackX + baseW / 2, padY);
       grad.addColorStop(0, fillA);
       grad.addColorStop(1, fillB);

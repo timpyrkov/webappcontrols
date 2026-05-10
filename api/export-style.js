@@ -3,7 +3,7 @@ const path = require("path");
 const archiver = require("archiver");
 
 const STYLE_CSS = {
-  flat: "flat.css", basic: "basic.css", gradient: "gradient.css",
+  flat: "flat.css", glow: "glow.css", gradient: "gradient.css",
   volume: "volume.css",
 };
 const READY_STYLES = new Set(["flat"]);

@@ -5,10 +5,10 @@
  * come from different CSS custom-property values set in each style CSS file.
  * Switching styles = swapping the CSS <link> href (no reload needed).
  *
- * Supported styles: flat, basic, gradient, volume
+ * Supported styles: flat, glow, gradient, volume
  */
 
-const VALID_STYLES = ["flat", "volume", "basic", "gradient"];
+const VALID_STYLES = ["flat", "volume", "glow", "gradient"];
 const DEFAULT_STYLE = "flat";
 
 let _active = DEFAULT_STYLE;

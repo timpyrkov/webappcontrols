@@ -212,8 +212,8 @@ let _currentStyleKey = "Flat";
 function _updateTitleGradient() {
   const el = document.querySelector(".accent-title");
   if (!el) return;
-  // Gradient text for styles other than Basic and Flat
-  if (_currentStyleKey !== "Basic" && _currentStyleKey !== "Flat") {
+  // Gradient text for styles other than Flat
+  if (_currentStyleKey !== "Flat") {
     el.classList.add("gradient");
   } else {
     el.classList.remove("gradient");
@@ -224,7 +224,7 @@ _updateTitleGradient();
 document.querySelectorAll("rotary-knob, circular-gauge, bar-chart, line-chart").forEach((el) => el.setAttribute("flat", ""));
 
 if (styleSelect) {
-  const styleNameMap = { Basic: "basic", Flat: "flat", Gradient: "gradient", Volume: "volume" };
+  const styleNameMap = { Glow: "glow", Flat: "flat", Gradient: "gradient", Volume: "volume" };
   styleSelect.addEventListener("change", (e) => {
     const key = e.detail?.value || "Flat";  // stable key from keys attr
     _currentStyleKey = key;
@@ -232,11 +232,11 @@ if (styleSelect) {
     _updateTitleGradient();
     // Toggle flat attribute on canvas-based components
     document.querySelectorAll("rotary-knob, circular-gauge, bar-chart, line-chart").forEach((el) => {
-      if (key === "Flat" || key === "Basic") el.setAttribute("flat", "");
+      if (key === "Flat") el.setAttribute("flat", "");
       else el.removeAttribute("flat");
     });
     document.querySelectorAll("circular-gauge, linear-gauge, rotary-knob").forEach((el) => {
-      if (key === "Volume") el.setAttribute("volume", "");
+      if (key === "Volume" || key === "Glow") el.setAttribute("volume", "");
       else el.removeAttribute("volume");
     });
   });
@@ -456,7 +456,7 @@ if (btnExportPalette) {
 
 /* ── Wire Export style ── */
 
-const _styleKeyToFile = { Basic: "basic", Flat: "flat", Gradient: "gradient", Volume: "volume" };
+const _styleKeyToFile = { Glow: "glow", Flat: "flat", Gradient: "gradient", Volume: "volume" };
 const btnExportStyle = document.getElementById("btnExportStyle");
 if (btnExportStyle) {
   btnExportStyle.addEventListener("activate", () => {

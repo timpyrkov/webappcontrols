@@ -17,8 +17,8 @@ const GROOVE = {
 
 /* ── Niche shadow styling (matches gauges.js look) ── */
 const NICHE_STYLE = {
-  rimEnabled:   true,
-  depthEnabled: true,
+  rimEnabled:   false,
+  depthEnabled: false,
   rimBlur:      5,
   depthBlur:    3,
   rimSpread:    0,
@@ -468,7 +468,7 @@ class RotaryKnob extends HTMLElement {
       ctx.fillStyle = this._makeLinGrad(ctx, cx, cy, r, GRAD_ANGLE_DEG, oTop, oBot);
     }
     ctx.fill();
-    if (!this.hasAttribute("flat")) {
+    if (!this.hasAttribute("flat") && (NICHE_STYLE.rimEnabled || NICHE_STYLE.depthEnabled)) {
       ctx.strokeStyle = COLORS.edge2;
       ctx.lineWidth = 1;
       ctx.stroke();

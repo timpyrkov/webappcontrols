@@ -28,7 +28,7 @@ const archiver = require("archiver");
 
 // Map from style key to CSS filename
 const STYLE_CSS = {
-  flat: "flat.css", basic: "basic.css", gradient: "gradient.css",
+  flat: "flat.css", glow: "glow.css", gradient: "gradient.css",
   volume: "volume.css",
 };
 // Only styles that have a full JS implementation
