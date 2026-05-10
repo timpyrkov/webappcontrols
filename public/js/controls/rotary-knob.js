@@ -16,26 +16,15 @@ const LABEL_R   = 0.46;   // enum label radius
 const CAPTION_H = 20;     // px reserved at bottom for caption text
 const ANIM_MS   = 180;    // animation duration
 
-/* ── Volume-mode layout (fractions of component size) ── */
-const VOL_BEZEL_OUTER_R = 0.30;   // outermost edge of pale silver bezel
-const VOL_BEZEL_INNER_R = 0.275;  // inner edge of bezel / outer edge of knurl
-const VOL_KNURL_OUTER_R = 0.275;  // outer edge of knurled grip ring
-const VOL_KNURL_INNER_R = 0.235;  // inner edge of knurled grip ring
-const VOL_GROOVE_R      = 0.230;  // recessed groove (darker line) radius
-const VOL_CAP_R         = 0.220;  // domed cap radius
-const KNURL_TICKS       = 44;     // number of knurl divisions
-const VOL_PIVOT_R       = 0.012;  // pivot dot radius
-
-/**
- * Mirror of nicheColors() in gauges.js — returns [rim, depth] colors
- * for theme-aware niche glow effects.
- */
-function nicheColors() {
-  const isLight = document.documentElement.dataset.theme === "light";
-  const rim   = isLight ? "white" : COLORS.neutral4;
-  const depth = isLight ? COLORS.neutral12 : COLORS.neutral1;
-  return [rim, depth];
-}
+/* ── Volume-mode layout (fractions of component size; R1=innermost, R5=outermost) ── */
+const VOL_R5 = 0.300;   // outermost bezel disk (notably higher neutrals; no edge)
+const VOL_R4 = 0.275;   // recess collar (slightly lower neutrals than R2; no edge)
+const VOL_R3 = 0.255;   // knurled ring base radius (sine-modulated outer boundary)
+const VOL_R2 = 0.205;   // convex transition ring (lighter edge)
+const VOL_R1 = 0.155;   // inner concave cap (no edge)
+const KNURL_TICKS = 18;        // number of knurl peaks around R3
+const KNURL_AMPL  = 0.006;     // sine amplitude as fraction of S
+const KNURL_SEGS  = 360;       // path smoothness for the wavy R3 boundary
 
 /* ── Helpers ── */
 const DEG  = Math.PI / 180;
@@ -218,6 +207,13 @@ class RotaryKnob extends HTMLElement {
       this._draw();
       return;
     }
+    // Handle wrap-around: choose shortest path around the circle
+    let delta = angle - this._displayAngle;
+    // Normalize delta to [-π, π]
+    while (delta > Math.PI) delta -= TAU;
+    while (delta < -Math.PI) delta += TAU;
+    this._targetAngle = this._displayAngle + delta;
+    
     this._animFrom  = this._displayAngle;
     this._animStart = performance.now();
     if (!this._rafId) this._tick();
@@ -265,159 +261,116 @@ class RotaryKnob extends HTMLElement {
     this._drawCaption(ctx, cx, cy, S, w, h);
   }
 
-  /* -- Volume style: bezel + knurl + groove + domed cap + pointer + pivot -- */
+  /* -- Volume style: 5-ring layout (R1…R5) + sine-modulated R3 edge + full-radius pointer -- */
   _drawVolume(ctx, cx, cy, S) {
+    const angle = this._displayAngle;          // 0 = top, CW; drives R3 edge + pointer rotation
     const isLight = document.documentElement.dataset.theme === "light";
 
-    /* 1) Outer drop-shadow halo under the bezel */
-    ctx.save();
-    ctx.shadowColor = isLight ? "rgba(0,0,0,0.18)" : "rgba(0,0,0,0.55)";
-    ctx.shadowBlur = S * 0.04;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = S * 0.012;
-    ctx.beginPath();
-    ctx.arc(cx, cy, S * VOL_BEZEL_OUTER_R, 0, TAU);
-    ctx.fillStyle = isLight ? COLORS.neutral12 : COLORS.neutral1;
-    ctx.fill();
-    ctx.restore();
-
-    /* 2) Pale outer bezel ring — silver, lit from top-left */
+    /* R5 — outermost bezel disk (notably higher neutrals; convex 135°; no edge) */
     {
-      const rOut = S * VOL_BEZEL_OUTER_R;
-      const rIn  = S * VOL_BEZEL_INNER_R;
-      const [bezA, bezB] = gradPair(COLORS.neutral9, COLORS.neutral6);
-      const grad = ctx.createLinearGradient(
-        cx - rOut * 0.7, cy - rOut * 0.7,
-        cx + rOut * 0.7, cy + rOut * 0.7
-      );
-      grad.addColorStop(0, bezA);
-      grad.addColorStop(1, bezB);
+      const r = S * VOL_R5;
+      const [a, b] = gradPair(COLORS.neutral7, COLORS.neutral5);
       ctx.beginPath();
-      ctx.arc(cx, cy, rOut, 0, TAU);
-      ctx.arc(cx, cy, rIn,  0, TAU, true);
-      ctx.fillStyle = grad;
-      ctx.fill("evenodd");
+      ctx.arc(cx, cy, r, 0, TAU);
+      ctx.fillStyle = this._makeLinGrad(ctx, cx, cy, r, GRAD_ANGLE_DEG, a, b);
+      ctx.fill();
     }
 
-    /* 3) Knurled grip ring — alternating thin radial slices */
+    /* R4 — recess collar disk (slightly lower neutrals than R2; convex 135°; no edge) */
     {
-      const rOut = S * VOL_KNURL_OUTER_R;
-      const rIn  = S * VOL_KNURL_INNER_R;
-      // Base fill (dark)
+      const r = S * VOL_R4;
+      const [a, b] = gradPair(COLORS.neutral4, COLORS.neutral2);
       ctx.beginPath();
-      ctx.arc(cx, cy, rOut, 0, TAU);
-      ctx.arc(cx, cy, rIn,  0, TAU, true);
-      const [baseA, baseB] = gradPair(COLORS.neutral4, COLORS.neutral2);
-      const baseGrad = ctx.createLinearGradient(
-        cx, cy - rOut, cx, cy + rOut
-      );
-      baseGrad.addColorStop(0, baseA);
-      baseGrad.addColorStop(1, baseB);
-      ctx.fillStyle = baseGrad;
-      ctx.fill("evenodd");
+      ctx.arc(cx, cy, r, 0, TAU);
+      ctx.fillStyle = this._makeLinGrad(ctx, cx, cy, r, GRAD_ANGLE_DEG, a, b);
+      ctx.fill();
+    }
 
-      // Knurl ticks — thin alternating lighter/darker radial slices
-      const [hiA, hiB] = gradPair(COLORS.neutral6, COLORS.neutral3);
-      const [loA, loB] = gradPair(COLORS.neutral2, COLORS.neutral1);
-      const tickW = TAU / KNURL_TICKS;
-      const halfW = tickW * 0.42;  // gap between ridges
-      for (let i = 0; i < KNURL_TICKS; i++) {
-        const ang = i * tickW;
-        const isHi = (i % 2) === 0;
-        // skew lighting so ridges at top look brighter, ridges at bottom darker
-        const lighting = Math.cos(ang - Math.PI / 2);  // +1 at bottom, -1 at top
-        const tintT = (lighting + 1) * 0.5;            // 0..1
-        const cTop = isHi ? hiA : loA;
-        const cBot = isHi ? hiB : loB;
-        const c = lerpColor(cTop, cBot, tintT);
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, rOut, ang - halfW - Math.PI / 2, ang + halfW - Math.PI / 2);
-        ctx.closePath();
-        // Mask to the knurl annulus by clipping with the inner hole
-        ctx.save();
-        ctx.clip();
-        ctx.beginPath();
-        ctx.arc(cx, cy, rOut, 0, TAU);
-        ctx.arc(cx, cy, rIn,  0, TAU, true);
-        ctx.fillStyle = c;
-        ctx.fill("evenodd");
-        ctx.restore();
+    /* R3 — knurled ring with sine-modulated outer boundary that rotates with the pointer.
+     *      Static linear gradient fill is clipped by the rotating wavy path; a dark stroke
+     *      along the same path produces the knurl ridges.  N peaks rotate clockwise as
+     *      `angle` increases (canvas y-axis points down, so we use sin(N*(t - angle))). */
+    {
+      const rBase = S * VOL_R3;
+      const A = S * KNURL_AMPL;
+      const N = KNURL_TICKS;
+      const segs = KNURL_SEGS;
+      const phaseShift = Math.PI / (2 * N);  // align pointer with sine peak
+
+      ctx.beginPath();
+      for (let i = 0; i <= segs; i++) {
+        const t = (i / segs) * TAU;
+        const r = rBase + A * Math.sin(N * (t - angle + phaseShift));
+        const x = cx + Math.cos(t) * r;
+        const y = cy + Math.sin(t) * r;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
       }
-    }
+      ctx.closePath();
 
-    /* 4) Recessed groove shadow — thin darker ring */
-    {
-      const r = S * VOL_GROOVE_R;
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, TAU);
-      ctx.strokeStyle = isLight ? COLORS.neutral8 : COLORS.neutral1;
-      ctx.lineWidth = Math.max(1, S * 0.006);
-      ctx.stroke();
-    }
-
-    /* 5) Domed cap — radial gradient (light at top, dark at bottom-center) */
-    {
-      const r = S * VOL_CAP_R;
-      const [capLight, capDark] = gradPair(COLORS.neutral3, COLORS.neutral1);
-      const grad = ctx.createRadialGradient(
-        cx, cy - r * 0.45, r * 0.05,
-        cx, cy + r * 0.10, r * 1.1
-      );
-      grad.addColorStop(0, capLight);
-      grad.addColorStop(1, capDark);
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, TAU);
-      ctx.fillStyle = grad;
+      // Static fill (slightly higher tones than R2)
+      const [a, b] = gradPair(COLORS.neutral6, COLORS.neutral4);
+      ctx.fillStyle = this._makeLinGrad(ctx, cx, cy, rBase + A, GRAD_ANGLE_DEG, a, b);
       ctx.fill();
 
-      // Subtle inner-rim highlight at top (suggests convex dome)
-      const [rim] = nicheColors();
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, Math.PI * 1.15, Math.PI * 1.85);
-      ctx.strokeStyle = rim;
-      ctx.globalAlpha = 0.18;
-      ctx.lineWidth = Math.max(1, S * 0.006);
+      // Dark sine-modulated edge stroke (knurl ridges)
+      ctx.strokeStyle = isLight ? COLORS.neutral7 : COLORS.neutral1;
+      ctx.lineWidth = Math.max(1, S * 0.005);
       ctx.stroke();
-      ctx.restore();
     }
 
-    /* 6) Pointer line — accent-3 → accent-1 gradient */
+    /* R2 — convex transition ring (matches Gradient knob outer ring; lighter edge) */
     {
-      const innerR = S * VOL_CAP_R;
-      const ang = this._displayAngle;
-      const rStart = innerR - S * PTR_LEN - S * PTR_OFF;
-      const rEnd   = innerR - S * PTR_OFF;
-      const sinA = Math.sin(ang), cosA = -Math.cos(ang);
-      const x1 = cx + sinA * rStart, y1 = cy + cosA * rStart;
-      const x2 = cx + sinA * rEnd,   y2 = cy + cosA * rEnd;
+      const r = S * VOL_R2;
+      const [a, b] = gradPair(COLORS.neutral5, COLORS.neutral3);
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, TAU);
+      ctx.fillStyle = this._makeLinGrad(ctx, cx, cy, r, GRAD_ANGLE_DEG, a, b);
+      ctx.fill();
+      ctx.strokeStyle = COLORS.edge2;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
 
-      ctx.save();
-      ctx.shadowColor = "rgba(0,0,0,0.45)";
-      ctx.shadowBlur = 3;
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 1;
-      const g = ctx.createLinearGradient(x1, y1, x2, y2);
+    /* R1 — innermost concave cap (matches Gradient knob inner ring; reversed direction; no edge) */
+    {
+      const r = S * VOL_R1;
+      const [a, b] = gradPair(COLORS.neutral5, COLORS.neutral3);
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, TAU);
+      // 180° offset → concave (light at bottom-right instead of top-left)
+      ctx.fillStyle = this._makeLinGrad(ctx, cx, cy, r, GRAD_ANGLE_DEG + 180, a, b);
+      ctx.fill();
+    }
+
+    /* Pointer — from center to (just inside) the nominal edge of R3; rotates with `angle`.
+     *            Inner end (at center) is rounded; outer end (at R3 edge) is flat. */
+    {
+      const rEnd = S * VOL_R3 - S * 0.01;
+      const sinA = Math.sin(angle), cosA = -Math.cos(angle);
+      const xMid = cx + sinA * (rEnd * 0.5), yMid = cy + cosA * (rEnd * 0.5);
+      const x2 = cx + sinA * rEnd, y2 = cy + cosA * rEnd;
+      const g = ctx.createLinearGradient(cx, cy, x2, y2);
       g.addColorStop(0, COLORS.accent3);
       g.addColorStop(1, COLORS.accent1);
+
+      // Inner half: rounded cap at center
       ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(xMid, yMid);
       ctx.strokeStyle = g;
       ctx.lineWidth = PTR_W;
       ctx.lineCap = "round";
       ctx.stroke();
-      ctx.restore();
-    }
 
-    /* 7) Pivot dot at cap center */
-    {
-      const pr = Math.max(1.5, S * VOL_PIVOT_R);
+      // Outer half: flat (butt) cap at R3 edge
       ctx.beginPath();
-      ctx.arc(cx, cy, pr, 0, TAU);
-      ctx.fillStyle = COLORS.accent1;
-      ctx.fill();
+      ctx.moveTo(xMid, yMid);
+      ctx.lineTo(x2, y2);
+      ctx.strokeStyle = g;
+      ctx.lineWidth = PTR_W;
+      ctx.lineCap = "butt";
+      ctx.stroke();
     }
   }
 
