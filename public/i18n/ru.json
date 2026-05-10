@@ -98,6 +98,5 @@
   "gauge.temp": "Темп",
   "gauge.fuel": "Топл",
   "gauge.level": "Уров",
-  "btn.exportPalette": "Эксп. палитру",
   "btn.exportStyle": "Эксп. стиль"
 }

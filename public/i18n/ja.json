@@ -98,6 +98,5 @@
   "gauge.temp": "温度",
   "gauge.fuel": "燃料",
   "gauge.level": "レベル",
-  "btn.exportPalette": "パレット出力",
   "btn.exportStyle": "スタイル出力"
 }

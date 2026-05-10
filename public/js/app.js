@@ -3,7 +3,7 @@
  * Wires global controls to the palette engine and preview panel.
  */
 import { PALETTES, PALETTE_ORDER, DEFAULT_PALETTE, PALETTE_I18N } from "./palettes.js";
-import { createPalette, downloadPaletteJson } from "./palette_tools.js";
+import { createPalette } from "./palette_tools.js";
 import { getActiveStyle, switchStyle } from "./style-manager.js";
 import { loadLanguage, t } from "./i18n.js";
 
@@ -441,16 +441,6 @@ if (btnReset) {
     updateMetaFromPalette();
     refreshPalette();
     _initPaletteSelect(_currentLang);
-  });
-}
-
-/* ── Wire Export palette ── */
-
-const btnExportPalette = document.getElementById("btnExportPalette");
-if (btnExportPalette) {
-  btnExportPalette.addEventListener("activate", () => {
-    if (!currentResult) return;
-    downloadPaletteJson(currentResult, `palette-${currentPalette}.json`);
   });
 }
 

@@ -98,6 +98,5 @@
   "gauge.temp": "Temp",
   "gauge.fuel": "Comb",
   "gauge.level": "Nivel",
-  "btn.exportPalette": "Exportar paleta",
   "btn.exportStyle": "Exportar estilo"
 }

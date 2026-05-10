@@ -98,6 +98,5 @@
   "gauge.temp": "Temp",
   "gauge.fuel": "Carb",
   "gauge.level": "Livello",
-  "btn.exportPalette": "Esporta palette",
   "btn.exportStyle": "Esporta stile"
 }

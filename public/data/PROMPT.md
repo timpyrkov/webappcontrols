@@ -1,98 +1,166 @@
-Please, integrate this web color palette module into the existing web application project. Think step by step and implement each step carefully.
+Please integrate this Web App Controls **style bundle** into the existing web application project. The bundle (`{Style}_modules.zip`) ships a colour palette engine, a CSS token scheme, a single visual style sheet, and a catalogue of themed Web Components. Think step by step and implement each step carefully. Use `STYLES.md` as the authoritative reference for APIs, file layout, and component contracts.
 
-> **IMPORTANT — Full token scheme replacement required.**
-> Do NOT borrow a few colors into existing tokens. You MUST **completely replace** the existing color token scheme with the new one described below. Map every UI element to a token from the new palette. Keeping old token names with patched values is not acceptable — the full richness of the palette (12 neutral grades, 5+5 accent grades, 7 category colors) must be available and used.
+> **IMPORTANT — Full visual layer replacement.**
+> Do NOT cherry-pick a few colours or import a single component. You MUST **completely replace** the existing colour-token scheme and styling layer with the bundled one. The full token ramp (12 neutrals, 2×5 accents, 5 notifications, 7 categories) must be available and used. Existing components that overlap with the bundle's catalogue must be replaced or visually subsumed by the bundled equivalents.
 
-### Step 1 — Review existing codebase
-Analyze the current project structure to identify:
-- Where theme/state is managed (context, store, or local component state)
-- Existing CSS variable naming conventions and token aliases — **these will be replaced**
-- Current color/token usage patterns across components
-- UI framework (React, Vue, Svelte, vanilla JS, etc.)
+---
 
-### Step 2 — Add palette selection dropdown
-Create a dropdown (or segmented control) that:
-- Lists all 15 palettes in `PALETTE_ORDER` order
-- Displays **gemstone names only** (ignore natural, flower, beverage names)
-- Uses `PALETTE_I18N[key].gems[lang]` for localized display
-- Defaults to `DEFAULT_PALETTE` ("amber")
-- Calls `refreshPalette()` or equivalent on change
+### Step 1 — Review the existing codebase
 
-### Step 3 — Add Dark/Light theme toggle
-Create a toggle (switch or segmented control) for:
-- **Dark** → use `darkTinted` variant
-- **Light** → use `lightTinted` variant
-- **Only tinted variants** — do not expose "Accented" (greyscale background) option
-- Store preference and apply on toggle change
+Identify, before changing anything:
+- The UI framework (React, Vue, Svelte, plain DOM, …) and how custom elements / Web Components are mounted in it.
+- Where theme / palette / language state lives (context, store, local state, hooks).
+- Existing CSS variable names and token aliases — **these will be replaced or aliased to the new ramp.**
+- The full inventory of UI primitives currently in use (buttons, inputs, sliders, dialogs, tabs, …). Mark which of them have a direct match in the bundle's catalogue (Step 6 of `STYLES.md`).
 
-### Step 4 — Wire i18n gemstone names
-For the palette selector:
-- Use `getPaletteName(key, "gems", currentLang)` (see PALETTES.md §5 for the full template)
-- Ignore natural, flower, and beverage names and do not expose them in the UI
-- Listen to language changes and re-render selector labels
-- Fallback chain: requested language → English → raw palette field
+### Step 2 — Drop the bundle into the project
 
-### Step 5 — Replace the entire color token scheme
+- Copy the `css/`, `js/`, and `i18n/` directories from the unzipped bundle into the project, preserving the relative paths between modules (`controls/foo.js` imports `../tokens.js`, etc.).
+- Add the two `<link>` tags (`tokens.css` + `styles/<style>.css`) and the three `<script type="module">` tags (`flat.js`, `rotary-knob.js`, `gauges.js`) at the appropriate place in the host page. If the host uses a bundler, import them from the entry module instead.
+- Set `<html data-theme="dark">` (or `"light"`) on the root element.
 
-**Replace all existing color tokens** with the new palette token set. Do not patch old tokens — define a new complete token layer.
+### Step 3 — Add a palette selector
 
-#### Neutral tokens — `neutral-1` … `neutral-N` (N = 12)
+Pick **whatever widget shape suits the host UI**: dropdown, segmented control, radio group, command-palette item, etc. The widget must:
+- List all 15 keys from `PALETTE_ORDER`.
+- Display **gemstone names only** (ignore the `natural`, `flower`, `beverage` name categories).
+- Use `PALETTE_I18N[key].gems[currentLang]` for the label, with fallback chain `currentLang → en → raw`.
+- Default to `DEFAULT_PALETTE` (`"amber"`).
+- On change, update state and call the palette refresh function (Step 6).
 
-Neutrals are ordered so that **no renaming is needed when switching themes**:
-- Dark theme: `neutral-1` = deepest background → `neutral-12` = brightest foreground
-- Light theme: order is reversed automatically — `neutral-1` = lightest background → `neutral-12` = darkest foreground
+### Step 4 — Add a Dark/Light theme toggle
 
-Usage mapping (same token names work in both themes):
-| Token range | Usage |
+Pick whatever shape suits the host (toggle switch, two-button segmented, sun/moon icon, …):
+- Sets `document.documentElement.dataset.theme = "dark" | "light"`.
+- Maps to `darkTinted` / `lightTinted` variants only — **do not expose Accented**.
+- Persists user preference (localStorage or host's settings store).
+
+### Step 5 — Wire i18n
+
+- Call `loadLanguage(code)` on app boot and on every language change.
+- Add `data-i18n`, `data-i18n-label`, `data-i18n-placeholder`, `data-i18n-title`, `data-i18n-message`, `data-i18n-values` attributes to host-app DOM nodes that need translation.
+- Listen to the `language-changed` event to re-render any selector that shows palette gemstone names.
+- Supported languages: `en`, `es`, `fr`, `de`, `it`, `ru`, `ja`, `ko`, `zh`. To add another, drop a `xx.json` file into `i18n/` and an `xx` entry per palette in `PALETTE_I18N`.
+
+### Step 6 — Replace the entire colour token scheme
+
+**Replace all existing colour tokens** with the bundle's token set. Do not patch old tokens with new hex values — write a new complete token layer.
+
+#### 6.1 Neutrals — `--neutral-1` … `--neutral-12`
+
+Same names work in both themes; the engine reverses the ordering, not the consumer:
+
+| Theme  | `--neutral-1`         | `--neutral-12`              |
+|--------|-----------------------|-----------------------------|
+| Dark   | deepest background    | brightest foreground        |
+| Light  | lightest background   | darkest foreground          |
+
+Usage mapping (theme-agnostic):
+
+| Range | Usage |
 |---|---|
-| `neutral-1` | Page / app background |
-| `neutral-2` – `neutral-3` | Card / panel / surface background |
-| `neutral-4` – `neutral-5` | Borders, dividers, subtle separators |
-| `neutral-6` – `neutral-7` | Disabled states, placeholder text |
-| `neutral-8` – `neutral-9` | Secondary / muted text |
-| `neutral-10` – `neutral-11` | Body text |
-| `neutral-12` | Primary foreground / headings |
+| `--neutral-1` | Page / app background |
+| `--neutral-2` – `--neutral-3` | Cards / panels / raised surfaces |
+| `--neutral-4` – `--neutral-5` | Borders, dividers, subtle separators |
+| `--neutral-6` – `--neutral-7` | Disabled states, placeholders |
+| `--neutral-8` – `--neutral-9` | Muted / secondary text |
+| `--neutral-10` – `--neutral-11` | Body text |
+| `--neutral-12` | Primary foreground / headings |
 
-#### Accent tokens — `primary-1` … `primary-M` and `secondary-1` … `secondary-M` (M = 5)
+Aliases that the bundled CSS already defines: `--bg`, `--panel-bg`, `--panel-edge`, `--edge-1`, `--edge-2`, `--fg`. Use these in host CSS rather than re-deriving them.
 
-Two independent accent ramps. **General rule: lower index = lighter, higher index = darker.**
-- `primary-1` — lightest primary accent (highlights, hover states)
-- `primary-5` — darkest primary accent (pressed states, deep fills)
-- Same applies to `secondary-1` … `secondary-5`
+#### 6.2 Accents — `--primary-accent-1…5`, `--secondary-accent-1…5`
+
+Two independent ramps. **Lower index = lighter, higher index = darker.** Invariant across themes.
 
 Typical usage:
-- Active / selected button — gradient or solid from `primary-1` to `primary-5`
-- Focus ring — `primary-1`
-- Links / interactive text — `primary-1` (dark theme) or `primary-5` (light theme)
-- Secondary actions — `secondary-*` ramp
+- Active / selected control — gradient `accent-1` → `accent-5`.
+- Focus ring — `accent-1`.
+- Links / interactive text — `accent-1` (Dark) or `accent-5` (Light).
+- Secondary actions — `secondary-*`.
 
-#### Category tokens — `category-1` … `category-L` (L = 7)
+#### 6.3 Categories — `--category-1` … `--category-7`
 
-Use for **enumerated items that need distinct colors**: chart series, progress bars, data lines, tags, badges, legend items, etc. Up to 7 visually distinct colors in a harmonious hue sequence.
+Enumerated, visually distinct hues for chart series, tags, badges, legend items.
 
-#### Notification tokens
+#### 6.4 Notifications
 
-Fixed semantic tokens: `color-error`, `color-warning`, `color-success`, `color-note`, `color-message`.
+Fixed semantic tokens: `--color-error`, `--color-warning`, `--color-success`, `--color-message`, `--color-note`.
 
-### Step 6 — Use explicit parameter defaults
+#### 6.5 The required write-out
 
-When calling `createPalette()`, use the following defaults:
+In the host's palette-refresh function (call it `applyTokensToCSS(variant)`):
 
-| Parameter | Default |
-|-----------|---------|
-| N         | 12      |
-| M         | 5       |
-| L         | 7       |
-| Lmin      | 0.05    |
-| Lmax      | 0.95    |
-| Power     | 1.5     |
-| Sigmoid   | 3.0     |
-| Acc light | 0.55    |
-| Acc dark  | 0.45    |
-| Alert L   | 0.55    |
-| Cat. L    | 0.55    |
-| Arc mode  | linear  |
+```js
+const root = document.documentElement.style;
+for (const t of variant.neutrals)   root.setProperty(`--${t.label}`, t.hex);
+for (const t of variant.primary)    root.setProperty(`--${t.label}`, t.hex);
+for (const t of variant.secondary)  root.setProperty(`--${t.label}`, t.hex);
+for (const t of variant.categories) root.setProperty(`--${t.label}`, t.hex);
+for (const v of Object.values(variant.notifications))
+  root.setProperty(`--${v.label}`, v.hex);
+document.dispatchEvent(new CustomEvent("palette-changed", { detail: variant }));
+```
 
-Use the PALETTES.md file as a reference for the palette names, their translations and integration instructions.
+The `palette-changed` event is **mandatory** — canvas-based components (gauges, rotary knobs, charts, color picker) listen for it to refresh their JS-side colour cache. Without it they will appear to "freeze" on the old palette.
 
-In case of any questions or uncertainties, ask for clarification. If the contents of this prompt do not match the contents of the PALETTES.md file, follow this prompt.
+### Step 7 — Replace existing UI primitives with bundled ones
+
+For every host primitive that has a direct counterpart in the bundle (button, input, checkbox, radio, switch, slider, progress, tabs ≈ segmented-control, gauges, charts, calendar, color-picker), replace the host implementation with the bundled custom element. Bind to its events:
+
+- `activate` — push-button.
+- `input` / `change` with `e.detail.value` — every other interactive control.
+
+Web Components are framework-agnostic; mount them as plain HTML elements inside JSX / templates / DOM as needed.
+
+### Step 8 — Fill the gaps for missing primitives
+
+Some host primitives have **no direct match** in the bundle (dropdown, modal, tooltip, accordion, tabs with content panes, breadcrumbs, …). Do **not** hand-roll a new look for them — derive their styling from the closest match in `STYLES.md` §8:
+
+| Need | Closest match | Derive |
+|---|---|---|
+| Dropdown / select | `<text-field>` + `<segmented-control>` | Trigger like a text field; menu items like segmented buttons |
+| Tabs (with panes) | `<segmented-control>` | Use it as the tab strip; content pane uses `--panel-bg` + `--panel-edge` |
+| Accordion | `<push-button>` | Header is a push-button; body is `--panel-bg` |
+| Modal / dialog | `<notification-bar>` (frame) | `--panel-bg` + `--panel-edge` + optional `--shadow-btn` |
+| Tooltip | `<notification-bar>` (compact) | `--neutral-3` bg + `--neutral-12` text |
+| Tag / chip | `<push-button>` (small) | Reuse `--btn-bg/border/fg`; smaller `--btn-padding` |
+| Avatar / badge | `<color-picker>` (round) | Round container with `--category-N` fill |
+
+**Strict rules for gap-fill components:**
+- Read CSS custom properties from `:root` — never embed literal hex values.
+- React to the `palette-changed` event if you draw to a canvas.
+- Honour `<html data-theme="…">` automatically by relying on the cascading tokens.
+
+### Step 9 — Use explicit `createPalette()` parameter defaults
+
+| Parameter | Default | Notes |
+|-----------|---------|-------|
+| `N`         | `12`    | Neutral steps |
+| `M`         | `5`     | Accent steps  |
+| `L`         | `7`     | Category steps |
+| `lmin`      | `0.05`  | Min neutral lightness |
+| `lmax`      | `0.95`  | Max neutral lightness |
+| `power`     | `1.5`   | Superellipse exponent |
+| `sigmoid`   | `3.0`   | Neutral curve steepness |
+| `accentLight` | `0.55` | Lighter accent target |
+| `accentDark`  | `0.45` | Darker accent target |
+| `alertL`    | `0.55`  | Notification lightness |
+| `categoryL` | `0.55`  | Category lightness |
+| `mode`      | `"linear"` | Arc interpolation |
+
+If the host needs fewer neutrals (say, 5), pass `N: 5` and adjust `applyTokensToCSS()` accordingly — the unset higher tokens will fall back to seed values in `tokens.css`.
+
+### Step 10 — Verify
+
+After integration the following should all be true:
+
+1. Switching the palette selector immediately re-skins **every** UI element — not just the bundled ones.
+2. Toggling Dark/Light flips backgrounds, text, and gradients without any visible "theme leak" (regions stuck on the old theme).
+3. Switching language updates **both** the bundle's `data-i18n`-bound strings and the palette selector's localised gemstone names.
+4. Canvas-based components (gauges, knobs, charts) refresh on every palette change — no need to reload the page.
+5. There are no leftover hex literals in host CSS for primary content surfaces; everything routes through the new tokens.
+
+---
+
+In case of questions or uncertainties, ask for clarification. If anything in this prompt conflicts with `STYLES.md`, **follow this prompt**.

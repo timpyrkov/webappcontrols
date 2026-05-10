@@ -98,6 +98,5 @@
   "gauge.temp": "温度",
   "gauge.fuel": "燃油",
   "gauge.level": "水平",
-  "btn.exportPalette": "导出调色板",
   "btn.exportStyle": "导出样式"
 }
