@@ -41,6 +41,7 @@ const ARC_W     = 6;      // arc stroke width (px, before DPR scale)
 const PTR_LEN   = 0.07;   // pointer length (fraction of size)
 const PTR_OFF   = 0.05;   // pointer offset from inner edge (fraction)
 const PTR_W     = 4;      // pointer stroke width (px)
+const PTR_W_VOL = 2;      // pointer stroke width in volume/glow mode (px)
 const GAP_DEG   = 20;     // gap at top for continuous arc (half-gap each side)
 const LABEL_R   = 0.46;   // enum label radius
 const CAPTION_H = 20;     // px reserved at bottom for caption text
@@ -430,7 +431,7 @@ class RotaryKnob extends HTMLElement {
       ctx.moveTo(cx, cy);
       ctx.lineTo(xMid, yMid);
       ctx.strokeStyle = g;
-      ctx.lineWidth = PTR_W;
+      ctx.lineWidth = PTR_W_VOL;
       ctx.lineCap = "round";
       ctx.stroke();
 
@@ -439,7 +440,7 @@ class RotaryKnob extends HTMLElement {
       ctx.moveTo(xMid, yMid);
       ctx.lineTo(x2, y2);
       ctx.strokeStyle = g;
-      ctx.lineWidth = PTR_W;
+      ctx.lineWidth = PTR_W_VOL;
       ctx.lineCap = "butt";
       ctx.stroke();
     }
