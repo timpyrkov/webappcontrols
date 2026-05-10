@@ -19,11 +19,11 @@
   --grad-field: linear-gradient(to bottom, var(--neutral-1), var(--neutral-2));
 
   /* Track (slider/progress — reversed from raised) */
-  --grad-track: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
-  --grad-track-h: linear-gradient(to right, var(--neutral-2), var(--neutral-4));
+  --grad-track: linear-gradient(to bottom, var(--neutral-3), var(--neutral-5));
+  --grad-track-h: linear-gradient(to right, var(--neutral-3), var(--neutral-5));
 
   /* Toggle / slider thumb (off state, high-contrast neutral) */
-  --grad-thumb: linear-gradient(to bottom, var(--neutral-9), var(--neutral-6));
+  --grad-thumb: linear-gradient(to bottom, var(--neutral-7), var(--neutral-5));
 
   /* Accent — full range (active states) */
   --grad-accent: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-5));
@@ -55,9 +55,9 @@
   --grad-raised-hover: linear-gradient(to bottom, var(--neutral-3), var(--neutral-5));
   --grad-inset: linear-gradient(to bottom, var(--neutral-1), var(--neutral-2));
   --grad-field: linear-gradient(to bottom, var(--neutral-2), var(--neutral-1));
-  --grad-track: linear-gradient(to bottom, var(--neutral-4), var(--neutral-2));
-  --grad-track-h: linear-gradient(to right, var(--neutral-4), var(--neutral-2));
-  --grad-thumb: linear-gradient(to bottom, var(--neutral-6), var(--neutral-9));
+  --grad-track: linear-gradient(to bottom, var(--neutral-5), var(--neutral-3));
+  --grad-track-h: linear-gradient(to right, var(--neutral-5), var(--neutral-3));
+  --grad-thumb: linear-gradient(to bottom, var(--neutral-5), var(--neutral-7));
   --grad-slider-ring: radial-gradient(circle closest-side, var(--neutral-3) 60%, transparent 61%), linear-gradient(to bottom, var(--primary-accent-5), var(--primary-accent-1));
   --page-bg: linear-gradient(to top, var(--bg), var(--panel-bg));
   --panel-bg-fill: linear-gradient(to top, var(--panel-bg), var(--panel-edge));

@@ -47,12 +47,20 @@ class PushButton extends HTMLElement {
           box-shadow: var(--btn-shadow, none);
         }
         :host([disabled]) { pointer-events: none; }
-        :host([disabled]) .btn { opacity: 0.38; }
+        :host([disabled]) .btn {
+          opacity: var(--btn-disabled-opacity, 0.38);
+          background: var(--btn-disabled-bg, var(--btn-bg, var(--neutral-3)));
+          background-origin: var(--btn-bg-origin, border-box);
+          color: var(--btn-disabled-fg, var(--btn-fg, var(--fg)));
+        }
+        :host([disabled]) .btn::before {
+          background: var(--btn-disabled-overlay, var(--btn-overlay, none));
+        }
         .btn {
           position: relative; isolation: isolate;
           display: inline-flex; align-items: center; justify-content: center; gap: 6px;
           background: var(--btn-bg, var(--neutral-3));
-          background-origin: var(--btn-bg-origin, padding-box);
+          background-origin: var(--btn-bg-origin, border-box);
           color: var(--btn-fg, var(--fg));
           border: var(--btn-border-width, 1px) solid var(--btn-border, var(--neutral-5));
           border-radius: var(--btn-radius, 6px);
@@ -77,7 +85,7 @@ class PushButton extends HTMLElement {
         .btn svg { width: 1em; height: 1em; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .btn:hover:not(.pressed):not(:active) {
           background: var(--btn-hover-bg, var(--neutral-5));
-          background-origin: var(--btn-bg-origin, padding-box);
+          background-origin: var(--btn-bg-origin, border-box);
           ${noHoverEdge ? "" : `border-color: var(--btn-hover-border, ${hoverEdge});`}
         }
         .btn:hover:not(.pressed):not(:active)::before {
@@ -85,7 +93,7 @@ class PushButton extends HTMLElement {
         }
         .btn:active, .btn.pressed {
           background: ${isSecondary ? `var(--btn-active-bg-secondary, ${accentBg})` : `var(--btn-active-bg, ${accentBg})`};
-          background-origin: var(--btn-bg-origin, padding-box);
+          background-origin: var(--btn-bg-origin, border-box);
           color: var(--btn-active-fg, var(--bg));
           border-color: var(--btn-active-border, ${accentBg});
         }
@@ -474,7 +482,7 @@ class SegmentedControl extends HTMLElement {
           line-height: 1;
           font-family: var(--font-display, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
           background: var(--seg-bg, var(--neutral-3));
-          background-origin: var(--seg-bg-origin, padding-box);
+          background-origin: var(--seg-bg-origin, border-box);
           color: var(--seg-fg, var(--fg));
           border: 1px solid var(--seg-border, var(--neutral-5));
           margin: -0.5px;
@@ -498,7 +506,7 @@ class SegmentedControl extends HTMLElement {
         .seg:hover:not(.active) {
           z-index: 2;
           background: var(--seg-hover-bg, var(--neutral-5));
-          background-origin: var(--seg-bg-origin, padding-box);
+          background-origin: var(--seg-bg-origin, border-box);
           ${noHoverEdge ? "" : `border-color: var(--seg-hover-border, ${hoverEdge});`}
         }
         .seg:hover:not(.active)::before {
@@ -507,7 +515,7 @@ class SegmentedControl extends HTMLElement {
         .seg.active {
           z-index: 1;
           background: ${isSecondary ? `var(--seg-active-bg-secondary, ${accentBg})` : `var(--seg-active-bg, ${accentBg})`};
-          background-origin: var(--seg-bg-origin, padding-box);
+          background-origin: var(--seg-bg-origin, border-box);
           color: var(--seg-active-fg, ${accentFg});
           border-color: var(--seg-active-border, var(--neutral-5));
         }
@@ -618,7 +626,7 @@ class VerticalSlider extends HTMLElement {
         }
         .thumb2 { display: ${isRange ? "block" : "none"}; }
         .label { font: 11px/1 var(--font-display, system-ui, sans-serif); color: var(--fg); opacity: 0.5; }
-        .val { font: 11px/1 var(--font-display, system-ui, sans-serif); color: var(--fg); opacity: 0.7; }
+        .val { font: 11px/1 var(--font-display, system-ui, sans-serif); color: var(--fg); opacity: 0.7; font-variant-numeric: tabular-nums; min-width: ${isRange ? '7ch' : '3ch'}; text-align: center; }
       </style>
       <div class="wrap">
         <span class="val"></span>
@@ -741,7 +749,7 @@ class RangeSlider extends HTMLElement {
         .wrap { display: flex; flex-direction: column; gap: 6px; }
         .label-row { display: flex; justify-content: space-between; }
         .lbl { font: 12px/1 var(--font-display, system-ui, sans-serif); color: var(--fg); opacity: 0.5; }
-        .val { font: 12px/1 var(--font-display, system-ui, sans-serif); color: var(--fg); opacity: 0.7; }
+        .val { font: 12px/1 var(--font-display, system-ui, sans-serif); color: var(--fg); opacity: 0.7; font-variant-numeric: tabular-nums; min-width: ${isRange ? '7ch' : '3ch'}; text-align: right; }
         .track {
           width: 100%; height: var(--track-height, 6px);
           background: var(--track-bg, var(--neutral-3));
@@ -939,6 +947,7 @@ class NotificationBar extends HTMLElement {
           border-radius: var(--notif-radius, 8px);
           position: relative;
           overflow: hidden;
+          box-shadow: var(--notif-shadow, none);
         }
         .notif::before {
           content: "";
@@ -1004,7 +1013,7 @@ class BarChart extends HTMLElement {
         :host { display: block; }
         .wrap { display: flex; flex-direction: column; gap: 6px; }
         .title { font: 600 13px/1 var(--font-display, system-ui, sans-serif); color: var(--fg); opacity: 0.7; }
-        canvas { width: 100%; height: 160px; border-radius: 4px; }
+        canvas { width: 100%; height: 160px; border-radius: 4px; box-shadow: var(--chart-shadow, none); }
       </style>
       <div class="wrap">
         ${title ? `<span class="title">${title}</span>` : ""}
@@ -1146,7 +1155,7 @@ class LineChart extends HTMLElement {
         :host { display: block; }
         .wrap { display: flex; flex-direction: column; gap: 6px; }
         .title { font: 600 13px/1 var(--font-display, system-ui, sans-serif); color: var(--fg); opacity: 0.7; }
-        canvas { width: 100%; height: 160px; border-radius: 4px; }
+        canvas { width: 100%; height: 160px; border-radius: 4px; box-shadow: var(--chart-shadow, none); }
       </style>
       <div class="wrap">
         ${title ? `<span class="title">${title}</span>` : ""}
@@ -1489,13 +1498,25 @@ class DateCalendar extends HTMLElement {
           font: 12px/1 var(--font-display, system-ui, sans-serif); color: var(--fg);
           background: none; border: 1px solid transparent;
           border-radius: 4px; padding: 6px 0; text-align: center; cursor: pointer;
+          position: relative;
         }
         .day:hover { background: var(--neutral-3); }
         .day.blank { pointer-events: none; }
         .day.today { border-color: var(--neutral-5); }
         .day.sel {
           background: var(--cal-sel-bg, var(--primary-accent-3)); color: var(--bg);
-          border-color: var(--primary-accent-3); font-weight: 600;
+          background-origin: var(--cal-sel-bg-origin, border-box);
+          border-color: var(--cal-sel-border, var(--primary-accent-3)); font-weight: 600;
+          isolation: isolate;
+        }
+        .day.sel::after {
+          content: '';
+          position: absolute;
+          inset: var(--cal-sel-bevel, 0px);
+          border-radius: calc(4px - var(--cal-sel-bevel, 0px));
+          background: var(--cal-sel-overlay, none);
+          pointer-events: none;
+          z-index: -1;
         }
         .day.in-range {
           background: color-mix(in oklab, var(--primary-accent-3) 20%, transparent);

@@ -123,6 +123,21 @@
   --niche-rim:     color-mix(in srgb, #ffffff 100%, transparent);
   --niche-floor:   var(--neutral-7);
 }
+/* Light theme plates: swap inner/outer for all states except Active */
+[data-theme="light"] push-button {
+  --btn-bg: var(--grad-raised);
+  --btn-overlay: var(--grad-raised-ext);
+  --btn-hover-bg: var(--grad-raised-hover);
+  --btn-hover-overlay: var(--grad-raised-hover-ext);
+  --btn-disabled-bg: linear-gradient(to bottom, var(--neutral-1), var(--neutral-3));
+  --btn-disabled-overlay: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
+}
+[data-theme="light"] segmented-control {
+  --seg-bg: var(--grad-raised);
+  --seg-overlay: var(--grad-raised-ext);
+  --seg-hover-bg: var(--grad-raised-hover);
+  --seg-hover-overlay: var(--grad-raised-hover-ext);
+}
 
 /* ================================================================
    Component Assignments (reference tokens above)
@@ -133,7 +148,6 @@ push-button {
   background: var(--niche-floor);
   border-radius: var(--btn-radius, 6px);
   --btn-bg: var(--grad-raised-ext);
-  --btn-bg-origin: border-box;
   --btn-fg: var(--fg);
   --btn-border: transparent;
   --btn-bevel-width: 3px;
@@ -151,6 +165,10 @@ push-button {
   --btn-shadow: var(--shadow-btn);
   --btn-focus-ring: 2px solid var(--primary-accent-3);
   --btn-focus-ring-offset: 2px;
+  --btn-disabled-opacity: 1;
+  --btn-disabled-bg: linear-gradient(to bottom, var(--neutral-4), var(--neutral-2));
+  --btn-disabled-overlay: linear-gradient(to bottom, var(--neutral-3), var(--neutral-1));
+  --btn-disabled-fg: color-mix(in srgb, var(--fg) 35%, transparent);
 }
 
 /* ── Text Field ── */
@@ -252,7 +270,10 @@ progress-bar {
 
 /* ── Calendar ── */
 date-calendar {
-  --cal-sel-bg: var(--grad-accent);
+  --cal-sel-bg: var(--grad-accent-ext);
+  --cal-sel-border: transparent;
+  --cal-sel-bevel: 2px;
+  --cal-sel-overlay: var(--grad-accent);
 }
 
 /* ── Notification ── */
@@ -260,4 +281,11 @@ notification-bar {
   --notif-radius: 8px;
   --notif-padding: 12px 16px;
   --notif-gradient: linear-gradient(to bottom, rgba(128,128,128,0.08) 0%, transparent 100%);
+  --notif-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+/* ── Charts ── */
+bar-chart,
+line-chart {
+  --chart-shadow: 0 2px 8px rgba(0,0,0,0.25);
 }

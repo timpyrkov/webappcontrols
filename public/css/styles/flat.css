@@ -43,7 +43,7 @@ toggle-switch {
   --toggle-bg-off: var(--neutral-3);
   --toggle-bg-on: var(--primary-accent-3);
   --toggle-hover-bg: var(--neutral-5);
-  --toggle-thumb: var(--neutral-7);
+  --toggle-thumb: var(--neutral-6);
   --toggle-border-off: var(--neutral-5);
   --toggle-radius: 11px;
 }
@@ -60,14 +60,14 @@ segmented-control {
 /* ── Sliders & Progress ── */
 range-slider,
 vertical-slider {
-  --track-bg: var(--neutral-3);
+  --track-bg: var(--neutral-4);
   --thumb-center: var(--neutral-3);
   --thumb-ring: var(--primary-accent-3);
   --thumb-shadow: none;
 }
 
 progress-bar {
-  --track-bg: var(--neutral-3);
+  --track-bg: var(--neutral-4);
 }
 
 /* ── Notification ── */

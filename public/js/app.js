@@ -2,7 +2,6 @@
  * app.js — Boot script.
  * Wires global controls to the palette engine and preview panel.
  */
-import { checkAuth } from "./auth.js";
 import { PALETTES, PALETTE_ORDER, DEFAULT_PALETTE, PALETTE_I18N } from "./palettes.js";
 import { createPalette, downloadPaletteJson } from "./palette_tools.js";
 import { getActiveStyle, switchStyle } from "./style-manager.js";
@@ -19,14 +18,13 @@ const VARIANT_MAP = { dark: "darkTinted", light: "lightTinted" };
 // Editable copy of palette seeds (starts as clone of PALETTES)
 const editedPalettes = JSON.parse(JSON.stringify(PALETTES));
 
-/* ── Auth check ── */
-await checkAuth();
-
 /* ── Version tag ── */
-fetch("/api/version").then(r => r.json()).then(v => {
-  const el = document.getElementById("versionTag");
-  if (el && v.tag) el.textContent = v.tag + (v.message ? " — " + v.message : "");
-}).catch(() => {});
+fetch("/api/version").then(r => { if (!r.ok) throw 0; return r.json(); })
+  .catch(() => fetch("/version.json").then(r => r.json()))
+  .then(v => {
+    const el = document.getElementById("versionTag");
+    if (el && v.tag) el.textContent = v.tag + (v.message ? " — " + v.message : "");
+  }).catch(() => {});
 
 /* ── Helpers ── */
 
@@ -237,7 +235,7 @@ if (styleSelect) {
       if (key === "Flat" || key === "Basic") el.setAttribute("flat", "");
       else el.removeAttribute("flat");
     });
-    document.querySelectorAll("circular-gauge, linear-gauge").forEach((el) => {
+    document.querySelectorAll("circular-gauge, linear-gauge, rotary-knob").forEach((el) => {
       if (key === "Volume") el.setAttribute("volume", "");
       else el.removeAttribute("volume");
     });

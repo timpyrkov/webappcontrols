@@ -273,11 +273,15 @@ body {
   width: 100%;
   padding: 8px 12px;
   font: 13px/1.2 system-ui, sans-serif;
-  background: var(--neutral-3);
+  background: var(--grad-field, var(--bg));
   color: var(--fg);
   border: 1px solid var(--neutral-5);
   border-radius: 6px;
   outline: none;
+  box-shadow: var(--shadow-field, none);
+}
+.meta-input:focus {
+  border-color: var(--primary-accent-3);
 }
 
 .meta-actions {

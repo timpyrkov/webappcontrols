@@ -198,9 +198,11 @@ function drawGrooveShading(ctx, cx, cy, R1, R2, startRad, endRad, ccw, baseHex, 
   sctx.globalAlpha = 1;
   
   if (trackShape === "tapered") {
-    // Tapered track: draw the path + circular end caps
+    // Tapered track: ONE path with polygon + both end caps as subpaths,
+    // then a SINGLE fill. Separate fills with destination-in would intersect
+    // (erasing everything); we need the UNION of the three shapes.
     const r = (R1 + R2) / 2;  // center radius
-    const sweep = ccw ? -(endRad - startRad) : (endRad - startRad);
+    const sweep = endRad - startRad;  // signed sweep (already correct for CW/CCW)
     const steps = 64;
     const startCx = cx + Math.cos(startRad) * r;
     const startCy = cy + Math.sin(startRad) * r;
@@ -209,6 +211,7 @@ function drawGrooveShading(ctx, cx, cy, R1, R2, startRad, endRad, ccw, baseHex, 
     
     sctx.fillStyle = "rgba(0,0,0,1)";
     sctx.beginPath();
+    // Subpath 1: tapered polygon
     for (let s = 0; s <= steps; s++) {
       const f = s / steps;
       const angle = startRad + f * sweep;
@@ -226,12 +229,13 @@ function drawGrooveShading(ctx, cx, cy, R1, R2, startRad, endRad, ccw, baseHex, 
       sctx.lineTo(px, py);
     }
     sctx.closePath();
-    sctx.fill();
-    sctx.beginPath();
+    // Subpath 2: start cap circle (moveTo to avoid line from previous path)
+    sctx.moveTo(startCx + minHW, startCy);
     sctx.arc(startCx, startCy, minHW, 0, Math.PI * 2);
-    sctx.fill();
-    sctx.beginPath();
+    // Subpath 3: end cap circle
+    sctx.moveTo(endCx + maxHW, endCy);
     sctx.arc(endCx, endCy, maxHW, 0, Math.PI * 2);
+    // Single fill — masks to the UNION of all three subpaths
     sctx.fill();
   } else {
     // Uniform track: use arc stroke with round lineCap
@@ -426,10 +430,8 @@ class CircularGauge extends HTMLElement {
       const endRad = startRad + sweep;
       const [nicheRim, nicheDepth] = nicheColors();
       const borderCol = COLORS.neutral4;
-      const [fillA, fillB] = gradPair(COLORS.neutral2, COLORS.neutral4);
-      const grad = ctx.createRadialGradient(cx, cy, r - baseW, cx, cy, r + baseW);
-      grad.addColorStop(0, fillA);
-      grad.addColorStop(1, fillB);
+      // Use flat base color for groove shading (no radial gradient contamination)
+      const baseFill = COLORS.neutral3;
       const trackPad = 4;
       const trackW = baseW + trackPad;
       const borderW = trackW + 2;
@@ -488,10 +490,10 @@ class CircularGauge extends HTMLElement {
           for (let p = 0; p < NICHE_STYLE.depthPasses; p++) drawTaper(1 + NICHE_STYLE.depthSpread);
           ctx.restore();
         }
-        // 3) Track: border + fill
+        // 3) Track: border + fill (flat base for groove shading)
         ctx.fillStyle = borderCol;
         drawTaper(1);
-        ctx.fillStyle = grad;
+        ctx.fillStyle = baseFill;
         drawTaper(0);
         // 4) Groove shading (concave lighting)
         const dpr = window.devicePixelRatio || 1;
@@ -524,11 +526,11 @@ class CircularGauge extends HTMLElement {
           for (let p = 0; p < NICHE_STYLE.depthPasses; p++) drawArc();
           ctx.restore();
         }
-        // 3) Track: border + fill
+        // 3) Track: border + fill (flat base for groove shading)
         ctx.strokeStyle = borderCol;
         ctx.lineWidth = borderW;
         drawArc();
-        ctx.strokeStyle = grad;
+        ctx.strokeStyle = baseFill;
         ctx.lineWidth = trackW;
         drawArc();
         // 4) Groove shading (concave lighting)
