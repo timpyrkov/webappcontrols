@@ -491,8 +491,10 @@ class CircularGauge extends HTMLElement {
           ctx.restore();
         }
         // 3) Track: border + fill (flat base for groove shading)
-        ctx.fillStyle = borderCol;
-        drawTaper(1);
+        if (NICHE_STYLE.rimEnabled || NICHE_STYLE.depthEnabled) {
+          ctx.fillStyle = borderCol;
+          drawTaper(1);
+        }
         ctx.fillStyle = baseFill;
         drawTaper(0);
         // 4) Groove shading (concave lighting)
@@ -527,9 +529,11 @@ class CircularGauge extends HTMLElement {
           ctx.restore();
         }
         // 3) Track: border + fill (flat base for groove shading)
-        ctx.strokeStyle = borderCol;
-        ctx.lineWidth = borderW;
-        drawArc();
+        if (NICHE_STYLE.rimEnabled || NICHE_STYLE.depthEnabled) {
+          ctx.strokeStyle = borderCol;
+          ctx.lineWidth = borderW;
+          drawArc();
+        }
         ctx.strokeStyle = baseFill;
         ctx.lineWidth = trackW;
         drawArc();
@@ -876,8 +880,10 @@ class LinearGauge extends HTMLElement {
           ctx.restore();
         }
         // 3) Track: border + fill
-        ctx.fillStyle = borderCol;
-        drawStadium(1);
+        if (NICHE_STYLE.rimEnabled || NICHE_STYLE.depthEnabled) {
+          ctx.fillStyle = borderCol;
+          drawStadium(1);
+        }
         ctx.fillStyle = grad;
         drawStadium(0);
       } else {
@@ -910,9 +916,11 @@ class LinearGauge extends HTMLElement {
           ctx.restore();
         }
         // 3) Track: border + fill
-        ctx.strokeStyle = borderCol;
-        ctx.lineWidth = borderLW;
-        drawLine();
+        if (NICHE_STYLE.rimEnabled || NICHE_STYLE.depthEnabled) {
+          ctx.strokeStyle = borderCol;
+          ctx.lineWidth = borderLW;
+          drawLine();
+        }
         ctx.strokeStyle = grad;
         ctx.lineWidth = trackW;
         drawLine();
@@ -1035,8 +1043,10 @@ class LinearGauge extends HTMLElement {
           ctx.restore();
         }
         // 3) Track: border + fill
-        ctx.fillStyle = borderCol;
-        drawStadium(1);
+        if (NICHE_STYLE.rimEnabled || NICHE_STYLE.depthEnabled) {
+          ctx.fillStyle = borderCol;
+          drawStadium(1);
+        }
         ctx.fillStyle = grad;
         drawStadium(0);
       } else {
@@ -1069,9 +1079,11 @@ class LinearGauge extends HTMLElement {
           ctx.restore();
         }
         // 3) Track: border + fill
-        ctx.strokeStyle = borderCol;
-        ctx.lineWidth = borderLW;
-        drawLine();
+        if (NICHE_STYLE.rimEnabled || NICHE_STYLE.depthEnabled) {
+          ctx.strokeStyle = borderCol;
+          ctx.lineWidth = borderLW;
+          drawLine();
+        }
         ctx.strokeStyle = grad;
         ctx.lineWidth = trackW;
         drawLine();
@@ -1186,6 +1198,16 @@ customElements.define("linear-gauge", LinearGauge);
 /* ── Listen for palette changes ── */
 document.addEventListener("palette-changed", () => {
   refreshColors();
+  document.querySelectorAll("circular-gauge, linear-gauge").forEach(el => {
+    if (el._draw) el._draw();
+  });
+});
+
+/* ── Listen for niche-shadows toggle ── */
+document.addEventListener("niche-toggled", (e) => {
+  const on = e.detail.enabled;
+  NICHE_STYLE.rimEnabled = on;
+  NICHE_STYLE.depthEnabled = on;
   document.querySelectorAll("circular-gauge, linear-gauge").forEach(el => {
     if (el._draw) el._draw();
   });

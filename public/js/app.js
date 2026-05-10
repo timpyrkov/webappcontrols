@@ -301,6 +301,17 @@ if (disableBox) {
   });
 }
 
+/* ── Wire niche-shadows toggle ── */
+
+const nicheBox = document.getElementById("nicheToggle");
+if (nicheBox) {
+  nicheBox.addEventListener("change", () => {
+    document.dispatchEvent(new CustomEvent("niche-toggled", {
+      detail: { enabled: nicheBox.checked }
+    }));
+  });
+}
+
 /* ── Dynamic colour pickers ── */
 
 const pickerContainer = document.getElementById("pickerContainer");

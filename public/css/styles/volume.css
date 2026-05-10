@@ -150,7 +150,9 @@ push-button {
   --btn-bg: var(--grad-raised-ext);
   --btn-fg: var(--fg);
   --btn-border: transparent;
-  --btn-bevel-width: 3px;
+  --btn-bevel-width: 3px;               /* Fallback while JS hasn't measured yet */
+  --btn-bevel-ref-height: 40px;         /* Reference button height */
+  --btn-bevel-ref-pad: 3px;             /* Padding at reference height; scales linearly */
   --btn-overlay: var(--grad-raised);
   --btn-hover-bg: var(--grad-raised-hover-ext);
   --btn-hover-border: transparent;
@@ -226,7 +228,9 @@ segmented-control {
   --seg-bg: var(--grad-raised-ext);
   --seg-fg: var(--fg);
   --seg-border: var(--neutral-5);
-  --seg-bevel-width: 3px;
+  --seg-bevel-width: 3px;               /* Fallback while JS hasn't measured yet */
+  --seg-bevel-ref-height: 40px;         /* Reference segment height */
+  --seg-bevel-ref-pad: 3px;             /* Padding at reference height; scales linearly */
   --seg-overlay: var(--grad-raised);
   --seg-hover-bg: var(--grad-raised-hover-ext);
   --seg-hover-border: var(--neutral-5);
@@ -272,7 +276,9 @@ progress-bar {
 date-calendar {
   --cal-sel-bg: var(--grad-accent-ext);
   --cal-sel-border: transparent;
-  --cal-sel-bevel: 2px;
+  --cal-sel-bevel: 2px;                 /* Fallback while JS hasn't measured yet */
+  --cal-bevel-ref-height: 40px;         /* Same reference as buttons for visual consistency */
+  --cal-bevel-ref-pad: 3px;             /* A ~27px day cell → round(3 * 27/40) = 2px */
   --cal-sel-overlay: var(--grad-accent);
 }
 

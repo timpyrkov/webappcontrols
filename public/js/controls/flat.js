@@ -13,6 +13,24 @@ function css(prop) {
   return getComputedStyle(document.documentElement).getPropertyValue(prop).trim();
 }
 
+/* ── Helper: scale bevel padding to an element's actual height ──
+ * Reads two reference CSS vars (refHeightVar, refPadVar) from `host`.
+ * If both are set (e.g. "40px" and "3px"), computes:
+ *   px = round(refPad * actualHeight / refHeight)
+ * and writes it inline to `targetVar` on `host`.
+ * If either var is missing, does nothing — static CSS fallback applies. */
+function _scaleBevel(host, measureEl, refHeightVar, refPadVar, targetVar) {
+  if (!host || !measureEl) return;
+  const h = measureEl.getBoundingClientRect().height;
+  if (h <= 0) return;
+  const cs = getComputedStyle(host);
+  const refH = parseFloat(cs.getPropertyValue(refHeightVar));
+  const refPad = parseFloat(cs.getPropertyValue(refPadVar));
+  if (!isFinite(refH) || refH <= 0 || !isFinite(refPad)) return;
+  const px = Math.max(0, Math.round((refPad * h) / refH));
+  host.style.setProperty(targetVar, px + "px");
+}
+
 /* ================================================================
    <push-button>  — Flat push button
    ================================================================ */
@@ -23,10 +41,24 @@ class PushButton extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+    this._ro = null;
   }
 
-  connectedCallback()  { this._render(); }
-  attributeChangedCallback() { if (this.shadowRoot.querySelector(".btn")) this._render(); }
+  connectedCallback()  { this._render(); this._observeSize(); }
+  disconnectedCallback() { if (this._ro) { this._ro.disconnect(); this._ro = null; } }
+  attributeChangedCallback() {
+    if (this.shadowRoot.querySelector(".btn")) { this._render(); this._observeSize(); }
+  }
+
+  _observeSize() {
+    const btn = this.shadowRoot.querySelector(".btn");
+    if (!btn) return;
+    if (this._ro) this._ro.disconnect();
+    this._ro = new ResizeObserver(() =>
+      _scaleBevel(this, btn, "--btn-bevel-ref-height", "--btn-bevel-ref-pad", "--btn-bevel-width")
+    );
+    this._ro.observe(btn);
+  }
 
   _render() {
     const accent = this.getAttribute("accent"); // "secondary" or null
@@ -412,10 +444,25 @@ class SegmentedControl extends HTMLElement {
     this._keys = [];     // stable identifiers (optional, defaults to values)
     this._value = "";    // currently selected key (or display value if no keys)
     this._columns = 4;
+    this._ro = null;
   }
 
-  connectedCallback() { this._readAttrs(); this._render(); }
-  attributeChangedCallback() { this._readAttrs(); if (this.shadowRoot.querySelector(".grid")) this._render(); }
+  connectedCallback() { this._readAttrs(); this._render(); this._observeSize(); }
+  disconnectedCallback() { if (this._ro) { this._ro.disconnect(); this._ro = null; } }
+  attributeChangedCallback() {
+    this._readAttrs();
+    if (this.shadowRoot.querySelector(".grid")) { this._render(); this._observeSize(); }
+  }
+
+  _observeSize() {
+    const seg = this.shadowRoot.querySelector(".seg");
+    if (!seg) return;
+    if (this._ro) this._ro.disconnect();
+    this._ro = new ResizeObserver(() =>
+      _scaleBevel(this, seg, "--seg-bevel-ref-height", "--seg-bevel-ref-pad", "--seg-bevel-width")
+    );
+    this._ro.observe(seg);
+  }
 
   _readAttrs() {
     const raw = this.getAttribute("values");
@@ -1427,13 +1474,28 @@ class DateCalendar extends HTMLElement {
       }
     }
     this._render();
-    this._onLangChange = () => this._render();
+    this._observeSize();
+    this._onLangChange = () => { this._render(); this._observeSize(); };
     document.addEventListener("language-changed", this._onLangChange);
   }
   disconnectedCallback() {
     document.removeEventListener("language-changed", this._onLangChange);
+    if (this._ro) { this._ro.disconnect(); this._ro = null; }
   }
-  attributeChangedCallback() { if (this.shadowRoot.querySelector(".cal")) this._render(); }
+  attributeChangedCallback() {
+    if (this.shadowRoot.querySelector(".cal")) { this._render(); this._observeSize(); }
+  }
+
+  _observeSize() {
+    // Any day cell works — they all share the same height.
+    const day = this.shadowRoot.querySelector(".day");
+    if (!day) return;
+    if (this._ro) this._ro.disconnect();
+    this._ro = new ResizeObserver(() =>
+      _scaleBevel(this, day, "--cal-bevel-ref-height", "--cal-bevel-ref-pad", "--cal-sel-bevel")
+    );
+    this._ro.observe(day);
+  }
 
   _dateToStr(y, m, d) {
     return `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;

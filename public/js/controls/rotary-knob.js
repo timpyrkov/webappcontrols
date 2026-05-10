@@ -3,6 +3,36 @@ import { COLORS, gradPair, captionAccent } from "../tokens.js";
 /* ── Gradient direction (degrees, 0 = up, clockwise) ── */
 const GRAD_ANGLE_DEG = 135; // ← tweak this to change gradient direction
 
+/* ── Groove shading (concave lighting, adapted from gauges.js) ── */
+const GROOVE = {
+  lightAngle:    225,   // degrees — DISPLACEMENT DIRECTION: 0=right, 90=bottom, 180=left, 270=top
+  depth:         0.8,   // 0..1 — how pronounced the concavity is
+  shiftLight:    4,     // px offset of the light halo from edge
+  shiftDark:     4,     // px offset of the dark halo from edge
+  blur:          3,     // px blur applied to halos
+  blurBloom:     0.7,   // 0..1 — bloom factor
+  lightEnabled:  false, // Light halo disabled for cleaner recessed look
+  darkEnabled:   true,  // Dark halo creates the groove effect
+};
+
+/* ── Niche shadow styling (matches gauges.js look) ── */
+const NICHE_STYLE = {
+  rimEnabled:   true,
+  depthEnabled: true,
+  rimBlur:      5,
+  depthBlur:    3,
+  rimSpread:    0,
+  depthSpread:  0,
+  rimPasses:    2,
+  depthPasses:  2,
+};
+function nicheColors() {
+  const isLight = document.documentElement.dataset.theme === "light";
+  const rim   = isLight ? "white" : COLORS.neutral4;
+  const depth = isLight ? COLORS.neutral12 : COLORS.neutral1;
+  return [rim, depth];
+}
+
 /* ── Layout constants (fractions of component size) ── */
 const OUTER_R   = 0.30;   // outer circle radius
 const INNER_R   = 0.22;   // inner circle radius
@@ -22,7 +52,7 @@ const VOL_R4 = 0.275;   // recess collar (slightly lower neutrals than R2; no ed
 const VOL_R3 = 0.255;   // knurled ring base radius (sine-modulated outer boundary)
 const VOL_R2 = 0.205;   // convex transition ring (lighter edge)
 const VOL_R1 = 0.155;   // inner concave cap (no edge)
-const KNURL_TICKS = 18;        // number of knurl peaks around R3
+const KNURL_TICKS = 12;        // number of knurl peaks around R3
 const KNURL_AMPL  = 0.006;     // sine amplitude as fraction of S
 const KNURL_SEGS  = 360;       // path smoothness for the wavy R3 boundary
 
@@ -40,6 +70,42 @@ function rgbToHex([r, g, b]) {
 function lerpColor(hex1, hex2, t) {
   const a = hexToRgb(hex1), b = hexToRgb(hex2);
   return rgbToHex(a.map((v, i) => Math.round(v + (b[i] - v) * t)));
+}
+
+function _grooveAdjustL(hex, deltaL) {
+  const [r, g, b] = hexToRgb(hex);
+  const rf = r / 255, gf = g / 255, bf = b / 255;
+  const max = Math.max(rf, gf, bf), min = Math.min(rf, gf, bf);
+  let h = 0, s = 0, l = (max + min) / 2;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    if (max === rf) h = (gf - bf) / d + (gf < bf ? 6 : 0);
+    else if (max === gf) h = (bf - rf) / d + 2;
+    else h = (rf - gf) / d + 4;
+    h /= 6;
+  }
+  l = Math.max(0, Math.min(1, l + deltaL / 100));
+  let rr, gg, bb;
+  if (s === 0) { rr = gg = bb = l; } else {
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    const hue2rgb = (pp, qq, t) => { if (t < 0) t += 1; if (t > 1) t -= 1; if (t < 1/6) return pp + (qq - pp) * 6 * t; if (t < 1/2) return qq; if (t < 2/3) return pp + (qq - pp) * (2/3 - t) * 6; return pp; };
+    rr = hue2rgb(p, q, h + 1/3); gg = hue2rgb(p, q, h); bb = hue2rgb(p, q, h - 1/3);
+  }
+  return { r: Math.round(rr * 255), g: Math.round(gg * 255), b: Math.round(bb * 255) };
+}
+
+let _grooveScratch = null;
+function _grooveEnsureScratch(w, h, dpr) {
+  if (!_grooveScratch) _grooveScratch = document.createElement("canvas");
+  const sw = Math.round(w * dpr);
+  const sh = Math.round(h * dpr);
+  if (_grooveScratch.width !== sw || _grooveScratch.height !== sh) {
+    _grooveScratch.width = sw;
+    _grooveScratch.height = sh;
+  }
+  return { sw, sh, sctx: _grooveScratch.getContext("2d") };
 }
 
 /** Convert a value-angle (0 = top, CW, radians) to canvas angle (0 = right). */
@@ -207,12 +273,17 @@ class RotaryKnob extends HTMLElement {
       this._draw();
       return;
     }
-    // Handle wrap-around: choose shortest path around the circle
-    let delta = angle - this._displayAngle;
-    // Normalize delta to [-π, π]
-    while (delta > Math.PI) delta -= TAU;
-    while (delta < -Math.PI) delta += TAU;
-    this._targetAngle = this._displayAngle + delta;
+    // Handle wrap-around for enum mode only; continuous mode is clamped
+    if (this._mode === "enum") {
+      let delta = angle - this._displayAngle;
+      // Normalize delta to [-π, π] — take shortest path
+      while (delta > Math.PI) delta -= TAU;
+      while (delta < -Math.PI) delta += TAU;
+      this._targetAngle = this._displayAngle + delta;
+    } else {
+      // Continuous mode: no wrap-around, direct path (clamped to min/max)
+      this._targetAngle = angle;
+    }
     
     this._animFrom  = this._displayAngle;
     this._animStart = performance.now();
@@ -295,7 +366,7 @@ class RotaryKnob extends HTMLElement {
       const A = S * KNURL_AMPL;
       const N = KNURL_TICKS;
       const segs = KNURL_SEGS;
-      const phaseShift = Math.PI / (2 * N);  // align pointer with sine peak
+      const phaseShift = 3 * Math.PI / (2 * N);  // align pointer with sine peak
 
       ctx.beginPath();
       for (let i = 0; i <= segs; i++) {
@@ -451,38 +522,218 @@ class RotaryKnob extends HTMLElement {
   _drawArcContinuous(ctx, cx, cy, S) {
     const r   = S * ARC_R;
     const gap = GAP_DEG * DEG;
+    const isVolume = this.hasAttribute("volume");
 
-    // background arc (neutral-2) — full range with gap at top
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, valAngle(gap), valAngle(TAU - gap));
-    ctx.strokeStyle = COLORS.neutral5;
-    ctx.lineWidth   = ARC_W;
-    ctx.lineCap     = "round";
-    ctx.stroke();
+    if (isVolume) {
+      // Volume mode: recessed niche track with rim/depth shadows and groove shading
+      const trackPad = 4;
+      const trackW = ARC_W + trackPad;
+      const borderW = trackW + 2;
+      const halfW = trackW / 2;
+      const R1 = r - halfW;
+      const R2 = r + halfW;
+      const startRad = valAngle(gap);
+      const endRad = valAngle(TAU - gap);
+      const baseHex = COLORS.neutral4;
+      const borderCol = COLORS.neutral4;
+      const baseFill = COLORS.neutral3;
+      const dpr = window.devicePixelRatio || 1;
+      const [nicheRim, nicheDepth] = nicheColors();
 
-    // foreground accent arc
-    const endAngle = this._displayAngle;
-    if (endAngle <= gap + 0.001) return;          // nothing to draw
+      // Helper: stroke the full-range arc with round caps
+      const drawArc = () => {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, startRad, endRad);
+        ctx.lineCap = "round";
+        ctx.stroke();
+      };
 
-    // Gradient arc: accent1 at zero, accent2 at max (full track range)
-    const fullSpan = TAU - 2 * gap;
-    const steps = 60;
-    const startA = gap;
-    const spanA  = endAngle - gap;
-    ctx.lineWidth = ARC_W;
-    ctx.lineCap   = "round";
-    for (let i = 0; i < steps; i++) {
-      const t0 = i / steps, t1 = (i + 1) / steps;
-      if (t1 * spanA + startA > endAngle + 0.001) break;
-      const a0 = valAngle(startA + t0 * spanA);
-      const a1 = valAngle(startA + t1 * spanA);
-      const midAngle = startA + ((t0 + t1) / 2) * spanA;
-      const gradT = (midAngle - gap) / fullSpan;
+      // 1) Rim glow beneath
+      if (NICHE_STYLE.rimEnabled) {
+        ctx.save();
+        ctx.shadowColor = nicheRim;
+        ctx.shadowBlur = NICHE_STYLE.rimBlur;
+        ctx.strokeStyle = nicheRim;
+        ctx.lineWidth = borderW + NICHE_STYLE.rimSpread * 2;
+        for (let p = 0; p < NICHE_STYLE.rimPasses; p++) drawArc();
+        ctx.restore();
+      }
+      // 2) Depth glow beneath
+      if (NICHE_STYLE.depthEnabled) {
+        ctx.save();
+        ctx.shadowColor = nicheDepth;
+        ctx.shadowBlur = NICHE_STYLE.depthBlur;
+        ctx.strokeStyle = nicheDepth;
+        ctx.lineWidth = borderW + NICHE_STYLE.depthSpread * 2;
+        for (let p = 0; p < NICHE_STYLE.depthPasses; p++) drawArc();
+        ctx.restore();
+      }
+      // 3) Border + fill
+      if (NICHE_STYLE.rimEnabled || NICHE_STYLE.depthEnabled) {
+        ctx.strokeStyle = borderCol;
+        ctx.lineWidth = borderW;
+        ctx.lineCap = "round";
+        drawArc();
+      }
+      ctx.strokeStyle = baseFill;
+      ctx.lineWidth = trackW;
+      drawArc();
+
+      // 4) Groove shading (concave lighting)
+      this._drawGrooveShading(ctx, cx, cy, R1, R2, startRad, endRad, false, baseHex, this._w, this._h, dpr);
+
+      // foreground accent arc
+      const endAngle = this._displayAngle;
+      if (endAngle <= gap + 0.001) return;
+
+      // Gradient arc: accent1 at zero, accent5 at max
+      const fullSpan = TAU - 2 * gap;
+      const steps = 60;
+      const startA = gap;
+      const spanA  = endAngle - gap;
+      ctx.lineWidth = ARC_W;
+      ctx.lineCap   = "round";
+      for (let i = 0; i < steps; i++) {
+        const t0 = i / steps, t1 = (i + 1) / steps;
+        if (t1 * spanA + startA > endAngle + 0.001) break;
+        const a0 = valAngle(startA + t0 * spanA);
+        const a1 = valAngle(startA + t1 * spanA);
+        const midAngle = startA + ((t0 + t1) / 2) * spanA;
+        const gradT = (midAngle - gap) / fullSpan;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, a0, a1);
+        ctx.strokeStyle = lerpColor(COLORS.accent1, COLORS.accent5, gradT);
+        ctx.stroke();
+      }
+    } else {
+      // Flat/Gradient mode: simple stroked arcs
+      // background arc (neutral-5) — full range with gap at top
       ctx.beginPath();
-      ctx.arc(cx, cy, r, a0, a1);
-      ctx.strokeStyle = lerpColor(COLORS.accent1, COLORS.accent5, gradT);
+      ctx.arc(cx, cy, r, valAngle(gap), valAngle(TAU - gap));
+      ctx.strokeStyle = COLORS.neutral5;
+      ctx.lineWidth   = ARC_W;
+      ctx.lineCap     = "round";
       ctx.stroke();
+
+      // foreground accent arc
+      const endAngle = this._displayAngle;
+      if (endAngle <= gap + 0.001) return;
+
+      // Gradient arc: accent1 at zero, accent5 at max
+      const fullSpan = TAU - 2 * gap;
+      const steps = 60;
+      const startA = gap;
+      const spanA  = endAngle - gap;
+      ctx.lineWidth = ARC_W;
+      ctx.lineCap   = "round";
+      for (let i = 0; i < steps; i++) {
+        const t0 = i / steps, t1 = (i + 1) / steps;
+        if (t1 * spanA + startA > endAngle + 0.001) break;
+        const a0 = valAngle(startA + t0 * spanA);
+        const a1 = valAngle(startA + t1 * spanA);
+        const midAngle = startA + ((t0 + t1) / 2) * spanA;
+        const gradT = (midAngle - gap) / fullSpan;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, a0, a1);
+        ctx.strokeStyle = lerpColor(COLORS.accent1, COLORS.accent5, gradT);
+        ctx.stroke();
+      }
     }
+  }
+
+  /* -- groove shading helper (adapted from gauges.js) -- */
+  _drawGrooveShading(ctx, cx, cy, R1, R2, startRad, endRad, ccw, baseHex, canvasW, canvasH, dpr) {
+    const { depth, shiftLight, shiftDark, blur, blurBloom, lightEnabled, darkEnabled, lightAngle } = GROOVE;
+    if (depth <= 0) return;
+
+    const lightRad = lightAngle * Math.PI / 180;
+    const ux = Math.cos(lightRad);
+    const uy = Math.sin(lightRad);
+    const dL = 8 + depth * 26;
+    const lightRgb = _grooveAdjustL(baseHex, dL);
+    const darkRgb = _grooveAdjustL(baseHex, -dL);
+    const haloAlpha = 0.28 + depth * 0.55;
+    const strength = depth;
+
+    const { sw, sh, sctx } = _grooveEnsureScratch(canvasW, canvasH, dpr);
+    sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    sctx.globalCompositeOperation = "source-over";
+    sctx.globalAlpha = 1;
+    sctx.filter = "none";
+    sctx.clearRect(0, 0, canvasW, canvasH);
+    sctx.fillStyle = baseHex;
+    sctx.fillRect(0, 0, canvasW, canvasH);
+
+    const haloCanvas = document.createElement("canvas");
+    haloCanvas.width = sw;
+    haloCanvas.height = sh;
+    const hctx = haloCanvas.getContext("2d");
+
+    const renderHalo = (kind, rgb, ox, oy) => {
+      hctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      hctx.globalCompositeOperation = "source-over";
+      hctx.globalAlpha = 1;
+      hctx.filter = "none";
+      hctx.clearRect(0, 0, canvasW, canvasH);
+
+      hctx.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${haloAlpha})`;
+      hctx.fillRect(0, 0, canvasW, canvasH);
+
+      hctx.globalCompositeOperation = "destination-out";
+      hctx.fillStyle = "rgba(0,0,0,1)";
+      if (kind === "inner") {
+        hctx.beginPath();
+        hctx.rect(0, 0, canvasW, canvasH);
+        hctx.arc(cx + ox, cy + oy, R1, 0, Math.PI * 2, true);
+        hctx.fill("evenodd");
+      } else {
+        hctx.beginPath();
+        hctx.arc(cx + ox, cy + oy, R2, 0, Math.PI * 2);
+        hctx.fill();
+      }
+
+      sctx.save();
+      sctx.globalCompositeOperation = "source-over";
+      const bloom = blur > 0 ? blurBloom : 1;
+      sctx.globalAlpha = Math.min(1, strength * Math.max(0.15, bloom));
+      sctx.filter = blur > 0 ? `blur(${Math.max(0.25, blur)}px)` : "none";
+      sctx.drawImage(haloCanvas, 0, 0, sw, sh, 0, 0, canvasW, canvasH);
+      sctx.filter = "none";
+      sctx.restore();
+    };
+
+    const passes = [];
+    if (lightEnabled) {
+      passes.push(["outer", lightRgb, ux * shiftLight, uy * shiftLight]);
+      passes.push(["inner", lightRgb, ux * shiftLight, uy * shiftLight]);
+    }
+    if (darkEnabled) {
+      passes.push(["outer", darkRgb, -ux * shiftDark, -uy * shiftDark]);
+      passes.push(["inner", darkRgb, -ux * shiftDark, -uy * shiftDark]);
+    }
+    for (const [kind, rgb, ox, oy] of passes) {
+      renderHalo(kind, rgb, ox, oy);
+    }
+
+    // Mask scratch to the actual track shape (arc with rounded caps)
+    sctx.globalCompositeOperation = "destination-in";
+    sctx.globalAlpha = 1;
+    const r = (R1 + R2) / 2;
+    const trackW = R2 - R1;
+    sctx.strokeStyle = "rgba(0,0,0,1)";
+    sctx.lineWidth = trackW;
+    sctx.lineCap = "round";
+    sctx.beginPath();
+    sctx.arc(cx, cy, r, startRad, endRad, ccw);
+    sctx.stroke();
+
+    // Composite scratch onto main canvas
+    ctx.save();
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.globalCompositeOperation = "source-over";
+    ctx.globalAlpha = 1;
+    ctx.drawImage(_grooveScratch, 0, 0, sw, sh, 0, 0, canvasW, canvasH);
+    ctx.restore();
   }
 
   /* -- enum labels -- */
@@ -591,6 +842,14 @@ class RotaryKnob extends HTMLElement {
   }
 
   _applyAngle(a) {
+    // For continuous mode, ignore pointer angles in the dead zone (gap at top)
+    if (this._mode !== "enum") {
+      const gap = GAP_DEG * DEG;
+      // Normalize a to 0..TAU
+      a = ((a % TAU) + TAU) % TAU;
+      // Dead zone: angle < gap (right of top) or angle > TAU - gap (left of top)
+      if (a < gap || a > TAU - gap) return;
+    }
     const v = this._angleToValue(a);
     if (v === this._value) return;
     this._value = v;
@@ -633,3 +892,13 @@ class RotaryKnob extends HTMLElement {
 }
 
 customElements.define("rotary-knob", RotaryKnob);
+
+/* ── Listen for niche-shadows toggle ── */
+document.addEventListener("niche-toggled", (e) => {
+  const on = e.detail.enabled;
+  NICHE_STYLE.rimEnabled = on;
+  NICHE_STYLE.depthEnabled = on;
+  document.querySelectorAll("rotary-knob").forEach(el => {
+    if (el._draw) el._draw();
+  });
+});
