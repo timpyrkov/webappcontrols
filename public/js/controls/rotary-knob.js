@@ -118,7 +118,7 @@ class RotaryKnob extends HTMLElement {
 
   /* ---- observed attributes ---- */
   static get observedAttributes() {
-    return ["value", "min", "max", "step", "mode", "values", "label", "disabled", "flat", "volume"];
+    return ["value", "min", "max", "step", "mode", "values", "label", "disabled", "flat", "volume", "glow"];
   }
 
   constructor() {
@@ -594,6 +594,8 @@ class RotaryKnob extends HTMLElement {
       const spanA  = endAngle - gap;
       ctx.lineWidth = ARC_W;
       ctx.lineCap   = "round";
+      const isGlow = this.hasAttribute("glow");
+      if (isGlow) { ctx.shadowColor = COLORS.accent1; ctx.shadowBlur = 6; }
       for (let i = 0; i < steps; i++) {
         const t0 = i / steps, t1 = (i + 1) / steps;
         if (t1 * spanA + startA > endAngle + 0.001) break;
@@ -606,6 +608,7 @@ class RotaryKnob extends HTMLElement {
         ctx.strokeStyle = lerpColor(COLORS.accent1, COLORS.accent5, gradT);
         ctx.stroke();
       }
+      if (isGlow) { ctx.shadowColor = "transparent"; ctx.shadowBlur = 0; }
     } else {
       // Flat/Gradient mode: simple stroked arcs
       // background arc (neutral-5) — full range with gap at top
@@ -748,6 +751,7 @@ class RotaryKnob extends HTMLElement {
     ctx.textAlign    = "center";
     ctx.textBaseline = "middle";
 
+    const isGlow = this.hasAttribute("glow");
     for (let i = 0; i < n; i++) {
       const a = (i / n) * TAU;                 // 0=top, CW
       const x = cx + Math.sin(a) * r;
@@ -755,9 +759,19 @@ class RotaryKnob extends HTMLElement {
       const label = String(this._enumValues[i]).slice(0, 3);
       const isCurrent = (i === currentIdx);
       ctx.font = isCurrent ? `bold ${fontBase}` : fontBase;
-      ctx.fillStyle = isCurrent ? captionAccent() : COLORS.accent5;
+      if (isCurrent && isGlow) {
+        ctx.shadowColor = COLORS.accent1;
+        ctx.shadowBlur = 6;
+        ctx.fillStyle = COLORS.accent5;
+      } else {
+        ctx.shadowColor = "transparent";
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = isCurrent ? captionAccent() : COLORS.accent5;
+      }
       ctx.fillText(label, x, y);
     }
+    ctx.shadowColor = "transparent";
+    ctx.shadowBlur = 0;
   }
 
   /* -- title & value caption -- */

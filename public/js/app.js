@@ -239,6 +239,10 @@ if (styleSelect) {
       if (key === "Volume" || key === "Glow") el.setAttribute("volume", "");
       else el.removeAttribute("volume");
     });
+    document.querySelectorAll("rotary-knob, bar-chart, line-chart").forEach((el) => {
+      if (key === "Glow") el.setAttribute("glow", "");
+      else el.removeAttribute("glow");
+    });
   });
 }
 

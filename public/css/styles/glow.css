@@ -7,12 +7,15 @@
    for values and captions, and change some element colors/gradients.
    ================================================================ */
 :root {
-  /* Neutral raised surface */
+  /* Active raised surface */
+  --grad-active: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
+
+ /* Neutral raised surface */
   --grad-raised: linear-gradient(to bottom, var(--neutral-4), var(--neutral-2));
   --grad-raised-hover: linear-gradient(to bottom, var(--neutral-5), var(--neutral-3));
 
   /* Neutral inset */
-  --grad-inset: linear-gradient(to bottom, var(--neutral-2), var(--neutral-1));
+  --grad-inset: linear-gradient(to bottom, var(--neutral-3), var(--neutral-2));
 
   /* Field background */
   --grad-field: linear-gradient(to bottom, var(--neutral-1), var(--neutral-2));
@@ -39,6 +42,10 @@
   /* Neutral — extended range (wider contrast, for bevels/edges) */
   --grad-raised-ext: linear-gradient(to bottom, var(--neutral-5), var(--neutral-3));
   --grad-raised-hover-ext: linear-gradient(to bottom, var(--neutral-6), var(--neutral-4));
+
+  /* Neutral — brighter edge for small controls (checkbox, radio, toggle) */
+  --grad-raised-ext-bright: linear-gradient(to bottom, var(--neutral-6), var(--neutral-4));
+  --grad-raised-hover-ext-bright: linear-gradient(to bottom, var(--neutral-7), var(--neutral-5));
 
   /* Accent — deflection (4-stop: slow→fast→slow = convex surface) */
   --grad-accent-defl: linear-gradient(to bottom,
@@ -125,18 +132,67 @@
 }
 /* Light theme plates: swap inner/outer for all states except Active */
 [data-theme="light"] push-button {
-  --btn-bg: var(--grad-raised);
-  --btn-overlay: var(--grad-raised-ext);
+  --btn-bg: var(--grad-raised-hover);
+  --btn-overlay: var(--grad-raised-ext-bright);
   --btn-hover-bg: var(--grad-raised-hover);
-  --btn-hover-overlay: var(--grad-raised-hover-ext);
+  --btn-hover-overlay: var(--grad-raised-hover-ext-bright);
   --btn-disabled-bg: linear-gradient(to bottom, var(--neutral-1), var(--neutral-3));
   --btn-disabled-overlay: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
+  --btn-active-bg: var(--grad-raised-hover);
+  --btn-active-bg-secondary: var(--grad-raised-hover);
+  --btn-active-overlay: var(--grad-raised);
+  --btn-active-overlay-secondary: var(--grad-raised);
 }
 [data-theme="light"] segmented-control {
-  --seg-bg: var(--grad-raised);
-  --seg-overlay: var(--grad-raised-ext);
+  --seg-bg: var(--grad-raised-hover);
+  --seg-overlay: var(--grad-raised-ext-bright);
   --seg-hover-bg: var(--grad-raised-hover);
-  --seg-hover-overlay: var(--grad-raised-hover-ext);
+  --seg-hover-overlay: var(--grad-raised-hover-ext-bright);
+  --seg-active-bg: var(--grad-raised-hover);
+  --seg-active-bg-secondary: var(--grad-raised-hover);
+  --seg-active-overlay: var(--grad-raised);
+  --seg-active-overlay-secondary: var(--grad-raised);
+}
+[data-theme="light"] check-box {
+  --check-bg: var(--grad-raised-hover);
+  --check-overlay: var(--grad-raised-ext-bright);
+  --check-hover-bg: var(--grad-raised-hover);
+  --check-hover-overlay: var(--grad-raised-hover-ext-bright);
+  --check-active-bg: var(--grad-inset);
+  --check-active-bg: var(--grad-inset);
+  --check-active-bg-secondary: var(--grad-inset);
+  --check-active-overlay: var(--grad-raised);
+  --check-active-overlay-secondary: var(--grad-raised);
+  --check-disabled-bg: linear-gradient(to bottom, var(--neutral-1), var(--neutral-3));
+  --check-disabled-overlay: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
+}
+[data-theme="light"] radio-button {
+  --radio-bg: var(--grad-raised-hover);
+  --radio-overlay: var(--grad-raised-ext-bright);
+  --radio-hover-bg: var(--grad-raised-hover);
+  --radio-hover-overlay: var(--grad-raised-hover-ext-bright);
+  --radio-active-bg: var(--grad-inset);
+  --radio-active-bg-secondary: var(--grad-inset);
+  --radio-active-overlay: var(--grad-raised);
+  --radio-active-overlay-secondary: var(--grad-raised);
+  --radio-disabled-bg: linear-gradient(to bottom, var(--neutral-1), var(--neutral-3));
+  --radio-disabled-overlay: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
+}
+[data-theme="light"] toggle-switch {
+  --toggle-bg-off: var(--grad-raised-hover);
+  --toggle-bg-on: var(--grad-raised-hover);
+  --toggle-bg-on-secondary: var(--grad-raised-hover);
+  --toggle-overlay: var(--grad-raised-ext-bright);
+  --toggle-overlay-on: var(--grad-raised-ext-bright);
+  --toggle-overlay-on-secondary: var(--grad-raised-ext-bright);
+  --toggle-hover-bg: var(--grad-raised-hover);
+  --toggle-hover-overlay: var(--grad-raised-hover-ext-bright);
+  --toggle-thumb: var(--grad-raised-hover);
+  --toggle-thumb-on: var(--grad-raised-hover);
+  --toggle-thumb-on-secondary: var(--grad-raised-hover);
+  --toggle-thumb-overlay: var(--grad-raised-ext-bright);
+  --toggle-thumb-overlay-on: var(--grad-raised-ext-bright);
+  --toggle-thumb-overlay-on-secondary: var(--grad-raised-ext-bright);
 }
 
 /* ================================================================
@@ -147,22 +203,25 @@
 push-button {
   background: var(--niche-floor);
   border-radius: var(--btn-radius, 6px);
-  --btn-bg: var(--grad-raised-ext);
+  --btn-bg: var(--grad-raised-ext-bright);
   --btn-fg: var(--fg);
   --btn-border: transparent;
   --btn-bevel-width: 3px;               /* Fallback while JS hasn't measured yet */
   --btn-bevel-ref-height: 40px;         /* Reference button height */
   --btn-bevel-ref-pad: 3px;             /* Padding at reference height; scales linearly */
   --btn-overlay: var(--grad-raised);
-  --btn-hover-bg: var(--grad-raised-hover-ext);
+  --btn-hover-bg: var(--grad-raised-hover-ext-bright);
   --btn-hover-border: transparent;
   --btn-hover-overlay: var(--grad-raised-hover);
-  --btn-active-bg: var(--grad-accent-ext);
-  --btn-active-bg-secondary: var(--grad-accent-ext-sec);
-  --btn-active-overlay: var(--grad-accent);
-  --btn-active-overlay-secondary: var(--grad-accent-sec);
+  --btn-active-bg: var(--grad-raised-hover);
+  --btn-active-bg-secondary: var(--grad-raised-hover);
+  --btn-active-overlay: var(--grad-active);
+  --btn-active-overlay-secondary: var(--grad-active);
   --btn-active-border: transparent;
-  --btn-active-fg: var(--bg);
+  --btn-active-fg: var(--primary-accent-1);
+  --btn-active-fg-secondary: var(--secondary-accent-1);
+  --btn-active-text-shadow: 0 0 6px var(--primary-accent-3);
+  --btn-active-text-shadow-secondary: 0 0 6px var(--secondary-accent-3);
   --btn-radius: 6px;
   --btn-shadow: var(--shadow-btn);
   --btn-focus-ring: 2px solid var(--primary-accent-3);
@@ -187,11 +246,31 @@ text-field {
 /* ── Checkbox ── */
 check-box {
   --check-size: 18px;
-  --check-bg: var(--grad-inset);
-  --check-border: var(--neutral-5);
-  --check-hover-bg: var(--grad-raised);
-  --check-active-bg: var(--grad-accent);
-  --check-active-bg-secondary: var(--grad-accent-sec);
+  --check-bg: var(--grad-raised-ext-bright);
+  --check-bg-origin: border-box;
+  --check-overlay: var(--grad-raised);
+  --check-border: transparent;
+  --check-border-width: 1px;
+  --check-bevel-width: 2px;
+  --check-hover-bg: var(--grad-raised-hover-ext-bright);
+  --check-hover-border: transparent;
+  --check-hover-overlay: var(--grad-raised-hover);
+  --check-active-bg: var(--grad-raised-hover);
+  --check-active-bg-secondary: var(--grad-raised-hover);
+  --check-active-overlay: var(--grad-active);
+  --check-active-overlay-secondary: var(--grad-active);
+  --check-active-border: transparent;
+  --check-active-border-secondary: transparent;
+  --check-mark-off-color: var(--neutral-3);
+  --check-mark-color: var(--primary-accent-1);
+  --check-mark-color-secondary: var(--secondary-accent-1);
+  --check-mark-glow: 0 0 6px var(--primary-accent-3);
+  --check-mark-glow-secondary: 0 0 6px var(--secondary-accent-3);
+  --check-disabled-opacity: 1;
+  --check-disabled-bg: linear-gradient(to bottom, var(--neutral-4), var(--neutral-2));
+  --check-disabled-overlay: linear-gradient(to bottom, var(--neutral-3), var(--neutral-1));
+  --check-disabled-border: transparent;
+  --check-disabled-fg: color-mix(in srgb, var(--fg) 35%, transparent);
   --check-radius: 4px;
   --check-shadow: var(--shadow-check);
 }
@@ -199,10 +278,31 @@ check-box {
 /* ── Radio Button ── */
 radio-button {
   --radio-size: 18px;
-  --radio-border: var(--neutral-5);
-  --radio-hover-bg: var(--grad-raised);
-  --radio-dot-bg: var(--grad-accent);
-  --radio-dot-bg-secondary: var(--grad-accent-sec);
+  --radio-bg: var(--grad-raised-ext-bright);
+  --radio-bg-origin: border-box;
+  --radio-overlay: var(--grad-raised);
+  --radio-border: transparent;
+  --radio-border-width: 1px;
+  --radio-bevel-width: 2px;
+  --radio-hover-bg: var(--grad-raised-hover-ext-bright);
+  --radio-hover-border: transparent;
+  --radio-hover-overlay: var(--grad-raised-hover);
+  --radio-active-bg: var(--grad-raised-hover);
+  --radio-active-bg-secondary: var(--grad-raised-hover);
+  --radio-active-overlay: var(--grad-active);
+  --radio-active-overlay-secondary: var(--grad-active);
+  --radio-active-border: transparent;
+  --radio-active-border-secondary: transparent;
+  --radio-dot-off-display: block;
+  --radio-dot-off-bg: var(--neutral-3);
+  --radio-dot-bg: var(--primary-accent-1);
+  --radio-dot-bg-secondary: var(--secondary-accent-1);
+  --radio-dot-glow: 0 0 6px var(--primary-accent-3);
+  --radio-dot-glow-secondary: 0 0 6px var(--secondary-accent-3);
+  --radio-disabled-opacity: 1;
+  --radio-disabled-bg: linear-gradient(to bottom, var(--neutral-4), var(--neutral-2));
+  --radio-disabled-overlay: linear-gradient(to bottom, var(--neutral-3), var(--neutral-1));
+  --radio-disabled-border: transparent;
   --radio-shadow: var(--shadow-radio);
 }
 
@@ -210,35 +310,81 @@ radio-button {
 toggle-switch {
   --toggle-width: 40px;
   --toggle-height: 22px;
-  --toggle-bg-off: var(--grad-raised);
-  --toggle-bg-on: var(--grad-accent);
-  --toggle-bg-on-secondary: var(--grad-accent-sec);
-  --toggle-hover-bg: var(--grad-raised-hover);
-  --toggle-thumb: var(--grad-thumb);
-  --toggle-thumb-on: var(--grad-accent-narrow);
-  --toggle-thumb-on-secondary: var(--grad-accent-narrow-sec);
-  --toggle-thumb-border: 1px solid var(--neutral-5);
-  --toggle-border-off: var(--neutral-5);
   --toggle-radius: 11px;
+
+  /* Track: raised edge (outer) + concave fill (inner, reversed gradient) */
+  --toggle-bg-off: var(--grad-raised-ext-bright);
+  --toggle-bg-on: var(--grad-raised-ext-bright);
+  --toggle-bg-on-secondary: var(--grad-raised-ext-bright);
+  --toggle-bg-origin: border-box;
+  --toggle-border-width: 1px;
+  --toggle-border-off: transparent;
+  --toggle-border-on: transparent;
+  --toggle-border-on-secondary: transparent;
+  --toggle-bevel-width: 2px;
+  --toggle-overlay: var(--grad-active);
+  --toggle-overlay-on: var(--grad-active);
+  --toggle-overlay-on-secondary: var(--grad-active);
+
+  /* Hover: brighter edge, still concave inner */
+  --toggle-hover-bg: var(--grad-raised-hover-ext-bright);
+  --toggle-hover-border: transparent;
+  --toggle-hover-overlay: linear-gradient(to bottom, var(--neutral-3), var(--neutral-5));
+
+  /* Dark split line across the track */
+  --toggle-split-display: block;
+  --toggle-split-height: 2px;
+  --toggle-split-color: var(--bg);
+  --toggle-split-pad: 6px;
+
+  /* Thumb: radio-button-like (raised edge + fill overlay) */
+  --toggle-thumb-size: 16px;
+  --toggle-thumb: var(--grad-raised-ext-bright);
+  --toggle-thumb-on: var(--grad-raised-ext-bright);
+  --toggle-thumb-on-secondary: var(--grad-raised-ext-bright);
+  --toggle-thumb-bg-origin: border-box;
+  --toggle-thumb-border: 1px solid transparent;
+  --toggle-thumb-border-on: 1px solid transparent;
+  --toggle-thumb-border-on-secondary: 1px solid transparent;
+  --toggle-thumb-bevel: 1px;
+  --toggle-thumb-overlay: var(--grad-raised);
+  --toggle-thumb-overlay-on: var(--grad-raised);
+  --toggle-thumb-overlay-on-secondary: var(--grad-raised);
+  --toggle-thumb-glow: none;
+  --toggle-thumb-glow-secondary: none;
+
+  /* Center indicator dot (on/off) */
+  --toggle-indicator-display: block;
+  --toggle-indicator-size: 8px;
+  --toggle-indicator-off: var(--neutral-3);
+  --toggle-indicator-on: var(--primary-accent-1);
+  --toggle-indicator-on-secondary: var(--secondary-accent-1);
+  --toggle-indicator-glow: 0 0 6px var(--primary-accent-3);
+  --toggle-indicator-glow-secondary: 0 0 6px var(--secondary-accent-3);
+
   --toggle-shadow: var(--shadow-toggle);
 }
 
 /* ── Segmented Control ── */
 segmented-control {
-  --seg-bg: var(--grad-raised-ext);
+  --seg-bg: var(--grad-raised-ext-bright);
   --seg-fg: var(--fg);
   --seg-border: var(--neutral-5);
   --seg-bevel-width: 3px;               /* Fallback while JS hasn't measured yet */
   --seg-bevel-ref-height: 40px;         /* Reference segment height */
   --seg-bevel-ref-pad: 3px;             /* Padding at reference height; scales linearly */
   --seg-overlay: var(--grad-raised);
-  --seg-hover-bg: var(--grad-raised-hover-ext);
+  --seg-hover-bg: var(--grad-raised-hover-ext-bright);
   --seg-hover-border: var(--neutral-5);
   --seg-hover-overlay: var(--grad-raised-hover);
-  --seg-active-bg: var(--grad-accent-ext);
-  --seg-active-bg-secondary: var(--grad-accent-ext-sec);
-  --seg-active-overlay: var(--grad-accent);
-  --seg-active-overlay-secondary: var(--grad-accent-sec);
+  --seg-active-bg: var(--grad-raised-hover);
+  --seg-active-bg-secondary: var(--grad-raised-hover);
+  --seg-active-overlay: var(--grad-active);
+  --seg-active-overlay-secondary: var(--grad-active);
+  --seg-active-fg: var(--primary-accent-1);
+  --seg-active-fg-secondary: var(--fg);
+  --seg-active-text-shadow: 0 0 6px var(--primary-accent-5);
+  --seg-active-text-shadow-secondary: 0 0 6px var(--secondary-accent-5);
   --seg-active-border: var(--neutral-5);
   --seg-radius: 5px;
   --seg-shadow: var(--shadow-seg);
@@ -251,10 +397,23 @@ range-slider {
   --track-bg: var(--grad-track);
   --track-border: 1px solid var(--neutral-4);
   --track-shadow: var(--shadow-track);
-  --thumb-center: var(--grad-slider-ring);
-  --thumb-border: none;
+  --fill-glow: 0 0 4px var(--primary-accent-5);
+  --thumb-center: var(--grad-raised-ext-bright);
+  --thumb-bg-origin: border-box;
+  --thumb-border: 1px solid transparent;
+  --thumb-radius: 3px;
+  --thumb-w: 12px;
+  --thumb-h: 20px;
+  --thumb-bevel: 1px;
+  --thumb-overlay: var(--grad-active);
   --thumb-shadow: 0 2px 6px rgba(0,0,0,0.4);
-  --thumb-outline: 1px solid var(--neutral-3);
+  --thumb-outline: none;
+  --thumb-indicator-display: block;
+  --thumb-indicator-w: 2px;
+  --thumb-indicator-h: 60%;
+  --thumb-indicator-radius: 1px;
+  --thumb-indicator-bg: var(--primary-accent-2);
+  --thumb-indicator-glow: 0 0 4px var(--primary-accent-3);
 }
 vertical-slider {
   --track-width: 8px;
@@ -262,10 +421,23 @@ vertical-slider {
   --track-bg: var(--grad-track-h);
   --track-border: 1px solid var(--neutral-4);
   --track-shadow: var(--shadow-track);
-  --thumb-center: var(--grad-slider-ring);
-  --thumb-border: none;
+  --fill-glow: 0 0 4px var(--primary-accent-5);
+  --thumb-center: var(--grad-raised-ext-bright);
+  --thumb-bg-origin: border-box;
+  --thumb-border: 1px solid transparent;
+  --thumb-radius: 3px;
+  --thumb-w: 20px;
+  --thumb-h: 12px;
+  --thumb-bevel: 1px;
+  --thumb-overlay: var(--grad-active);
   --thumb-shadow: 0 2px 6px rgba(0,0,0,0.4);
-  --thumb-outline: 1px solid var(--neutral-3);
+  --thumb-outline: none;
+  --thumb-indicator-display: block;
+  --thumb-indicator-w: 60%;
+  --thumb-indicator-h: 2px;
+  --thumb-indicator-radius: 1px;
+  --thumb-indicator-bg: var(--primary-accent-2);
+  --thumb-indicator-glow: 0 0 4px var(--primary-accent-3);
 }
 
 progress-bar {
@@ -274,12 +446,14 @@ progress-bar {
 
 /* ── Calendar ── */
 date-calendar {
-  --cal-sel-bg: var(--grad-accent-ext);
+  --cal-sel-bg: var(--grad-raised-hover-ext);
   --cal-sel-border: transparent;
   --cal-sel-bevel: 2px;                 /* Fallback while JS hasn't measured yet */
   --cal-bevel-ref-height: 40px;         /* Same reference as buttons for visual consistency */
   --cal-bevel-ref-pad: 3px;             /* A ~27px day cell → round(3 * 27/40) = 2px */
-  --cal-sel-overlay: var(--grad-accent);
+  --cal-sel-overlay: var(--grad-active);
+  --cal-sel-fg: var(--primary-accent-1);
+  --cal-sel-text-shadow: 0 0 6px var(--primary-accent-5);
 }
 
 /* ── Notification ── */

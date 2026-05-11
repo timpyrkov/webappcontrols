@@ -126,8 +126,9 @@ class PushButton extends HTMLElement {
         .btn:active, .btn.pressed {
           background: ${isSecondary ? `var(--btn-active-bg-secondary, ${accentBg})` : `var(--btn-active-bg, ${accentBg})`};
           background-origin: var(--btn-bg-origin, border-box);
-          color: var(--btn-active-fg, var(--bg));
+          color: ${isSecondary ? `var(--btn-active-fg-secondary, var(--btn-active-fg, var(--bg)))` : `var(--btn-active-fg, var(--bg))`};
           border-color: var(--btn-active-border, ${accentBg});
+          text-shadow: ${isSecondary ? `var(--btn-active-text-shadow-secondary, var(--btn-active-text-shadow, none))` : `var(--btn-active-text-shadow, none)`};
         }
         .btn:active::before, .btn.pressed::before {
           background: ${isSecondary ? `var(--btn-active-overlay-secondary, var(--btn-overlay, none))` : `var(--btn-active-overlay, var(--btn-overlay, none))`};
@@ -247,27 +248,56 @@ class CheckBox extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>
         :host { display: inline-flex; align-items: center; user-select: none; cursor: pointer; }
-        :host([disabled]) { opacity: 0.38; pointer-events: none; }
+        :host([disabled]) { pointer-events: none; }
+        :host([disabled]) .box {
+          opacity: var(--check-disabled-opacity, 0.38);
+          background: var(--check-disabled-bg, var(--check-bg, var(--bg)));
+          background-origin: var(--check-bg-origin, border-box);
+          border-color: var(--check-disabled-border, var(--check-border, var(--neutral-5)));
+        }
+        :host([disabled]) .box::before {
+          background: var(--check-disabled-overlay, var(--check-overlay, none));
+        }
+        :host([disabled]) .mark { color: var(--check-disabled-fg, var(--fg)); opacity: 0.5; }
         .wrap { display: flex; align-items: center; gap: 8px; }
         .box {
           width: var(--check-size, 18px); height: var(--check-size, 18px);
           background: ${active ? (isSecondary ? "var(--check-active-bg-secondary, var(--secondary-accent-3))" : "var(--check-active-bg, var(--primary-accent-3))") : "var(--check-bg, var(--bg))"};
-          border: 2px solid ${active ? accentVar : "var(--check-border, var(--neutral-5))"};
+          background-origin: var(--check-bg-origin, border-box);
+          border: var(--check-border-width, 2px) solid ${active ? (isSecondary ? "var(--check-active-border-secondary, var(--secondary-accent-3))" : "var(--check-active-border, var(--primary-accent-3))") : "var(--check-border, var(--neutral-5))"};
           border-radius: var(--check-radius, 4px);
           display: flex; align-items: center; justify-content: center;
           transition: background 0.12s, border-color 0.12s;
           flex-shrink: 0;
           box-shadow: var(--check-shadow, none);
+          position: relative;
+          isolation: isolate;
+        }
+        .box::before {
+          content: '';
+          position: absolute;
+          inset: var(--check-bevel-width, 0px);
+          border-radius: calc(var(--check-radius, 4px) - var(--check-bevel-width, 0px));
+          background: ${active ? (isSecondary ? "var(--check-active-overlay-secondary, var(--check-overlay, none))" : "var(--check-active-overlay, var(--check-overlay, none))") : "var(--check-overlay, none)"};
+          z-index: -1;
+          pointer-events: none;
+          transition: background 0.12s;
         }
         .wrap:hover .box:not(.active) {
-          border-color: ${accentVar};
+          border-color: var(--check-hover-border, ${accentVar});
           background: var(--check-hover-bg, var(--neutral-3));
+          background-origin: var(--check-bg-origin, border-box);
+        }
+        .wrap:hover .box:not(.active)::before {
+          background: var(--check-hover-overlay, var(--check-overlay, none));
         }
         .mark {
-          color: var(--bg);
+          color: ${active ? (isSecondary ? "var(--check-mark-color-secondary, var(--check-mark-color, var(--bg)))" : "var(--check-mark-color, var(--bg))") : "var(--check-mark-off-color, transparent)"};
           font-size: 13px;
           font-weight: bold;
           line-height: 1;
+          text-shadow: ${active ? (isSecondary ? "var(--check-mark-glow-secondary, var(--check-mark-glow, none))" : "var(--check-mark-glow, none)") : "none"};
+          position: relative;
         }
         .label {
           font: 13px/1 var(--font-display, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
@@ -276,7 +306,7 @@ class CheckBox extends HTMLElement {
       </style>
       <div class="wrap">
         <div class="box${active ? " active" : ""}">
-          <span class="mark">${checked ? "✓" : indeterminate ? "–" : ""}</span>
+          <span class="mark">${checked ? "✓" : indeterminate ? "–" : "✓"}</span>
         </div>
         ${label ? `<span class="label">${label}</span>` : ""}
       </div>`;
@@ -315,27 +345,57 @@ class RadioButton extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>
         :host { display: inline-flex; align-items: center; user-select: none; cursor: pointer; }
-        :host([disabled]) { opacity: 0.38; pointer-events: none; }
+        :host([disabled]) { pointer-events: none; }
+        :host([disabled]) .circle {
+          opacity: var(--radio-disabled-opacity, 0.38);
+          background: var(--radio-disabled-bg, var(--radio-bg, none));
+          background-origin: var(--radio-bg-origin, border-box);
+          border-color: var(--radio-disabled-border, var(--radio-border, var(--neutral-5)));
+        }
+        :host([disabled]) .circle::before {
+          background: var(--radio-disabled-overlay, var(--radio-overlay, none));
+        }
+        :host([disabled]) .dot { display: none; }
         .wrap { display: flex; align-items: center; gap: 8px; }
         .circle {
           width: var(--radio-size, 18px); height: var(--radio-size, 18px);
-          border: 2px solid ${checked ? accentVar : "var(--radio-border, var(--neutral-5))"};
+          background: ${checked ? (isSecondary ? "var(--radio-active-bg-secondary, var(--radio-bg, none))" : "var(--radio-active-bg, var(--radio-bg, none))") : "var(--radio-bg, none)"};
+          background-origin: var(--radio-bg-origin, border-box);
+          border: var(--radio-border-width, 2px) solid ${checked ? (isSecondary ? "var(--radio-active-border-secondary, var(--secondary-accent-3))" : "var(--radio-active-border, var(--primary-accent-3))") : "var(--radio-border, var(--neutral-5))"};
           border-radius: 50%;
           display: flex; align-items: center; justify-content: center;
           transition: border-color 0.12s, background 0.12s;
           flex-shrink: 0;
           box-shadow: var(--radio-shadow, none);
+          position: relative;
+          isolation: isolate;
+        }
+        .circle::before {
+          content: '';
+          position: absolute;
+          inset: var(--radio-bevel-width, 0px);
+          border-radius: 50%;
+          background: ${checked ? (isSecondary ? "var(--radio-active-overlay-secondary, var(--radio-overlay, none))" : "var(--radio-active-overlay, var(--radio-overlay, none))") : "var(--radio-overlay, none)"};
+          z-index: -1;
+          pointer-events: none;
+          transition: background 0.12s;
         }
         .wrap:hover .circle:not(.active) {
-          border-color: ${accentVar};
+          border-color: var(--radio-hover-border, ${accentVar});
           background: var(--radio-hover-bg, var(--neutral-3));
+          background-origin: var(--radio-bg-origin, border-box);
+        }
+        .wrap:hover .circle:not(.active)::before {
+          background: var(--radio-hover-overlay, var(--radio-overlay, none));
         }
         .dot {
-          width: 10px; height: 10px;
-          background: ${checked ? (isSecondary ? "var(--radio-dot-bg-secondary, var(--secondary-accent-3))" : "var(--radio-dot-bg, var(--primary-accent-3))") : accentVar};
+          width: var(--radio-dot-size, 10px); height: var(--radio-dot-size, 10px);
+          background: ${checked ? (isSecondary ? "var(--radio-dot-bg-secondary, var(--secondary-accent-3))" : "var(--radio-dot-bg, var(--primary-accent-3))") : "var(--radio-dot-off-bg, transparent)"};
           border-radius: 50%;
-          display: ${checked ? "block" : "none"};
+          display: ${checked ? "block" : "var(--radio-dot-off-display, none)"};
+          box-shadow: ${checked ? (isSecondary ? "var(--radio-dot-glow-secondary, var(--radio-dot-glow, none))" : "var(--radio-dot-glow, none)") : "none"};
           transition: opacity 0.12s;
+          position: relative;
         }
         .label {
           font: 13px/1 var(--font-display, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
@@ -388,28 +448,79 @@ class ToggleSwitch extends HTMLElement {
         .track {
           width: var(--toggle-width, 40px); height: var(--toggle-height, 22px);
           background: ${on ? (isSecondary ? "var(--toggle-bg-on-secondary, var(--secondary-accent-3))" : "var(--toggle-bg-on, var(--primary-accent-3))") : "var(--toggle-bg-off, var(--neutral-3))"};
-          border: 1px solid ${on ? accentVar : "var(--toggle-border-off, var(--neutral-5))"};
+          background-origin: var(--toggle-bg-origin, border-box);
+          border: var(--toggle-border-width, 1px) solid ${on ? (isSecondary ? "var(--toggle-border-on-secondary, var(--secondary-accent-3))" : "var(--toggle-border-on, var(--primary-accent-3))") : "var(--toggle-border-off, var(--neutral-5))"};
           border-radius: var(--toggle-radius, 11px);
           position: relative;
           transition: background 0.15s, border-color 0.15s;
           box-shadow: var(--toggle-shadow, none);
+          isolation: isolate;
+        }
+        .track::before {
+          content: '';
+          position: absolute;
+          inset: var(--toggle-bevel-width, 0px);
+          border-radius: calc(var(--toggle-radius, 11px) - var(--toggle-bevel-width, 0px));
+          background: ${on ? (isSecondary ? "var(--toggle-overlay-on-secondary, var(--toggle-overlay, none))" : "var(--toggle-overlay-on, var(--toggle-overlay, none))") : "var(--toggle-overlay, none)"};
+          z-index: 0;
+          pointer-events: none;
+          transition: background 0.15s;
+        }
+        .split {
+          display: var(--toggle-split-display, none);
+          position: absolute;
+          left: var(--toggle-split-pad, var(--toggle-bevel-width, 0px));
+          right: var(--toggle-split-pad, var(--toggle-bevel-width, 0px));
+          top: 50%;
+          height: var(--toggle-split-height, 2px);
+          transform: translateY(-50%);
+          background: var(--toggle-split-color, var(--bg));
+          border-radius: 1.5px;
+          z-index: 1;
+          pointer-events: none;
         }
         .wrap:hover .track:not(.active) {
           background: var(--toggle-hover-bg, var(--neutral-5));
-          border-color: ${accentVar};
+          background-origin: var(--toggle-bg-origin, border-box);
+          border-color: var(--toggle-hover-border, ${accentVar});
+        }
+        .wrap:hover .track:not(.active)::before {
+          background: var(--toggle-hover-overlay, var(--toggle-overlay, none));
         }
         .thumb {
-          width: 16px; height: 16px;
+          width: var(--toggle-thumb-size, 16px); height: var(--toggle-thumb-size, 16px);
           background: ${on ? (isSecondary ? "var(--toggle-thumb-on-secondary, var(--secondary-accent-1))" : "var(--toggle-thumb-on, var(--primary-accent-1))") : "var(--toggle-thumb, var(--neutral-7))"};
-          border: ${on ? (isSecondary ? "1px solid var(--secondary-accent-3)" : "1px solid var(--primary-accent-3)") : "var(--toggle-thumb-border, none)"};
+          background-origin: var(--toggle-thumb-bg-origin, border-box);
+          border: ${on ? (isSecondary ? "var(--toggle-thumb-border-on-secondary, var(--toggle-thumb-border-on, 1px solid var(--secondary-accent-3)))" : "var(--toggle-thumb-border-on, 1px solid var(--primary-accent-3))") : "var(--toggle-thumb-border, none)"};
           border-radius: 50%;
           position: absolute;
           top: 50%;
           transform: translateY(-50%);
-          left: ${on ? "21px" : "3px"};
-          transition: left 0.15s, background 0.15s, filter 0.15s;
+          left: ${on ? "var(--toggle-thumb-on-left, 21px)" : "var(--toggle-thumb-off-left, 3px)"};
+          transition: left 0.15s, background 0.15s, filter 0.15s, box-shadow 0.15s;
           box-sizing: border-box;
-          ${on ? "filter: brightness(1.35);" : ""}
+          box-shadow: ${on ? (isSecondary ? "var(--toggle-thumb-glow-secondary, var(--toggle-thumb-glow, none))" : "var(--toggle-thumb-glow, none)") : "none"};
+          z-index: 2;
+          isolation: isolate;
+          display: flex; align-items: center; justify-content: center;
+        }
+        .thumb::before {
+          content: '';
+          position: absolute;
+          inset: var(--toggle-thumb-bevel, 0px);
+          border-radius: 50%;
+          background: ${on ? (isSecondary ? "var(--toggle-thumb-overlay-on-secondary, var(--toggle-thumb-overlay, none))" : "var(--toggle-thumb-overlay-on, var(--toggle-thumb-overlay, none))") : "var(--toggle-thumb-overlay, none)"};
+          z-index: -1;
+          pointer-events: none;
+        }
+        .indicator {
+          display: var(--toggle-indicator-display, none);
+          width: var(--toggle-indicator-size, 6px); height: var(--toggle-indicator-size, 6px);
+          background: ${on ? (isSecondary ? "var(--toggle-indicator-on-secondary, var(--secondary-accent-1))" : "var(--toggle-indicator-on, var(--primary-accent-1))") : "var(--toggle-indicator-off, var(--neutral-3))"};
+          border-radius: 50%;
+          position: relative;
+          z-index: 1;
+          box-shadow: ${on ? (isSecondary ? "var(--toggle-indicator-glow-secondary, var(--toggle-indicator-glow, none))" : "var(--toggle-indicator-glow, none)") : "none"};
         }
         .label {
           font: 13px/1 var(--font-display, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
@@ -417,7 +528,10 @@ class ToggleSwitch extends HTMLElement {
         }
       </style>
       <div class="wrap">
-        <div class="track${on ? " active" : ""}"><div class="thumb"></div></div>
+        <div class="track${on ? " active" : ""}">
+          <div class="split"></div>
+          <div class="thumb"><div class="indicator"></div></div>
+        </div>
         ${label ? `<span class="label">${label}</span>` : ""}
       </div>`;
 
@@ -563,8 +677,9 @@ class SegmentedControl extends HTMLElement {
           z-index: 1;
           background: ${isSecondary ? `var(--seg-active-bg-secondary, ${accentBg})` : `var(--seg-active-bg, ${accentBg})`};
           background-origin: var(--seg-bg-origin, border-box);
-          color: var(--seg-active-fg, ${accentFg});
+          color: ${isSecondary ? `var(--seg-active-fg-secondary, var(--seg-active-fg, ${accentFg}))` : `var(--seg-active-fg, ${accentFg})`};
           border-color: var(--seg-active-border, var(--neutral-5));
+          text-shadow: ${isSecondary ? `var(--seg-active-text-shadow-secondary, var(--seg-active-text-shadow, none))` : `var(--seg-active-text-shadow, none)`};
         }
         .seg.active::before {
           background: ${isSecondary ? `var(--seg-active-overlay-secondary, var(--seg-overlay, none))` : `var(--seg-active-overlay, var(--seg-overlay, none))`};
@@ -652,15 +767,17 @@ class VerticalSlider extends HTMLElement {
         }
         .fill {
           position: absolute; left: 0; right: 0;
-          background: ${accentVar};
-          border-radius: 3px;
+          background: var(--fill-bg, ${accentVar});
+          border-radius: var(--track-radius, 3px);
           display: ${showFill ? "block" : "none"};
+          box-shadow: var(--fill-glow, none);
         }
         .thumb, .thumb2 {
-          width: 16px; height: 16px;
+          width: var(--thumb-w, 16px); height: var(--thumb-h, 16px);
           background: var(--thumb-center, var(--neutral-3));
+          background-origin: var(--thumb-bg-origin, border-box);
           border: var(--thumb-border, 3px solid var(--thumb-ring, var(--primary-accent-3)));
-          border-radius: 50%;
+          border-radius: var(--thumb-radius, 50%);
           position: absolute;
           left: 50%;
           transform: translateX(-50%);
@@ -670,6 +787,29 @@ class VerticalSlider extends HTMLElement {
           outline: var(--thumb-outline, none);
           outline-offset: 0px;
           box-sizing: border-box;
+          isolation: isolate;
+        }
+        .thumb::before, .thumb2::before {
+          content: '';
+          position: absolute;
+          inset: var(--thumb-bevel, 0px);
+          border-radius: calc(var(--thumb-radius, 50%) - var(--thumb-bevel, 0px));
+          background: var(--thumb-overlay, none);
+          z-index: -1;
+          pointer-events: none;
+        }
+        .thumb::after, .thumb2::after {
+          content: '';
+          display: var(--thumb-indicator-display, none);
+          position: absolute;
+          top: 50%; left: 50%;
+          transform: translate(-50%, -50%);
+          width: var(--thumb-indicator-w, 60%);
+          height: var(--thumb-indicator-h, 2px);
+          border-radius: var(--thumb-indicator-radius, 1px);
+          background: var(--thumb-indicator-bg, var(--primary-accent-3));
+          box-shadow: var(--thumb-indicator-glow, none);
+          z-index: 1;
         }
         .thumb2 { display: ${isRange ? "block" : "none"}; }
         .label { font: 11px/1 var(--font-display, system-ui, sans-serif); color: var(--fg); opacity: 0.5; }
@@ -809,15 +949,17 @@ class RangeSlider extends HTMLElement {
         }
         .fill {
           position: absolute; top: 0; bottom: 0;
-          background: ${accentVar};
-          border-radius: 3px;
+          background: var(--fill-bg, ${accentVar});
+          border-radius: var(--track-radius, 3px);
           display: ${showFill ? "block" : "none"};
+          box-shadow: var(--fill-glow, none);
         }
         .thumb, .thumb2 {
-          width: 16px; height: 16px;
+          width: var(--thumb-w, 16px); height: var(--thumb-h, 16px);
           background: var(--thumb-center, var(--neutral-3));
+          background-origin: var(--thumb-bg-origin, border-box);
           border: var(--thumb-border, 3px solid var(--thumb-ring, var(--primary-accent-3)));
-          border-radius: 50%;
+          border-radius: var(--thumb-radius, 50%);
           position: absolute;
           top: 50%;
           transform: translate(-50%, -50%);
@@ -827,6 +969,29 @@ class RangeSlider extends HTMLElement {
           outline: var(--thumb-outline, none);
           outline-offset: 0px;
           box-sizing: border-box;
+          isolation: isolate;
+        }
+        .thumb::before, .thumb2::before {
+          content: '';
+          position: absolute;
+          inset: var(--thumb-bevel, 0px);
+          border-radius: calc(var(--thumb-radius, 50%) - var(--thumb-bevel, 0px));
+          background: var(--thumb-overlay, none);
+          z-index: -1;
+          pointer-events: none;
+        }
+        .thumb::after, .thumb2::after {
+          content: '';
+          display: var(--thumb-indicator-display, none);
+          position: absolute;
+          top: 50%; left: 50%;
+          transform: translate(-50%, -50%);
+          width: var(--thumb-indicator-w, 2px);
+          height: var(--thumb-indicator-h, 60%);
+          border-radius: var(--thumb-indicator-radius, 1px);
+          background: var(--thumb-indicator-bg, var(--primary-accent-3));
+          box-shadow: var(--thumb-indicator-glow, none);
+          z-index: 1;
         }
         .thumb2 { display: ${isRange ? "block" : "none"}; }
       </style>
@@ -1034,7 +1199,7 @@ function _chartFont() {
    ================================================================ */
 
 class BarChart extends HTMLElement {
-  static get observedAttributes() { return ["data", "labels", "title", "flat"]; }
+  static get observedAttributes() { return ["data", "labels", "title", "flat", "glow"]; }
 
   constructor() {
     super();
@@ -1111,6 +1276,7 @@ class BarChart extends HTMLElement {
     const accent1 = cs.getPropertyValue("--primary-accent-1").trim() || "#d08028";
     const accent5 = cs.getPropertyValue("--primary-accent-5").trim() || "#a05010";
     const isFlat = this.hasAttribute("flat");
+    const isGlow = this.hasAttribute("glow");
 
     // For flat mode: rank bars to assign distinct category colors
     let rankMap;
@@ -1129,20 +1295,7 @@ class BarChart extends HTMLElement {
       const x = pad.left + i * (barW + gap) + gap / 2;
       const y = pad.top + chartH - barH;
 
-      if (!isFlat) {
-        // Gradient spans full chart height; bar shows its slice
-        const barGrad = ctx.createLinearGradient(x, pad.top, x, pad.top + chartH);
-        barGrad.addColorStop(0, accent5);
-        barGrad.addColorStop(1, accent1);
-        ctx.fillStyle = barGrad;
-      } else {
-        // Flat/Glow: distinct category color per bar based on value rank
-        const t = data.length > 1 ? rankMap.get(i) / (data.length - 1) : 0.5;
-        const catIdx = Math.round(t * 6) + 1;
-        ctx.fillStyle = cs.getPropertyValue(`--category-${catIdx}`).trim() || accent1;
-      }
-
-      // Rounded top rect
+      // Build the rounded-top rect path
       ctx.beginPath();
       ctx.moveTo(x, y + barH);
       ctx.lineTo(x, y + cornerR);
@@ -1150,7 +1303,33 @@ class BarChart extends HTMLElement {
       ctx.arcTo(x + barW, y, x + barW, y + cornerR, cornerR);
       ctx.lineTo(x + barW, y + barH);
       ctx.closePath();
-      ctx.fill();
+
+      if (isGlow) {
+        // Glow mode: empty fill, thick glowing accent edges
+        const barGrad = ctx.createLinearGradient(x, pad.top, x, pad.top + chartH);
+        barGrad.addColorStop(0, accent5);
+        barGrad.addColorStop(1, accent1);
+        ctx.save();
+        ctx.strokeStyle = barGrad;
+        ctx.lineWidth = 4;
+        ctx.shadowColor = accent1;
+        ctx.shadowBlur = 18;
+        ctx.stroke();
+        ctx.restore();
+      } else if (!isFlat) {
+        // Gradient spans full chart height; bar shows its slice
+        const barGrad = ctx.createLinearGradient(x, pad.top, x, pad.top + chartH);
+        barGrad.addColorStop(0, accent5);
+        barGrad.addColorStop(1, accent1);
+        ctx.fillStyle = barGrad;
+        ctx.fill();
+      } else {
+        // Flat: distinct category color per bar based on value rank
+        const t = data.length > 1 ? rankMap.get(i) / (data.length - 1) : 0.5;
+        const catIdx = Math.round(t * 6) + 1;
+        ctx.fillStyle = cs.getPropertyValue(`--category-${catIdx}`).trim() || accent1;
+        ctx.fill();
+      }
 
       // Label
       if (labels[i]) {
@@ -1171,7 +1350,7 @@ class BarChart extends HTMLElement {
    ================================================================ */
 
 class LineChart extends HTMLElement {
-  static get observedAttributes() { return ["data", "labels", "title", "mode", "flat"]; }
+  static get observedAttributes() { return ["data", "labels", "title", "mode", "flat", "glow"]; }
 
   constructor() {
     super();
@@ -1380,6 +1559,7 @@ class LineChart extends HTMLElement {
 
     // Sun/Moon icons at top — large, fully opaque
     const iconY = pad.top + 18;
+    const isGlow = this.hasAttribute("glow");
     for (let day = 0; day < 2; day++) {
       const dayOffset = day * 24;
       // Moon at 4h — mirrored horizontally
@@ -1391,6 +1571,7 @@ class LineChart extends HTMLElement {
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillStyle = moonColor;
+      if (isGlow) { ctx.shadowColor = moonColor; ctx.shadowBlur = 12; }
       ctx.fillText("☽", 0, 0);
       ctx.restore();
       // Sun at 16h
@@ -1399,8 +1580,10 @@ class LineChart extends HTMLElement {
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillStyle = sunColor;
+      if (isGlow) { ctx.shadowColor = sunColor; ctx.shadowBlur = 12; }
       ctx.fillText("☀", sunX, iconY);
     }
+    if (isGlow) { ctx.shadowColor = "transparent"; ctx.shadowBlur = 0; }
 
     // Hour-based labels at 0, 8, 16, 24, 32, 40, 48
     ctx.fillStyle = fg;
@@ -1566,9 +1749,10 @@ class DateCalendar extends HTMLElement {
         .day.blank { pointer-events: none; }
         .day.today { border-color: var(--neutral-5); }
         .day.sel {
-          background: var(--cal-sel-bg, var(--primary-accent-3)); color: var(--bg);
+          background: var(--cal-sel-bg, var(--primary-accent-3)); color: var(--cal-sel-fg, var(--bg));
           background-origin: var(--cal-sel-bg-origin, border-box);
           border-color: var(--cal-sel-border, var(--primary-accent-3)); font-weight: 600;
+          text-shadow: var(--cal-sel-text-shadow, none);
           isolation: isolate;
         }
         .day.sel::after {
