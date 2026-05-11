@@ -1723,7 +1723,7 @@ class DateCalendar extends HTMLElement {
       <style>
         :host { display: inline-block; user-select: none; }
         :host([disabled]) { opacity: 0.55; pointer-events: none; }
-        .cal { display: flex; flex-direction: column; gap: 4px; min-width: 220px; }
+        .cal { display: flex; flex-direction: column; gap: 4px; min-width: 220px; background: var(--neutral-2, var(--bg)); border-radius: var(--cal-radius, 6px); padding: var(--cal-padding, 10px); }
         .nav {
           display: flex; align-items: center; justify-content: space-between;
           padding: 0 4px;

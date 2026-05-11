@@ -208,14 +208,14 @@
       <div class="preview-panel">
         <div style="display:flex; gap:24px; align-items:center;">
           <div style="display:flex; gap:20px; padding:8px 0;">
-            <vertical-slider mode="value" min="0" max="100" value="65" label="Value" data-i18n-label="slider.value"></vertical-slider>
-            <vertical-slider mode="progress" min="0" max="100" value="42" label="Progress" data-i18n-label="slider.progress"></vertical-slider>
-            <vertical-slider mode="range" min="0" max="100" value="30" value2="75" label="Range" data-i18n-label="slider.range"></vertical-slider>
+            <vertical-slider id="vslider1" mode="value" min="0" max="100" value="65" label="Value" data-i18n-label="slider.value"></vertical-slider>
+            <vertical-slider id="vslider2" mode="progress" min="0" max="100" value="42" label="Progress" data-i18n-label="slider.progress"></vertical-slider>
+            <vertical-slider id="vslider3" mode="range" min="0" max="100" value="30" value2="75" label="Range" data-i18n-label="slider.range"></vertical-slider>
           </div>
           <div style="flex:1; display:flex; flex-direction:column; gap:16px; min-width:0;">
-            <range-slider mode="value" min="0" max="100" value="60" label="Value" data-i18n-label="slider.value"></range-slider>
-            <range-slider mode="progress" min="0" max="100" value="42" label="Progress" data-i18n-label="slider.progress"></range-slider>
-            <range-slider mode="range" min="0" max="100" value="25" value2="75" label="Range" data-i18n-label="slider.range"></range-slider>
+            <range-slider id="hslider1" mode="value" min="0" max="100" value="60" label="Value" data-i18n-label="slider.value"></range-slider>
+            <range-slider id="hslider2" mode="progress" min="0" max="100" value="42" label="Progress" data-i18n-label="slider.progress"></range-slider>
+            <range-slider id="hslider3" mode="range" min="0" max="100" value="25" value2="75" label="Range" data-i18n-label="slider.range"></range-slider>
           </div>
         </div>
       </div>
@@ -248,10 +248,10 @@
       <div class="preview-panel">
         <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
           <div class="gauge-box" style="width:150px; height:160px;">
-            <circular-gauge value="62" min="0" max="100" start-angle="225" end-angle="135" segments="10" label="Speed" data-i18n-label="gauge.speed"></circular-gauge>
+            <circular-gauge id="gaugeSpeed" value="62" min="0" max="100" start-angle="225" end-angle="135" segments="10" label="Speed" data-i18n-label="gauge.speed"></circular-gauge>
           </div>
           <div class="gauge-box" style="width:150px; height:160px;">
-            <circular-gauge value="38" min="0" max="100" start-angle="225" end-angle="135" segments="8" grow-segments label="RPM" data-i18n-label="gauge.rpm"></circular-gauge>
+            <circular-gauge id="gaugeRPM" value="38" min="0" max="100" start-angle="225" end-angle="135" segments="8" grow-segments label="RPM" data-i18n-label="gauge.rpm"></circular-gauge>
           </div>
         </div>
       </div>
@@ -260,13 +260,13 @@
       <div class="preview-panel">
         <div style="display:flex; gap:16px; justify-content:center; align-items:center; flex-wrap:wrap;">
           <div class="gauge-box" style="width:60px; height:180px;">
-            <linear-gauge value="55" min="0" max="100" direction="vertical" segments="8" label="Temp" data-i18n-label="gauge.temp"></linear-gauge>
+            <linear-gauge id="gaugeTemp" value="55" min="0" max="100" direction="vertical" segments="8" label="Temp" data-i18n-label="gauge.temp"></linear-gauge>
           </div>
           <div class="gauge-box" style="width:60px; height:180px;">
-            <linear-gauge value="72" min="0" max="100" direction="vertical" segments="10" grow-segments label="Fuel" data-i18n-label="gauge.fuel"></linear-gauge>
+            <linear-gauge id="gaugeFuel" value="72" min="0" max="100" direction="vertical" segments="10" grow-segments label="Fuel" data-i18n-label="gauge.fuel"></linear-gauge>
           </div>
           <div class="gauge-box" style="flex:1; min-width:160px; height:75px;">
-            <linear-gauge value="45" min="0" max="100" direction="horizontal" segments="12" label="Level" data-i18n-label="gauge.level"></linear-gauge>
+            <linear-gauge id="gaugeLevel" value="45" min="0" max="100" direction="horizontal" segments="12" label="Level" data-i18n-label="gauge.level"></linear-gauge>
           </div>
         </div>
       </div>

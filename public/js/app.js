@@ -459,6 +459,32 @@ if (btnExportStyle) {
   });
 }
 
+/* ── Wire sliders → gauges for interactive testing ──
+   Mapping (all default 0–100, easily changed via min/max attributes):
+     vslider1 (Value)    → gaugeTemp (vertical) + gaugeLevel (horizontal)
+     vslider2 (Progress) → gaugeSpeed (circular)
+     hslider1 (Value)    → gaugeFuel (vertical)
+     hslider2 (Progress) → gaugeRPM (circular)
+*/
+const _sliderGaugeMap = [
+  { slider: "vslider1", gauges: ["gaugeTemp"] },
+  { slider: "vslider2", gauges: ["gaugeSpeed", "gaugeFuel"] },
+  { slider: "hslider1", gauges: ["gaugeLevel"] },
+  { slider: "hslider2", gauges: ["gaugeRPM"] },
+];
+
+for (const { slider, gauges } of _sliderGaugeMap) {
+  const el = document.getElementById(slider);
+  if (!el) continue;
+  el.addEventListener("input", (e) => {
+    const v = e.detail?.value ?? parseFloat(el.getAttribute("value"));
+    for (const gId of gauges) {
+      const g = document.getElementById(gId);
+      if (g && g.setValue) g.setValue(v);
+    }
+  });
+}
+
 /* ── Initial render ── */
 refreshPalette();
 updatePickerFromPalette();
