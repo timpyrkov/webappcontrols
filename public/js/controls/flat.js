@@ -1123,7 +1123,7 @@ class BarChart extends HTMLElement {
     // Bars with rounded top edges
     const barW = chartW / data.length * 0.7;
     const gap = chartW / data.length * 0.3;
-    const cornerR = Math.min(barW / 2, 6);
+    const cornerR = Math.min(barW / 2, 22);
     data.forEach((v, i) => {
       const barH = (v / maxVal) * chartH;
       const x = pad.left + i * (barW + gap) + gap / 2;

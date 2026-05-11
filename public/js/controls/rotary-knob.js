@@ -394,7 +394,7 @@ class RotaryKnob extends HTMLElement {
     /* R2 — convex transition ring (matches Gradient knob outer ring; lighter edge) */
     {
       const r = S * VOL_R2;
-      const [a, b] = gradPair(COLORS.neutral5, COLORS.neutral3);
+      const [a, b] = gradPair(COLORS.neutral4, COLORS.neutral2);
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, TAU);
       ctx.fillStyle = this._makeLinGrad(ctx, cx, cy, r, GRAD_ANGLE_DEG, a, b);
@@ -407,7 +407,7 @@ class RotaryKnob extends HTMLElement {
     /* R1 — innermost concave cap (matches Gradient knob inner ring; reversed direction; no edge) */
     {
       const r = S * VOL_R1;
-      const [a, b] = gradPair(COLORS.neutral5, COLORS.neutral3);
+      const [a, b] = gradPair(COLORS.neutral4, COLORS.neutral2);
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, TAU);
       // 180° offset → concave (light at bottom-right instead of top-left)
@@ -463,9 +463,9 @@ class RotaryKnob extends HTMLElement {
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, TAU);
     if (this.hasAttribute("flat")) {
-      ctx.fillStyle = COLORS.neutral5;
+      ctx.fillStyle = COLORS.neutral4;
     } else {
-      const [oTop, oBot] = gradPair(COLORS.neutral5, COLORS.neutral3);
+      const [oTop, oBot] = gradPair(COLORS.neutral4, COLORS.neutral3);
       ctx.fillStyle = this._makeLinGrad(ctx, cx, cy, r, GRAD_ANGLE_DEG, oTop, oBot);
     }
     ctx.fill();
