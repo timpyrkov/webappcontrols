@@ -98,5 +98,10 @@
   "gauge.temp": "温度",
   "gauge.fuel": "燃油",
   "gauge.level": "水平",
-  "btn.exportStyle": "导出样式"
+  "btn.exportStyle": "导出样式",
+
+  "label.infoNote": "ⓘ 说明",
+  "info.disclaimer": "<b>免责声明：</b>本项目借助AI工具开发，代码可能包含错误或不准确之处。<b>隐私说明：</b>本站点将主题、语言和字体偏好存储在localStorage中，不使用跟踪Cookie。",
+  "info.fonts": "<b>Seven Segment</b>和<b>Orbitron</b>字体仅支持拉丁字母，不属于本项目，仅用于演示目的。",
+  "info.agate": "<b>Agate</b>调色板的颜色灵感来源于<b>gruvbox</b>配色方案。Pavel Pertsev的原始主题请访问<a href=\"https://github.com/morhetz/gruvbox\" target=\"_blank\" rel=\"noopener\">github.com/morhetz/gruvbox</a>。"
 }

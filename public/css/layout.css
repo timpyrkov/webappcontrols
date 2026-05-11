@@ -300,6 +300,44 @@ body {
   --btn-padding: 8px 12px;
 }
 
+/* ── Info note (collapsible) ── */
+
+.info-note {
+  margin-top: 8px;
+}
+
+.info-note-text {
+  display: none;
+  margin-top: 6px;
+  padding: 8px 10px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--neutral-7);
+  background: var(--neutral-2);
+  border-radius: 6px;
+}
+
+.info-note-text p {
+  margin: 0 0 6px;
+}
+
+.info-note-text p:last-child {
+  margin-bottom: 0;
+}
+
+.info-note-text a {
+  color: var(--primary-accent-2);
+  text-decoration: none;
+}
+
+.info-note-text a:hover {
+  text-decoration: underline;
+}
+
+.info-note-text.open {
+  display: block;
+}
+
 /* ── Picker row (3 pickers side by side) ── */
 
 .picker-row {

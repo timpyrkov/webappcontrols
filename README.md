@@ -68,6 +68,13 @@ AI-assistant prompt that walks through the process step by step.
 - **Express** — local dev server + export endpoint
 - **Vercel** — production deployment (serverless function for export)
 
+## Notes
+
+- **Disclaimer:** this project was developed with the help of AI tools; the code may contain errors or inaccuracies.
+- **Privacy note:** this site stores theme, language, and font preferences in `localStorage`; no tracking cookies are used.
+- **Seven Segment** and **Orbitron** fonts only support latin alphabets, are not part of this project and are used for demonstration purposes only.
+- The **Agate** palette colors are inspired by the [gruvbox](https://github.com/morhetz/gruvbox) color scheme by Pavel Pertsev.
+
 ## License
 
 [MIT](LICENSE) — Copyright © 2026 Tim Pyrkov

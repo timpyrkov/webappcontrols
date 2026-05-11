@@ -485,6 +485,17 @@ for (const { slider, gauges } of _sliderGaugeMap) {
   });
 }
 
+/* ── Info note toggle ── */
+const infoToggle = document.getElementById("infoNoteToggle");
+const infoText = document.getElementById("infoNoteText");
+if (infoToggle && infoText) {
+  infoToggle.checked = false;
+  infoText.classList.remove("open");
+  infoToggle.addEventListener("change", () => {
+    infoText.classList.toggle("open", infoToggle.checked);
+  });
+}
+
 /* ── Initial render ── */
 refreshPalette();
 updatePickerFromPalette();

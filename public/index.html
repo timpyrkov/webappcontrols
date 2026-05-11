@@ -108,6 +108,19 @@
       <push-button id="btnResetPalette" label="Reset" data-i18n-label="btn.reset"></push-button>
     </div>
 
+    <!-- Info note (collapsible) -->
+    <div class="info-note">
+      <label class="disable-toggle">
+        <input type="checkbox" id="infoNoteToggle" autocomplete="off" />
+        <span data-i18n="label.infoNote">ⓘ Note</span>
+      </label>
+      <div class="info-note-text" id="infoNoteText">
+        <p data-i18n-html="info.disclaimer"><b>Disclaimer:</b> this project was developed with the help of AI tools; the code may contain errors or inaccuracies. <b>Privacy note:</b> this site stores theme, language, and font preferences in localStorage; no tracking cookies are used.</p>
+        <p data-i18n-html="info.fonts"><b>Seven Segment</b> and <b>Orbitron</b> fonts only support latin alphabets, are not part of this project and are used for demonstration purposes only.</p>
+        <p data-i18n-html="info.agate">The <b>Agate</b> palette colors are inspired by the <b>gruvbox</b> color scheme. To see the original gruvbox theme by Pavel Pertsev, visit <a href="https://github.com/morhetz/gruvbox" target="_blank" rel="noopener">github.com/morhetz/gruvbox</a>.</p>
+      </div>
+    </div>
+
     <div class="spacer"></div>
 
     <!-- Bottom toggles row -->
@@ -248,10 +261,10 @@
       <div class="preview-panel">
         <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
           <div class="gauge-box" style="width:150px; height:160px;">
-            <circular-gauge id="gaugeSpeed" value="62" min="0" max="100" start-angle="225" end-angle="135" segments="10" label="Speed" data-i18n-label="gauge.speed"></circular-gauge>
+            <circular-gauge id="gaugeSpeed" value="42" min="0" max="100" start-angle="225" end-angle="135" segments="10" label="Speed" data-i18n-label="gauge.speed"></circular-gauge>
           </div>
           <div class="gauge-box" style="width:150px; height:160px;">
-            <circular-gauge id="gaugeRPM" value="38" min="0" max="100" start-angle="225" end-angle="135" segments="8" grow-segments label="RPM" data-i18n-label="gauge.rpm"></circular-gauge>
+            <circular-gauge id="gaugeRPM" value="42" min="0" max="100" start-angle="225" end-angle="135" segments="8" grow-segments label="RPM" data-i18n-label="gauge.rpm"></circular-gauge>
           </div>
         </div>
       </div>
@@ -260,13 +273,13 @@
       <div class="preview-panel">
         <div style="display:flex; gap:16px; justify-content:center; align-items:center; flex-wrap:wrap;">
           <div class="gauge-box" style="width:60px; height:180px;">
-            <linear-gauge id="gaugeTemp" value="55" min="0" max="100" direction="vertical" segments="8" label="Temp" data-i18n-label="gauge.temp"></linear-gauge>
+            <linear-gauge id="gaugeTemp" value="65" min="0" max="100" direction="vertical" segments="8" label="Temp" data-i18n-label="gauge.temp"></linear-gauge>
           </div>
           <div class="gauge-box" style="width:60px; height:180px;">
-            <linear-gauge id="gaugeFuel" value="72" min="0" max="100" direction="vertical" segments="10" grow-segments label="Fuel" data-i18n-label="gauge.fuel"></linear-gauge>
+            <linear-gauge id="gaugeFuel" value="42" min="0" max="100" direction="vertical" segments="10" grow-segments label="Fuel" data-i18n-label="gauge.fuel"></linear-gauge>
           </div>
           <div class="gauge-box" style="flex:1; min-width:160px; height:75px;">
-            <linear-gauge id="gaugeLevel" value="45" min="0" max="100" direction="horizontal" segments="12" label="Level" data-i18n-label="gauge.level"></linear-gauge>
+            <linear-gauge id="gaugeLevel" value="60" min="0" max="100" direction="horizontal" segments="12" label="Level" data-i18n-label="gauge.level"></linear-gauge>
           </div>
         </div>
       </div>

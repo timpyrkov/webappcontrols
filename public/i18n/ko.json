@@ -98,5 +98,10 @@
   "gauge.temp": "온도",
   "gauge.fuel": "연료",
   "gauge.level": "레벨",
-  "btn.exportStyle": "스타일 내보내기"
+  "btn.exportStyle": "스타일 내보내기",
+
+  "label.infoNote": "ⓘ 참고",
+  "info.disclaimer": "<b>면책 조항:</b> 이 프로젝트는 AI 도구를 활용하여 개발되었으며, 코드에 오류나 부정확한 내용이 포함될 수 있습니다. <b>개인정보:</b> 이 사이트는 테마, 언어, 글꼴 설정을 localStorage에 저장하며, 추적 쿠키는 사용하지 않습니다.",
+  "info.fonts": "<b>Seven Segment</b> 및 <b>Orbitron</b> 글꼴은 라틴 알파벳만 지원하며, 이 프로젝트의 일부가 아니고 데모 목적으로만 사용됩니다.",
+  "info.agate": "<b>Agate</b> 팔레트 색상은 <b>gruvbox</b> 색상 체계에서 영감을 받았습니다. Pavel Pertsev의 원본 테마는 <a href=\"https://github.com/morhetz/gruvbox\" target=\"_blank\" rel=\"noopener\">github.com/morhetz/gruvbox</a>에서 확인하세요."
 }

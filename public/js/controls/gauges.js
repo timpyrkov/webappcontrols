@@ -41,6 +41,19 @@ function lerpColor(hex1, hex2, t) {
   const a = hexToRgb(hex1), b = hexToRgb(hex2);
   return rgbToHex(a.map((v, i) => Math.round(v + (b[i] - v) * t)));
 }
+
+/**
+ * Compute number of "on" segments for discrete highlighting.
+ * - If frac >= 0.01 (at least 1% of range), at least 1 segment is on.
+ * - Segments turn on/off discretely at segment boundaries (rounded).
+ * @param {number} frac - Current value fraction (0..1)
+ * @param {number} n    - Total number of segments
+ * @returns {number} Number of active segments (0..n)
+ */
+function activeSegments(frac, n) {
+  if (frac < 0.01) return 0;
+  return Math.max(1, Math.round(frac * n));
+}
 function hexAlpha(hex, alpha) {
   const [r, g, b] = hexToRgb(hex);
   return `rgba(${r},${g},${b},${alpha})`;
@@ -549,20 +562,39 @@ class CircularGauge extends HTMLElement {
       }
     }
 
+    // Compute how many segments are "on" based on animated display angle
+    const displayFrac = (this._displayAngle - startRad) / sweep;
+    const litCount = activeSegments(Math.max(0, Math.min(1, displayFrac)), n);
+    const offColor = COLORS.neutral5;
+    const useMultiply = this._volume && !!COLORS.gaugeSegOff;
+
     for (let i = 0; i < n; i++) {
       const t = (i + 0.5) / n;
-      const color = lerpColor(COLORS.accent1, COLORS.accent5, t);
+      const isOff = i >= litCount;
       const a0 = startRad + i * segSpan + (this._direction === "cw" ? gapRad / 2 : -gapRad / 2);
       const a1 = startRad + (i + 1) * segSpan - (this._direction === "cw" ? gapRad / 2 : -gapRad / 2);
       const lw = this._growSegments ? baseW * (0.5 + (n > 1 ? i / (n - 1) : 1) * 1.0) : baseW;
 
-      ctx.beginPath();
-      if (this._direction === "cw") ctx.arc(cx, cy, r, a0, a1);
-      else ctx.arc(cx, cy, r, a0, a1, true);
-      ctx.strokeStyle = color;
-      ctx.lineWidth = lw;
-      ctx.lineCap = "butt";
-      ctx.stroke();
+      if (isOff && useMultiply) {
+        ctx.save();
+        ctx.globalCompositeOperation = "multiply";
+        ctx.beginPath();
+        if (this._direction === "cw") ctx.arc(cx, cy, r, a0, a1);
+        else ctx.arc(cx, cy, r, a0, a1, true);
+        ctx.strokeStyle = COLORS.gaugeSegOff;
+        ctx.lineWidth = lw;
+        ctx.lineCap = "butt";
+        ctx.stroke();
+        ctx.restore();
+      } else {
+        ctx.beginPath();
+        if (this._direction === "cw") ctx.arc(cx, cy, r, a0, a1);
+        else ctx.arc(cx, cy, r, a0, a1, true);
+        ctx.strokeStyle = isOff ? offColor : lerpColor(COLORS.accent1, COLORS.accent5, t);
+        ctx.lineWidth = lw;
+        ctx.lineCap = "butt";
+        ctx.stroke();
+      }
     }
   }
 
@@ -932,21 +964,38 @@ class LinearGauge extends HTMLElement {
       }
     }
 
-    // segments
+    // segments — discrete highlighting
+    const litCountH = activeSegments(this._displayFrac, n);
+    const offColorH = COLORS.neutral5;
+    const useMultiplyH = this._volume && !!COLORS.gaugeSegOff;
+
     for (let i = 0; i < n; i++) {
       const t = (i + 0.5) / n;
-      const color = lerpColor(COLORS.accent1, COLORS.accent5, t);
+      const isOff = i >= litCountH;
       const x0 = padX + i * segLen + gapPx / 2;
       const x1 = padX + (i + 1) * segLen - gapPx / 2;
       const lw = this._growSegments ? baseW * (0.5 + (n > 1 ? i / (n - 1) : 1) * 1.0) : baseW;
 
-      ctx.beginPath();
-      ctx.moveTo(x0, trackY);
-      ctx.lineTo(x1, trackY);
-      ctx.strokeStyle = color;
-      ctx.lineWidth = lw;
-      ctx.lineCap = "butt";
-      ctx.stroke();
+      if (isOff && useMultiplyH) {
+        ctx.save();
+        ctx.globalCompositeOperation = "multiply";
+        ctx.beginPath();
+        ctx.moveTo(x0, trackY);
+        ctx.lineTo(x1, trackY);
+        ctx.strokeStyle = COLORS.gaugeSegOff;
+        ctx.lineWidth = lw;
+        ctx.lineCap = "butt";
+        ctx.stroke();
+        ctx.restore();
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(x0, trackY);
+        ctx.lineTo(x1, trackY);
+        ctx.strokeStyle = isOff ? offColorH : lerpColor(COLORS.accent1, COLORS.accent5, t);
+        ctx.lineWidth = lw;
+        ctx.lineCap = "butt";
+        ctx.stroke();
+      }
     }
 
     // Volume: pointer shadow
@@ -1095,21 +1144,38 @@ class LinearGauge extends HTMLElement {
       }
     }
 
-    // segments (bottom = max for vertical)
+    // segments (bottom = max for vertical) — discrete highlighting
+    const litCountV = activeSegments(this._displayFrac, n);
+    const offColorV = COLORS.neutral5;
+    const useMultiplyV = this._volume && !!COLORS.gaugeSegOff;
+
     for (let i = 0; i < n; i++) {
       const t = (i + 0.5) / n;
-      const color = lerpColor(COLORS.accent1, COLORS.accent5, t);
+      const isOff = i >= litCountV;
       const y0 = padY + (n - 1 - i) * segLen + gapPx / 2;
       const y1 = padY + (n - i) * segLen - gapPx / 2;
       const lw = this._growSegments ? baseW * (0.5 + (n > 1 ? i / (n - 1) : 1) * 1.0) : baseW;
 
-      ctx.beginPath();
-      ctx.moveTo(trackX, y0);
-      ctx.lineTo(trackX, y1);
-      ctx.strokeStyle = color;
-      ctx.lineWidth = lw;
-      ctx.lineCap = "butt";
-      ctx.stroke();
+      if (isOff && useMultiplyV) {
+        ctx.save();
+        ctx.globalCompositeOperation = "multiply";
+        ctx.beginPath();
+        ctx.moveTo(trackX, y0);
+        ctx.lineTo(trackX, y1);
+        ctx.strokeStyle = COLORS.gaugeSegOff;
+        ctx.lineWidth = lw;
+        ctx.lineCap = "butt";
+        ctx.stroke();
+        ctx.restore();
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(trackX, y0);
+        ctx.lineTo(trackX, y1);
+        ctx.strokeStyle = isOff ? offColorV : lerpColor(COLORS.accent1, COLORS.accent5, t);
+        ctx.lineWidth = lw;
+        ctx.lineCap = "butt";
+        ctx.stroke();
+      }
     }
 
     // Volume: pointer shadow

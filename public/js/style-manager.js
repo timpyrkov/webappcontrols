@@ -29,5 +29,10 @@ export function switchStyle(styleName) {
   if (!VALID_STYLES.includes(styleName) || styleName === _active) return;
   _active = styleName;
   const link = document.querySelector('link[href*="css/styles/"]');
-  if (link) link.href = `css/styles/${styleName}.css`;
+  if (link) {
+    link.href = `css/styles/${styleName}.css`;
+    link.addEventListener("load", () => {
+      document.dispatchEvent(new CustomEvent("palette-changed"));
+    }, { once: true });
+  }
 }

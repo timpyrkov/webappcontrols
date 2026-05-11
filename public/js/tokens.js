@@ -70,6 +70,9 @@ export const COLORS = {
   category5: get("--category-5", "#de7e16"),
   category6: get("--category-6", "#df7215"),
   category7: get("--category-7", "#e9650a"),
+
+  /* Gauge segment off color (per-style override) */
+  gaugeSegOff: get("--gauge-seg-off", ""),
 };
 
 /**
@@ -133,4 +136,6 @@ export function refreshColors() {
   COLORS.category5 = get("--category-5", COLORS.category5);
   COLORS.category6 = get("--category-6", COLORS.category6);
   COLORS.category7 = get("--category-7", COLORS.category7);
+
+  COLORS.gaugeSegOff = get("--gauge-seg-off", COLORS.gaugeSegOff);
 }

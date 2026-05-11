@@ -63,6 +63,7 @@ export function getCurrentLang() {
  * Apply translations to all elements with [data-i18n] in the document.
  * Supports:
  *   data-i18n="key"              → sets textContent
+ *   data-i18n-html="key"         → sets innerHTML (for rich text with <b>, <a>, etc.)
  *   data-i18n-placeholder="key"  → sets placeholder attribute
  *   data-i18n-label="key"        → sets label attribute (for Web Components)
  *   data-i18n-title="key"        → sets title attribute
@@ -73,6 +74,9 @@ export function getCurrentLang() {
 export function applyTranslations() {
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     el.textContent = t(el.dataset.i18n);
+  });
+  document.querySelectorAll("[data-i18n-html]").forEach((el) => {
+    el.innerHTML = t(el.dataset.i18nHtml);
   });
   document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
     el.setAttribute("placeholder", t(el.dataset.i18nPlaceholder));
