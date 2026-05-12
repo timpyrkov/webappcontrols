@@ -23,14 +23,15 @@
 
   /* Toggle / slider thumb (off) */
   --grad-thumb: linear-gradient(to bottom, var(--neutral-7), var(--neutral-5));
+  --grad-thumb-dark: linear-gradient(to bottom, var(--neutral-6), var(--neutral-4));
 
   /* Accent — full range */
   --grad-accent: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-5));
   --grad-accent-sec: linear-gradient(to bottom, var(--secondary-accent-1), var(--secondary-accent-5));
 
-  /* Accent — narrow range */
-  --grad-accent-narrow: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-3));
-  --grad-accent-narrow-sec: linear-gradient(to bottom, var(--secondary-accent-1), var(--secondary-accent-3));
+  /* Accent — inverted (concave / pressed surface: dark top → light bottom) */
+  --grad-accent-inv: linear-gradient(to bottom, var(--primary-accent-5), var(--primary-accent-1));
+  --grad-accent-inv-sec: linear-gradient(to bottom, var(--secondary-accent-5), var(--secondary-accent-1));
 
   /* Accent — extended range (wider contrast, for bevels/edges) */
   --grad-accent-ext: linear-gradient(to bottom, var(--primary-light), var(--primary-accent-4));
@@ -96,6 +97,7 @@
   --grad-track: linear-gradient(to bottom, var(--neutral-4), var(--neutral-2));
   --grad-track-h: linear-gradient(to right, var(--neutral-4), var(--neutral-2));
   --grad-thumb: linear-gradient(to bottom, var(--neutral-5), var(--neutral-7));
+  --grad-thumb-dark: linear-gradient(to bottom, var(--neutral-6), var(--neutral-8));
   --grad-slider-ring: radial-gradient(circle closest-side, var(--neutral-3) 60%, transparent 61%), linear-gradient(to bottom, var(--primary-accent-5), var(--primary-accent-1));
   --page-bg: linear-gradient(to top, var(--bg), var(--panel-bg));
   --panel-bg-fill: linear-gradient(to top, var(--panel-bg), var(--panel-edge));
@@ -155,17 +157,15 @@ push-button {
   --btn-bg: var(--grad-raised-ext);
   --btn-fg: var(--fg);
   --btn-border: transparent;
-  --btn-bevel-width: 3px;               /* Fallback while JS hasn't measured yet */
-  --btn-bevel-ref-height: 40px;         /* Reference button height */
-  --btn-bevel-ref-pad: 3px;             /* Padding at reference height; scales linearly */
+  --btn-bevel-width: 3px;               /* Fallback; overwritten by JS _scaleBevel() */
   --btn-overlay: var(--grad-raised);
   --btn-hover-bg: var(--grad-raised-hover-ext);
   --btn-hover-border: transparent;
   --btn-hover-overlay: var(--grad-raised-hover);
   --btn-active-bg: var(--grad-accent-ext);
   --btn-active-bg-secondary: var(--grad-accent-ext-sec);
-  --btn-active-overlay: var(--grad-accent);
-  --btn-active-overlay-secondary: var(--grad-accent-sec);
+  --btn-active-overlay: var(--grad-accent-inv);
+  --btn-active-overlay-secondary: var(--grad-accent-inv-sec);
   --btn-active-border: transparent;
   --btn-active-fg: var(--bg);
   --btn-radius: 6px;
@@ -220,9 +220,10 @@ toggle-switch {
   --toggle-bg-on-secondary: var(--grad-accent-sec);
   --toggle-hover-bg: var(--grad-raised-hover);
   --toggle-thumb: var(--grad-thumb);
-  --toggle-thumb-on: var(--grad-accent-narrow);
-  --toggle-thumb-on-secondary: var(--grad-accent-narrow-sec);
+  --toggle-thumb-on: var(--grad-thumb-dark);
+  --toggle-thumb-on-secondary: var(--grad-thumb-dark);
   --toggle-thumb-border: 1px solid var(--neutral-5);
+  --toggle-thumb-border-on: 1px solid var(--neutral-5);
   --toggle-border-off: var(--neutral-5);
   --toggle-radius: 11px;
   --toggle-shadow: var(--shadow-toggle);
@@ -233,17 +234,15 @@ segmented-control {
   --seg-bg: var(--grad-raised-ext);
   --seg-fg: var(--fg);
   --seg-border: var(--neutral-5);
-  --seg-bevel-width: 3px;               /* Fallback while JS hasn't measured yet */
-  --seg-bevel-ref-height: 40px;         /* Reference segment height */
-  --seg-bevel-ref-pad: 3px;             /* Padding at reference height; scales linearly */
+  --seg-bevel-width: 3px;               /* Fallback; overwritten by JS _scaleBevel() */
   --seg-overlay: var(--grad-raised);
   --seg-hover-bg: var(--grad-raised-hover-ext);
   --seg-hover-border: var(--neutral-5);
   --seg-hover-overlay: var(--grad-raised-hover);
   --seg-active-bg: var(--grad-accent-ext);
   --seg-active-bg-secondary: var(--grad-accent-ext-sec);
-  --seg-active-overlay: var(--grad-accent);
-  --seg-active-overlay-secondary: var(--grad-accent-sec);
+  --seg-active-overlay: var(--grad-accent-inv);
+  --seg-active-overlay-secondary: var(--grad-accent-inv-sec);
   --seg-active-border: var(--neutral-5);
   --seg-radius: 5px;
   --seg-shadow: var(--shadow-seg);

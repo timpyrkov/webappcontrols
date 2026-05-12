@@ -10,6 +10,8 @@ then export a ready-to-integrate bundle for your own project.
 
 **Live demo:** https://webappcontrols.vercel.app/
 
+![Dashboard preview](https://github.com/timpyrkov/webappcolors/blob/master/img/dashboard.jpg?raw=true)
+
 ---
 
 ## Features

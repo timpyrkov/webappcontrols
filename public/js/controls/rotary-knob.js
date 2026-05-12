@@ -499,8 +499,8 @@ class RotaryKnob extends HTMLElement {
   _drawOuterCircle(ctx, cx, cy, S) {
     const r = S * OUTER_R;
 
-    // Niche shadow beneath the outer circle — always-on in non-flat modes
-    if (!this.hasAttribute("flat")) {
+    // Niche shadow beneath the outer circle — only in Volume/Glow modes
+    if (this.hasAttribute("volume")) {
       const [nicheRim, nicheDepth] = nicheColors();
       // 1) Rim glow
       ctx.save();
@@ -535,7 +535,7 @@ class RotaryKnob extends HTMLElement {
       ctx.fillStyle = this._makeLinGrad(ctx, cx, cy, r, GRAD_ANGLE_DEG, oTop, oBot);
     }
     ctx.fill();
-    if (!this.hasAttribute("flat")) {
+    if (NICHE_STYLE.rimEnabled || NICHE_STYLE.depthEnabled) {
       ctx.strokeStyle = COLORS.edge2;
       ctx.lineWidth = 1;
       ctx.stroke();
@@ -593,6 +593,7 @@ class RotaryKnob extends HTMLElement {
 
     if (isVolume) {
       // Volume mode: recessed niche track with rim/depth shadows and groove shading
+      const isLight = document.documentElement.dataset.theme === "light";
       const trackPad = 4;
       const trackW = ARC_W + trackPad;
       const borderW = trackW + 2;
@@ -601,9 +602,9 @@ class RotaryKnob extends HTMLElement {
       const R2 = r + halfW;
       const startRad = valAngle(gap);
       const endRad = valAngle(TAU - gap);
-      const baseHex = COLORS.neutral4;
-      const borderCol = COLORS.neutral4;
-      const baseFill = COLORS.neutral3;
+      const baseHex = isLight ? COLORS.neutral4 : COLORS.neutral4;
+      const borderCol = isLight ? COLORS.neutral4 : COLORS.neutral5;
+      const baseFill = isLight ? COLORS.neutral3 : COLORS.neutral4;
       const dpr = window.devicePixelRatio || 1;
       const [nicheRim, nicheDepth] = nicheColors();
 

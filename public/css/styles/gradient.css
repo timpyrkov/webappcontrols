@@ -24,14 +24,11 @@
 
   /* Toggle / slider thumb (off state, high-contrast neutral) */
   --grad-thumb: linear-gradient(to bottom, var(--neutral-7), var(--neutral-5));
+  --grad-thumb-dark: linear-gradient(to bottom, var(--neutral-6), var(--neutral-4));
 
   /* Accent — full range (active states) */
   --grad-accent: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-5));
   --grad-accent-sec: linear-gradient(to bottom, var(--secondary-accent-1), var(--secondary-accent-5));
-
-  /* Accent — narrow range (knob pointer) */
-  --grad-accent-narrow: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-3));
-  --grad-accent-narrow-sec: linear-gradient(to bottom, var(--secondary-accent-1), var(--secondary-accent-3));
 
   /* Slider thumb ring (multi-layer: centre dot + accent ring) */
   --grad-slider-ring: radial-gradient(circle closest-side, var(--neutral-3) 60%, transparent 61%), var(--grad-accent);
@@ -58,6 +55,7 @@
   --grad-track: linear-gradient(to bottom, var(--neutral-5), var(--neutral-3));
   --grad-track-h: linear-gradient(to right, var(--neutral-5), var(--neutral-3));
   --grad-thumb: linear-gradient(to bottom, var(--neutral-5), var(--neutral-7));
+  --grad-thumb-dark: linear-gradient(to bottom, var(--neutral-6), var(--neutral-8));
   --grad-slider-ring: radial-gradient(circle closest-side, var(--neutral-3) 60%, transparent 61%), linear-gradient(to bottom, var(--primary-accent-5), var(--primary-accent-1));
   --page-bg: linear-gradient(to top, var(--bg), var(--panel-bg));
   --panel-bg-fill: linear-gradient(to top, var(--panel-bg), var(--panel-edge));
@@ -122,9 +120,10 @@ toggle-switch {
   --toggle-bg-on-secondary: var(--grad-accent-sec);
   --toggle-hover-bg: var(--grad-raised-hover);
   --toggle-thumb: var(--grad-thumb);
-  --toggle-thumb-on: var(--grad-accent-narrow);
-  --toggle-thumb-on-secondary: var(--grad-accent-narrow-sec);
+  --toggle-thumb-on: var(--grad-thumb-dark);
+  --toggle-thumb-on-secondary: var(--grad-thumb-dark);
   --toggle-thumb-border: 1px solid var(--neutral-5);
+  --toggle-thumb-border-on: 1px solid var(--neutral-5);
   --toggle-border-off: var(--neutral-5);
   --toggle-radius: 11px;
   --toggle-shadow: var(--shadow-toggle);

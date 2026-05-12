@@ -100,7 +100,7 @@
   "gauge.level": "Nivel",
   "btn.exportStyle": "Exportar estilo",
 
-  "label.infoNote": "ⓘ Nota",
+  "label.infoNote": "ⓘ Info",
   "info.disclaimer": "<b>Aviso:</b> este proyecto se desarrolló con la ayuda de herramientas de IA; el código puede contener errores o imprecisiones. <b>Privacidad:</b> este sitio almacena preferencias de tema, idioma y fuente en localStorage; no se utilizan cookies de seguimiento.",
   "info.fonts": "Las fuentes <b>Seven Segment</b> y <b>Orbitron</b> solo admiten alfabetos latinos, no forman parte de este proyecto y se utilizan únicamente con fines demostrativos.",
   "info.agate": "Los colores de la paleta <b>Agate</b> están inspirados en el esquema de colores <b>gruvbox</b>. Para ver el tema original de Pavel Pertsev, visite <a href=\"https://github.com/morhetz/gruvbox\" target=\"_blank\" rel=\"noopener\">github.com/morhetz/gruvbox</a>."

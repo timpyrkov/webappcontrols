@@ -31,10 +31,6 @@
   --grad-accent: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-5));
   --grad-accent-sec: linear-gradient(to bottom, var(--secondary-accent-1), var(--secondary-accent-5));
 
-  /* Accent — narrow range */
-  --grad-accent-narrow: linear-gradient(to bottom, var(--primary-accent-1), var(--primary-accent-3));
-  --grad-accent-narrow-sec: linear-gradient(to bottom, var(--secondary-accent-1), var(--secondary-accent-3));
-
   /* Accent — extended range (wider contrast, for bevels/edges) */
   --grad-accent-ext: linear-gradient(to bottom, var(--primary-light), var(--primary-accent-4));
   --grad-accent-ext-sec: linear-gradient(to bottom, var(--secondary-light), var(--secondary-accent-4));
@@ -126,6 +122,11 @@
     var(--neutral-3) 0%, var(--neutral-4) 40%,
     var(--neutral-4) 60%, var(--neutral-5) 100%);
 
+  /* Bright-edge and active tokens (not defined in dark-theme block, so flip here) */
+  --grad-raised-ext-bright: linear-gradient(to bottom, var(--neutral-4), var(--neutral-6));
+  --grad-raised-hover-ext-bright: linear-gradient(to bottom, var(--neutral-5), var(--neutral-7));
+  --grad-active: linear-gradient(to bottom, var(--neutral-3), var(--neutral-1));
+
   /* Niche tuning for light theme: same approach as dark theme.
      Dark ring is the dominant cue; bottom highlight stays subtle so the
      button never looks like it's floating above a brighter plate. */
@@ -135,69 +136,32 @@
 
   --gauge-seg-off: #d0d0d0;
 }
-/* Light theme plates: swap inner/outer for all states except Active */
+/* Light theme: disabled-state inline gradients (token flip doesn't help here) */
 [data-theme="light"] push-button {
-  --btn-bg: var(--grad-raised-hover);
-  --btn-overlay: var(--grad-raised-ext-bright);
-  --btn-hover-bg: var(--grad-raised-hover);
-  --btn-hover-overlay: var(--grad-raised-hover-ext-bright);
+  --btn-active-fg: var(--primary-accent-5);
+  --btn-active-fg-secondary: var(--secondary-accent-5);
+  --btn-active-text-shadow: 0 0 2px var(--primary-accent-1);
+  --btn-active-text-shadow-secondary: 0 0 2px var(--secondary-accent-1);
   --btn-disabled-bg: linear-gradient(to bottom, var(--neutral-1), var(--neutral-3));
   --btn-disabled-overlay: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
-  --btn-active-bg: var(--grad-raised-hover);
-  --btn-active-bg-secondary: var(--grad-raised-hover);
-  --btn-active-overlay: var(--grad-raised);
-  --btn-active-overlay-secondary: var(--grad-raised);
-}
-[data-theme="light"] segmented-control {
-  --seg-bg: var(--grad-raised-hover);
-  --seg-overlay: var(--grad-raised-ext-bright);
-  --seg-hover-bg: var(--grad-raised-hover);
-  --seg-hover-overlay: var(--grad-raised-hover-ext-bright);
-  --seg-active-bg: var(--grad-raised-hover);
-  --seg-active-bg-secondary: var(--grad-raised-hover);
-  --seg-active-overlay: var(--grad-raised);
-  --seg-active-overlay-secondary: var(--grad-raised);
 }
 [data-theme="light"] check-box {
-  --check-bg: var(--grad-raised-hover);
-  --check-overlay: var(--grad-raised-ext-bright);
-  --check-hover-bg: var(--grad-raised-hover);
-  --check-hover-overlay: var(--grad-raised-hover-ext-bright);
-  --check-active-bg: var(--grad-inset);
-  --check-active-bg: var(--grad-inset);
-  --check-active-bg-secondary: var(--grad-inset);
-  --check-active-overlay: var(--grad-raised);
-  --check-active-overlay-secondary: var(--grad-raised);
   --check-disabled-bg: linear-gradient(to bottom, var(--neutral-1), var(--neutral-3));
   --check-disabled-overlay: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
 }
 [data-theme="light"] radio-button {
-  --radio-bg: var(--grad-raised-hover);
-  --radio-overlay: var(--grad-raised-ext-bright);
-  --radio-hover-bg: var(--grad-raised-hover);
-  --radio-hover-overlay: var(--grad-raised-hover-ext-bright);
-  --radio-active-bg: var(--grad-inset);
-  --radio-active-bg-secondary: var(--grad-inset);
-  --radio-active-overlay: var(--grad-raised);
-  --radio-active-overlay-secondary: var(--grad-raised);
   --radio-disabled-bg: linear-gradient(to bottom, var(--neutral-1), var(--neutral-3));
   --radio-disabled-overlay: linear-gradient(to bottom, var(--neutral-2), var(--neutral-4));
 }
-[data-theme="light"] toggle-switch {
-  --toggle-bg-off: var(--grad-raised-hover);
-  --toggle-bg-on: var(--grad-raised-hover);
-  --toggle-bg-on-secondary: var(--grad-raised-hover);
-  --toggle-overlay: var(--grad-raised-ext-bright);
-  --toggle-overlay-on: var(--grad-raised-ext-bright);
-  --toggle-overlay-on-secondary: var(--grad-raised-ext-bright);
-  --toggle-hover-bg: var(--grad-raised-hover);
-  --toggle-hover-overlay: var(--grad-raised-hover-ext-bright);
-  --toggle-thumb: var(--grad-raised-hover);
-  --toggle-thumb-on: var(--grad-raised-hover);
-  --toggle-thumb-on-secondary: var(--grad-raised-hover);
-  --toggle-thumb-overlay: var(--grad-raised-ext-bright);
-  --toggle-thumb-overlay-on: var(--grad-raised-ext-bright);
-  --toggle-thumb-overlay-on-secondary: var(--grad-raised-ext-bright);
+[data-theme="light"] segmented-control {
+  --seg-active-fg: var(--primary-accent-5);
+  --seg-active-fg-secondary: var(--secondary-accent-5);
+  --seg-active-text-shadow: 0 0 2px var(--primary-accent-1);
+  --seg-active-text-shadow-secondary: 0 0 2px var(--secondary-accent-1);
+}
+[data-theme="light"] date-calendar {
+  --cal-sel-fg: var(--primary-accent-5);
+  --cal-sel-text-shadow: 0 0 2px var(--primary-accent-1);
 }
 
 /* ================================================================
@@ -211,15 +175,13 @@ push-button {
   --btn-bg: var(--grad-raised-ext-bright);
   --btn-fg: var(--fg);
   --btn-border: transparent;
-  --btn-bevel-width: 3px;               /* Fallback while JS hasn't measured yet */
-  --btn-bevel-ref-height: 40px;         /* Reference button height */
-  --btn-bevel-ref-pad: 3px;             /* Padding at reference height; scales linearly */
+  --btn-bevel-width: 3px;               /* Fallback; overwritten by JS _scaleBevel() */
   --btn-overlay: var(--grad-raised);
   --btn-hover-bg: var(--grad-raised-hover-ext-bright);
   --btn-hover-border: transparent;
   --btn-hover-overlay: var(--grad-raised-hover);
-  --btn-active-bg: var(--grad-raised-hover);
-  --btn-active-bg-secondary: var(--grad-raised-hover);
+  --btn-active-bg: var(--grad-raised-ext-bright);
+  --btn-active-bg-secondary: var(--grad-raised-ext-bright);
   --btn-active-overlay: var(--grad-active);
   --btn-active-overlay-secondary: var(--grad-active);
   --btn-active-border: transparent;
@@ -256,12 +218,12 @@ check-box {
   --check-overlay: var(--grad-raised);
   --check-border: transparent;
   --check-border-width: 1px;
-  --check-bevel-width: 2px;
+  --check-bevel-width: 1px;
   --check-hover-bg: var(--grad-raised-hover-ext-bright);
   --check-hover-border: transparent;
   --check-hover-overlay: var(--grad-raised-hover);
-  --check-active-bg: var(--grad-raised-hover);
-  --check-active-bg-secondary: var(--grad-raised-hover);
+  --check-active-bg: var(--grad-raised-ext-bright);
+  --check-active-bg-secondary: var(--grad-raised-ext-bright);
   --check-active-overlay: var(--grad-active);
   --check-active-overlay-secondary: var(--grad-active);
   --check-active-border: transparent;
@@ -288,12 +250,12 @@ radio-button {
   --radio-overlay: var(--grad-raised);
   --radio-border: transparent;
   --radio-border-width: 1px;
-  --radio-bevel-width: 2px;
+  --radio-bevel-width: 1px;
   --radio-hover-bg: var(--grad-raised-hover-ext-bright);
   --radio-hover-border: transparent;
   --radio-hover-overlay: var(--grad-raised-hover);
-  --radio-active-bg: var(--grad-raised-hover);
-  --radio-active-bg-secondary: var(--grad-raised-hover);
+  --radio-active-bg: var(--grad-raised-ext-bright);
+  --radio-active-bg-secondary: var(--grad-raised-ext-bright);
   --radio-active-overlay: var(--grad-active);
   --radio-active-overlay-secondary: var(--grad-active);
   --radio-active-border: transparent;
@@ -326,7 +288,7 @@ toggle-switch {
   --toggle-border-off: transparent;
   --toggle-border-on: transparent;
   --toggle-border-on-secondary: transparent;
-  --toggle-bevel-width: 2px;
+  --toggle-bevel-width: 1px;
   --toggle-overlay: var(--grad-active);
   --toggle-overlay-on: var(--grad-active);
   --toggle-overlay-on-secondary: var(--grad-active);
@@ -375,9 +337,7 @@ segmented-control {
   --seg-bg: var(--grad-raised-ext-bright);
   --seg-fg: var(--fg);
   --seg-border: var(--neutral-5);
-  --seg-bevel-width: 3px;               /* Fallback while JS hasn't measured yet */
-  --seg-bevel-ref-height: 40px;         /* Reference segment height */
-  --seg-bevel-ref-pad: 3px;             /* Padding at reference height; scales linearly */
+  --seg-bevel-width: 3px;               /* Fallback; overwritten by JS _scaleBevel() */
   --seg-overlay: var(--grad-raised);
   --seg-hover-bg: var(--grad-raised-hover-ext-bright);
   --seg-hover-border: var(--neutral-5);

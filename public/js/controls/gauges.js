@@ -455,12 +455,13 @@ class CircularGauge extends HTMLElement {
 
     // Volume: track niche — two same-shape objects beneath, then the track on top
     if (this._volume) {
+      const isLight = document.documentElement.dataset.theme === "light";
       const ccw = this._direction !== "cw";
       const endRad = startRad + sweep;
       const [nicheRim, nicheDepth] = nicheColors();
-      const borderCol = COLORS.neutral4;
+      const borderCol = COLORS.neutral5;
       // Use flat base color for groove shading (no radial gradient contamination)
-      const baseFill = COLORS.neutral3;
+      const baseFill = COLORS.neutral4;
       const trackPad = 8;
       const trackW = baseW + trackPad;
       const borderW = trackW + 2;

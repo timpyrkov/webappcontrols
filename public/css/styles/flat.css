@@ -44,6 +44,9 @@ toggle-switch {
   --toggle-bg-on: var(--primary-accent-3);
   --toggle-hover-bg: var(--neutral-5);
   --toggle-thumb: var(--neutral-6);
+  --toggle-thumb-on: var(--neutral-6);
+  --toggle-thumb-border: none;
+  --toggle-thumb-border-on: none;
   --toggle-border-off: var(--neutral-5);
   --toggle-radius: 11px;
 }

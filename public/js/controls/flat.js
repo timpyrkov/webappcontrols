@@ -14,21 +14,37 @@ function css(prop) {
 }
 
 /* ── Helper: scale bevel padding to an element's actual height ──
- * Reads two reference CSS vars (refHeightVar, refPadVar) from `host`.
- * If both are set (e.g. "40px" and "3px"), computes:
- *   px = round(refPad * actualHeight / refHeight)
- * and writes it inline to `targetVar` on `host`.
- * If either var is missing, does nothing — static CSS fallback applies. */
+ * Two-point linear interpolation between (hiH, hiPad) and (loH, loPad),
+ * clamped to a minimum floor.
+ *
+ * Defaults (edit here to tune all components at once):
+ *   HI_H  = 40 px   HI_PAD = 3 px   (large button → 3 px bevel)
+ *   LO_H  = 10 px   LO_PAD = 1 px   (small button → 1 px bevel)
+ *   MIN   =  1 px                     (absolute floor)
+ *
+ * Any default can be overridden per-component via CSS custom properties:
+ *   --{prefix}-ref-height, --{prefix}-ref-pad,
+ *   --{prefix}-ref-height-lo, --{prefix}-ref-pad-lo, --{prefix}-min
+ * where {prefix} = targetVar minus the trailing "-width". */
+const BEVEL_HI_H = 40, BEVEL_HI_PAD = 3;
+const BEVEL_LO_H = 10, BEVEL_LO_PAD = 1;
+const BEVEL_MIN  = 1;
+
 function _scaleBevel(host, measureEl, refHeightVar, refPadVar, targetVar) {
   if (!host || !measureEl) return;
   const h = measureEl.getBoundingClientRect().height;
   if (h <= 0) return;
   const cs = getComputedStyle(host);
-  const refH = parseFloat(cs.getPropertyValue(refHeightVar));
-  const refPad = parseFloat(cs.getPropertyValue(refPadVar));
-  if (!isFinite(refH) || refH <= 0 || !isFinite(refPad)) return;
-  const px = Math.max(0, Math.round((refPad * h) / refH));
-  host.style.setProperty(targetVar, px + "px");
+  const prefix = targetVar.replace(/-width$/, "");
+  const rd = (v, def) => { const n = parseFloat(cs.getPropertyValue(v)); return isFinite(n) ? n : def; };
+  const hiH   = rd(refHeightVar, BEVEL_HI_H);
+  const hiPad = rd(refPadVar,    BEVEL_HI_PAD);
+  const loH   = rd(prefix + "-ref-height-lo", BEVEL_LO_H);
+  const loPad = rd(prefix + "-ref-pad-lo",    BEVEL_LO_PAD);
+  const floor = rd(prefix + "-min",           BEVEL_MIN);
+  const t  = (h - loH) / (hiH - loH);
+  const px = loPad + t * (hiPad - loPad);
+  host.style.setProperty(targetVar, Math.max(floor, Math.round(px)) + "px");
 }
 
 /* ================================================================
@@ -579,6 +595,7 @@ class SegmentedControl extends HTMLElement {
   }
 
   _readAttrs() {
+    const prevIndex = this._values.indexOf(this._value);
     const raw = this.getAttribute("values");
     if (raw) {
       try { this._values = JSON.parse(raw); }
@@ -592,7 +609,20 @@ class SegmentedControl extends HTMLElement {
       this._keys = [];
     }
     // value attr stores the key (or display value when no keys)
-    this._value = this.getAttribute("value") || (this._keys.length ? this._keys[0] : this._values[0]) || "";
+    const attrVal = this.getAttribute("value");
+    if (this._keys.length) {
+      this._value = attrVal || this._keys[0] || "";
+    } else {
+      // If current value no longer matches new labels, preserve by index
+      if (attrVal && this._values.includes(attrVal)) {
+        this._value = attrVal;
+      } else if (prevIndex >= 0 && prevIndex < this._values.length) {
+        this._value = this._values[prevIndex];
+        this.setAttribute("value", this._value);
+      } else {
+        this._value = this._values[0] || "";
+      }
+    }
     this._columns = parseInt(this.getAttribute("columns") ?? 4, 10);
   }
 

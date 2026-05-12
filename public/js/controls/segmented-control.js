@@ -30,6 +30,9 @@ class SegmentedControl extends HTMLElement {
   }
 
   _readAttributes() {
+    const prevIndex = this._keys
+      ? this._keys.indexOf(this._value)
+      : this._values.indexOf(this._value);
     const raw = this.getAttribute("values");
     if (raw) {
       try { this._values = JSON.parse(raw); }
@@ -42,7 +45,19 @@ class SegmentedControl extends HTMLElement {
     } else {
       this._keys = null;
     }
-    this._value   = this.getAttribute("value") || (this._keys ? this._keys[0] : this._values[0]) || "";
+    const attrVal = this.getAttribute("value");
+    if (this._keys) {
+      this._value = attrVal || this._keys[0] || "";
+    } else {
+      if (attrVal && this._values.includes(attrVal)) {
+        this._value = attrVal;
+      } else if (prevIndex >= 0 && prevIndex < this._values.length) {
+        this._value = this._values[prevIndex];
+        this.setAttribute("value", this._value);
+      } else {
+        this._value = this._values[0] || "";
+      }
+    }
     this._columns = parseInt(this.getAttribute("columns") ?? 4, 10);
   }
 
