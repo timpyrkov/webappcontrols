@@ -84,7 +84,7 @@
   --shadow-track:  var(--niche-shadow);
 
   /* Gauge "off" segments — gray for multiply compositing (darkens track) */
-  --gauge-seg-off: #707070;
+  --gauge-seg-off: #999999;
 }
 
 /* ── Light theme: reverse neutral gradients at token level ── */
@@ -126,7 +126,7 @@
   --niche-rim:     color-mix(in srgb, #ffffff 100%, transparent);
   --niche-floor:   var(--neutral-7);
 
-  --gauge-seg-off: #909090;
+  --gauge-seg-off: #d0d0d0;
 }
 /* Light theme plates: swap inner/outer for all states except Active */
 [data-theme="light"] push-button {

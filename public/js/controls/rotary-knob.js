@@ -15,7 +15,7 @@ const GROOVE = {
   darkEnabled:   true,  // Dark halo creates the groove effect
 };
 
-/* ── Niche shadow styling (matches gauges.js look) ── */
+/* ── Niche shadow styling (groove tracks — toggled by checkbox) ── */
 const NICHE_STYLE = {
   rimEnabled:   false,
   depthEnabled: false,
@@ -25,6 +25,16 @@ const NICHE_STYLE = {
   depthSpread:  0,
   rimPasses:    2,
   depthPasses:  2,
+};
+
+/* ── Body niche styling (knob body — always-on, more intense) ── */
+const BODY_NICHE = {
+  rimBlur:     8,
+  depthBlur:   2,
+  rimSpread:   0,
+  depthSpread: 0,
+  rimPasses:   3,
+  depthPasses: 3,
 };
 function nicheColors() {
   const isLight = document.documentElement.dataset.theme === "light";
@@ -338,6 +348,34 @@ class RotaryKnob extends HTMLElement {
     const angle = this._displayAngle;          // 0 = top, CW; drives R3 edge + pointer rotation
     const isLight = document.documentElement.dataset.theme === "light";
 
+    /* Niche shadow beneath the R5 outermost bezel disk — always-on */
+    {
+      const r = S * VOL_R5;
+      const [nicheRim, nicheDepth] = nicheColors();
+      // 1) Rim glow
+      ctx.save();
+      ctx.shadowColor = nicheRim;
+      ctx.shadowBlur = BODY_NICHE.rimBlur;
+      ctx.fillStyle = nicheRim;
+      for (let p = 0; p < BODY_NICHE.rimPasses; p++) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r + BODY_NICHE.rimSpread, 0, TAU);
+        ctx.fill();
+      }
+      ctx.restore();
+      // 2) Depth glow
+      ctx.save();
+      ctx.shadowColor = nicheDepth;
+      ctx.shadowBlur = BODY_NICHE.depthBlur;
+      ctx.fillStyle = nicheDepth;
+      for (let p = 0; p < BODY_NICHE.depthPasses; p++) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r + BODY_NICHE.depthSpread, 0, TAU);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
     /* R5 — outermost bezel disk (notably higher neutrals; convex 135°; no edge) */
     {
       const r = S * VOL_R5;
@@ -460,6 +498,34 @@ class RotaryKnob extends HTMLElement {
   /* -- outer circle -- */
   _drawOuterCircle(ctx, cx, cy, S) {
     const r = S * OUTER_R;
+
+    // Niche shadow beneath the outer circle — always-on in non-flat modes
+    if (!this.hasAttribute("flat")) {
+      const [nicheRim, nicheDepth] = nicheColors();
+      // 1) Rim glow
+      ctx.save();
+      ctx.shadowColor = nicheRim;
+      ctx.shadowBlur = BODY_NICHE.rimBlur;
+      ctx.fillStyle = nicheRim;
+      for (let p = 0; p < BODY_NICHE.rimPasses; p++) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r + BODY_NICHE.rimSpread, 0, TAU);
+        ctx.fill();
+      }
+      ctx.restore();
+      // 2) Depth glow
+      ctx.save();
+      ctx.shadowColor = nicheDepth;
+      ctx.shadowBlur = BODY_NICHE.depthBlur;
+      ctx.fillStyle = nicheDepth;
+      for (let p = 0; p < BODY_NICHE.depthPasses; p++) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r + BODY_NICHE.depthSpread, 0, TAU);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, TAU);
     if (this.hasAttribute("flat")) {
@@ -469,7 +535,7 @@ class RotaryKnob extends HTMLElement {
       ctx.fillStyle = this._makeLinGrad(ctx, cx, cy, r, GRAD_ANGLE_DEG, oTop, oBot);
     }
     ctx.fill();
-    if (!this.hasAttribute("flat") && (NICHE_STYLE.rimEnabled || NICHE_STYLE.depthEnabled)) {
+    if (!this.hasAttribute("flat")) {
       ctx.strokeStyle = COLORS.edge2;
       ctx.lineWidth = 1;
       ctx.stroke();

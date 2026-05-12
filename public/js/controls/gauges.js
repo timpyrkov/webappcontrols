@@ -11,7 +11,7 @@
 
 import { COLORS, refreshColors, gradPair, captionAccent } from "../tokens.js";
 
-/* ── Niche shadow styling ── */
+/* ── Niche shadow styling (groove tracks — toggled by checkbox) ── */
 const NICHE_STYLE = {
   rimEnabled:   false,      // toggle rim glow on/off
   depthEnabled: false,      // toggle depth glow on/off
@@ -23,6 +23,16 @@ const NICHE_STYLE = {
   depthSpread:  0,          // larger shape = more shadow visible beyond the border edge
   rimPasses:    2,          // number of draw passes (stacks opacity)
   depthPasses:  2,          // number of draw passes
+};
+
+/* ── Body niche styling (hub / knob body — always-on, more intense) ── */
+const BODY_NICHE = {
+  rimBlur:     8,
+  depthBlur:   2,
+  rimSpread:   0,
+  depthSpread: 0,
+  rimPasses:   3,
+  depthPasses: 3,
 };
 
 /* ── Shared constants ── */
@@ -304,7 +314,7 @@ class CircularGauge extends HTMLElement {
 
   static get observedAttributes() {
     return ["value", "min", "max", "start-angle", "end-angle",
-            "direction", "segments", "grow-segments", "label", "flat", "volume"];
+            "direction", "segments", "grow-segments", "label", "flat", "volume", "glow"];
   }
 
   constructor() {
@@ -368,6 +378,7 @@ class CircularGauge extends HTMLElement {
     this._label      = this.getAttribute("label") || "";
     this._flat       = this.hasAttribute("flat");
     this._volume     = this.hasAttribute("volume");
+    this._glow       = this.hasAttribute("glow");
   }
 
   _resize() {
@@ -450,7 +461,7 @@ class CircularGauge extends HTMLElement {
       const borderCol = COLORS.neutral4;
       // Use flat base color for groove shading (no radial gradient contamination)
       const baseFill = COLORS.neutral3;
-      const trackPad = 4;
+      const trackPad = 8;
       const trackW = baseW + trackPad;
       const borderW = trackW + 2;
 
@@ -567,6 +578,7 @@ class CircularGauge extends HTMLElement {
     const litCount = activeSegments(Math.max(0, Math.min(1, displayFrac)), n);
     const offColor = COLORS.neutral5;
     const useMultiply = this._volume && !!COLORS.gaugeSegOff;
+    const useGlow = this._glow;
 
     for (let i = 0; i < n; i++) {
       const t = (i + 0.5) / n;
@@ -587,13 +599,20 @@ class CircularGauge extends HTMLElement {
         ctx.stroke();
         ctx.restore();
       } else {
+        const segColor = isOff ? offColor : lerpColor(COLORS.accent1, COLORS.accent5, t);
+        if (!isOff && useGlow) {
+          ctx.save();
+          ctx.shadowColor = segColor;
+          ctx.shadowBlur = 2;
+        }
         ctx.beginPath();
         if (this._direction === "cw") ctx.arc(cx, cy, r, a0, a1);
         else ctx.arc(cx, cy, r, a0, a1, true);
-        ctx.strokeStyle = isOff ? offColor : lerpColor(COLORS.accent1, COLORS.accent5, t);
+        ctx.strokeStyle = segColor;
         ctx.lineWidth = lw;
         ctx.lineCap = "butt";
         ctx.stroke();
+        if (!isOff && useGlow) ctx.restore();
       }
     }
   }
@@ -634,35 +653,31 @@ class CircularGauge extends HTMLElement {
   _drawHub(ctx, cx, cy, S) {
     const r = S * CG_HUB_R;
 
-    // Volume: hub niche — two glow objects beneath, hub covers them
+    // Volume: hub niche — always-on (independent of Niche Shadows checkbox)
     if (this._volume) {
       const [nicheRim, nicheDepth] = nicheColors();
-      // 1) Rim glow — circle larger than hub by rimSpread
-      if (NICHE_STYLE.rimEnabled) {
-        ctx.save();
-        ctx.shadowColor = nicheRim;
-        ctx.shadowBlur = NICHE_STYLE.rimBlur;
-        ctx.fillStyle = nicheRim;
-        for (let p = 0; p < NICHE_STYLE.rimPasses; p++) {
-          ctx.beginPath();
-          ctx.arc(cx, cy, r + NICHE_STYLE.rimSpread, 0, TAU);
-          ctx.fill();
-        }
-        ctx.restore();
+      // 1) Rim glow
+      ctx.save();
+      ctx.shadowColor = nicheRim;
+      ctx.shadowBlur = BODY_NICHE.rimBlur;
+      ctx.fillStyle = nicheRim;
+      for (let p = 0; p < BODY_NICHE.rimPasses; p++) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r + BODY_NICHE.rimSpread, 0, TAU);
+        ctx.fill();
       }
-      // 2) Depth glow — circle larger than hub by depthSpread
-      if (NICHE_STYLE.depthEnabled) {
-        ctx.save();
-        ctx.shadowColor = nicheDepth;
-        ctx.shadowBlur = NICHE_STYLE.depthBlur;
-        ctx.fillStyle = nicheDepth;
-        for (let p = 0; p < NICHE_STYLE.depthPasses; p++) {
-          ctx.beginPath();
-          ctx.arc(cx, cy, r + NICHE_STYLE.depthSpread, 0, TAU);
-          ctx.fill();
-        }
-        ctx.restore();
+      ctx.restore();
+      // 2) Depth glow
+      ctx.save();
+      ctx.shadowColor = nicheDepth;
+      ctx.shadowBlur = BODY_NICHE.depthBlur;
+      ctx.fillStyle = nicheDepth;
+      for (let p = 0; p < BODY_NICHE.depthPasses; p++) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r + BODY_NICHE.depthSpread, 0, TAU);
+        ctx.fill();
       }
+      ctx.restore();
     }
 
     ctx.beginPath();
@@ -758,7 +773,7 @@ class LinearGauge extends HTMLElement {
 
   static get observedAttributes() {
     return ["value", "min", "max", "size", "direction",
-            "segments", "grow-segments", "label", "flat", "volume"];
+            "segments", "grow-segments", "label", "flat", "volume", "glow"];
   }
 
   constructor() {
@@ -819,6 +834,7 @@ class LinearGauge extends HTMLElement {
     this._growSegments = this.hasAttribute("grow-segments");
     this._label = this.getAttribute("label") || "";
     this._volume = this.hasAttribute("volume");
+    this._glow   = this.hasAttribute("glow");
   }
 
   _resize() {
@@ -968,6 +984,7 @@ class LinearGauge extends HTMLElement {
     const litCountH = activeSegments(this._displayFrac, n);
     const offColorH = COLORS.neutral5;
     const useMultiplyH = this._volume && !!COLORS.gaugeSegOff;
+    const useGlowH = this._glow;
 
     for (let i = 0; i < n; i++) {
       const t = (i + 0.5) / n;
@@ -988,13 +1005,20 @@ class LinearGauge extends HTMLElement {
         ctx.stroke();
         ctx.restore();
       } else {
+        const segColor = isOff ? offColorH : lerpColor(COLORS.accent1, COLORS.accent5, t);
+        if (!isOff && useGlowH) {
+          ctx.save();
+          ctx.shadowColor = segColor;
+          ctx.shadowBlur = 2;
+        }
         ctx.beginPath();
         ctx.moveTo(x0, trackY);
         ctx.lineTo(x1, trackY);
-        ctx.strokeStyle = isOff ? offColorH : lerpColor(COLORS.accent1, COLORS.accent5, t);
+        ctx.strokeStyle = segColor;
         ctx.lineWidth = lw;
         ctx.lineCap = "butt";
         ctx.stroke();
+        if (!isOff && useGlowH) ctx.restore();
       }
     }
 
@@ -1148,6 +1172,7 @@ class LinearGauge extends HTMLElement {
     const litCountV = activeSegments(this._displayFrac, n);
     const offColorV = COLORS.neutral5;
     const useMultiplyV = this._volume && !!COLORS.gaugeSegOff;
+    const useGlowV = this._glow;
 
     for (let i = 0; i < n; i++) {
       const t = (i + 0.5) / n;
@@ -1168,13 +1193,20 @@ class LinearGauge extends HTMLElement {
         ctx.stroke();
         ctx.restore();
       } else {
+        const segColor = isOff ? offColorV : lerpColor(COLORS.accent1, COLORS.accent5, t);
+        if (!isOff && useGlowV) {
+          ctx.save();
+          ctx.shadowColor = segColor;
+          ctx.shadowBlur = 2;
+        }
         ctx.beginPath();
         ctx.moveTo(trackX, y0);
         ctx.lineTo(trackX, y1);
-        ctx.strokeStyle = isOff ? offColorV : lerpColor(COLORS.accent1, COLORS.accent5, t);
+        ctx.strokeStyle = segColor;
         ctx.lineWidth = lw;
         ctx.lineCap = "butt";
         ctx.stroke();
+        if (!isOff && useGlowV) ctx.restore();
       }
     }
 
