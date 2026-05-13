@@ -3,7 +3,7 @@
   <span style="font-size:2.5em; vertical-align: middle;"><b>Web App Controls</b></span>
 </p></h1>
 
-## Template web UI controls
+### Template web UI controls
 
 **Live demo:** https://webappcontrols.vercel.app/
 
