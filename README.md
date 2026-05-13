@@ -3,10 +3,7 @@
   <span style="font-size:2.5em; vertical-align: middle;"><b>Web App Controls</b></span>
 </p></h1>
 
-A showcase and export tool for reusable, palette-driven Web Components.
-Preview 17 custom elements — buttons, sliders, knobs, gauges, charts,
-calendars, and more — across four visual styles and 15 colour palettes,
-then export a ready-to-integrate bundle for your own project.
+## Template web UI controls
 
 **Live demo:** https://webappcontrols.vercel.app/
 
