@@ -407,10 +407,12 @@ function updateMetaFromPalette() {
   const i18n = PALETTE_I18N[currentPalette];
   const lang = _currentLang;
   const g = document.getElementById("metaGems");
+  const pg = document.getElementById("metaPigment");
   const n = document.getElementById("metaNatural");
   const f = document.getElementById("metaFlower");
   const b = document.getElementById("metaBeverage");
   if (g) g.value = (i18n && i18n.gems && i18n.gems[lang]) || p.gems || "";
+  if (pg) pg.value = (i18n && i18n.pigment && i18n.pigment[lang]) || p.pigment || "";
   if (n) n.value = (i18n && i18n.natural && i18n.natural[lang]) || p.natural || "";
   if (f) f.value = (i18n && i18n.flower && i18n.flower[lang]) || p.flower || "";
   if (b) b.value = (i18n && i18n.beverage && i18n.beverage[lang]) || p.beverage || "";
@@ -425,10 +427,12 @@ if (btnSave) {
   btnSave.addEventListener("activate", () => {
     const p = editedPalettes[currentPalette];
     const g = document.getElementById("metaGems");
+    const pg = document.getElementById("metaPigment");
     const n = document.getElementById("metaNatural");
     const f = document.getElementById("metaFlower");
     const b = document.getElementById("metaBeverage");
     if (g) p.gems = g.value;
+    if (pg) p.pigment = pg.value;
     if (n) p.natural = n.value;
     if (f) p.flower = f.value;
     if (b) p.beverage = b.value;
