@@ -44,7 +44,14 @@ The exported zip has everything needed to style a new web project:
 
 ```bash
 npm install
-npm start          # http://localhost:3000
+npm start                # http://localhost:3000  (default)
+PORT=4000 npm start      # http://localhost:4000  (custom port)
+```
+
+To stop the server press **Ctrl+C** in its terminal, or kill it by port from another window:
+
+```bash
+lsof -ti :4000 | xargs kill  # replace 4000 with the port you used
 ```
 
 ## Integration
